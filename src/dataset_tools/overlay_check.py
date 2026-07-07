@@ -2,7 +2,7 @@
 
 Renders sampled COCO annotations over their source figure PNGs so the owner
 can judge by eye whether the polyline buffer radius (baked into the COCO at
-conversion time, default 3.0 px) matches how curves actually render. Output:
+conversion time; canonical 4.5 px per T4 review) matches how curves render. Output:
 one overlay PNG per sampled image plus a contact-sheet ``overlay_check.html``.
 
 Source images live outside the repo. Three directory layouts are resolved,

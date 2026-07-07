@@ -63,6 +63,14 @@ python -m src.cvat_to_coco <cvat_export.xml> [<more.xml> ...] <output_coco.json>
 fixture only** — it duplicates 7 images of task 4200303 and must NEVER be merged into
 training data. The merge's duplicate-file_name hard error enforces this.
 
+**Buffer radius decision (owner, 2026-07-07, T4 review):** the polyline buffer
+radius is **4.5 px** (mask ≈ 9 px thick) and is the converter default.
+Rationale: annotation polylines jitter 1–2 px off the stroke center, and at
+2.0–3.0 px the mask visibly under-covered the stroke in jittery sections;
+under-coverage hurts training more than a slightly wide mask. `--buffer-px`
+remains overridable for experiments, but the canonical training COCO
+(`data/coco/batch_merged.json`) is built at 4.5 px.
+
 ```bash
 # Overlay visual check of buffered masks (T4) — renders sampled annotations
 # over source figures for buffer-width review:

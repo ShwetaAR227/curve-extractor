@@ -25,8 +25,11 @@ from src.common.log import get_logger
 logger = get_logger(__name__)
 
 # Buffer radius in pixels applied to each polyline (mask thickness ≈ 2×this).
-# Chosen to match typical datasheet curve stroke width; override via --buffer-px.
-DEFAULT_BUFFER_PX = 3.0
+# Owner decision after the T4 three-radius visual review (2026-07-07): 4.5 px.
+# Annotation polylines jitter 1–2 px off the stroke center, and an
+# under-covered stroke hurts training more than a slightly wide mask.
+# Override via --buffer-px; changing the default requires owner approval.
+DEFAULT_BUFFER_PX = 4.5
 CATEGORY_NAME = "line"
 CATEGORY_ID = 1
 # COCO polygons need at least 3 vertices = 6 coordinates.

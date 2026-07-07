@@ -220,6 +220,15 @@ class TestConvert:
         names = {a["attributes"]["curve_name"] for a in coco["annotations"]}
         assert names == {"Vgs=4.5V", "Vgs=10V", "typical-band"}
 
+    def test_canonical_default_buffer_is_4_5px(self):
+        # Owner decision 2026-07-07 (T4 review): 4.5 px radius is canonical —
+        # annotation jitter is 1–2 px and under-coverage of the stroke is
+        # worse than over-coverage. Changing this requires owner approval.
+        assert DEFAULT_BUFFER_PX == 4.5
+        default_out = convert(SAMPLE_XML)
+        explicit_out = convert(SAMPLE_XML, buffer_px=4.5)
+        assert default_out["annotations"] == explicit_out["annotations"]
+
     def test_writes_valid_json_file(self, tmp_path):
         out = tmp_path / "out.json"
         convert(SAMPLE_XML, output_path=out)
