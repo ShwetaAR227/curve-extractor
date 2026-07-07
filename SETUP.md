@@ -68,16 +68,23 @@ training data. The merge's duplicate-file_name hard error enforces this.
 # over source figures for buffer-width review:
 python -m src.dataset_tools.overlay_check <coco.json> <output_dir> \
     --images-dir <dir> [--images-dir <dir2> ...] [--n 6] [--seed 42]
-# Source figures are NOT in the repo. Known local locations:
-#   D:/datasheet/datasheet-studio-v2/data/cache/<DEVICE>/figures/  (160/164 covered)
-#   D:/images/  (flat, single-underscore names; 35/164)
+# Source figures are NOT in the repo — collect them first (see below); then:
+#   --images-dir data/images
+```
+
+```bash
+# Collect annotated source images from legacy trees into data/images/ (T4a).
+# Read-only search; hash-verifies duplicate finds; exits non-zero unless the
+# COCO's full image set was recovered:
+python -m src.dataset_tools.collect_images data/coco/batch_merged.json data/images \
+    "D:/Extractor/data" "D:/LineFormerDataset_v2"
 ```
 
 ## Data layout
 
 | What | Where |
 |---|---|
-| Figure PNGs (OCR crops) | `data/figures/` (git-ignored) |
+| Figure PNGs (collected annotated set, flat) | `data/images/` (git-ignored; rebuilt by `collect_images`) |
 | CVAT XML exports | `data/cvat_exports/` (git-ignored) |
 | Converted COCO files | `data/coco/` (git-ignored) |
 | Test fixtures (small, committed) | `tests/fixtures/` (CVAT samples in `tests/fixtures/cvat/`) |
