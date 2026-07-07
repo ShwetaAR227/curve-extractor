@@ -17,6 +17,7 @@
 | 7-image pilot batch annotated & validated | ✅ Done | 21 polylines; export format verified |
 | 80-device batch annotated | ✅ Done | Pending conversion (blocked on T2) |
 | T2 — CVAT XML → COCO converter | ✅ Done (pending owner review) | 2026-07-07; `src/cvat_to_coco.py`, **32 tests passing** (TDD: red confirmed before implementation). ⚠ T2 spec was reconstructed from the task outline — the verbatim spec from the earlier chat never reached this session; owner must confirm API/behavior match. |
+| T3 — Merge mode (multi-export → one COCO) | ✅ Done | 2026-07-07; `merge_convert()` + multi-input CLI, **46 tests passing** (14 new, TDD red→green). Batch merged: `data/coco/batch_merged.json` = **164 images / 492 annotations** (matches owner's expected counts), 148 unannotated frames dropped, 0 validation errors. Duplicate-file_name hard error verified live against the pilot overlap. |
 | Legacy review | ✅ Done | See `LEGACY_REVIEW.md` |
 
 ### ⚠ OPEN SECURITY ITEM
@@ -44,3 +45,15 @@ Track this item until closed. Opened: 2026-07-07. Status: **OPEN**.
   fixture. NOTE: the verbatim T2 spec from the design chat was not delivered to this
   session (placeholder in prompt); the implementation follows the task outline —
   owner review required to confirm it matches the approved design.
+- **Later same day:** converted all five CVAT exports (four batch tasks + 7-image
+  pilot job 4199936); all validate clean. Owner decisions applied: pilot XML is a
+  committed test fixture only (never training data); four batch exports moved to
+  `data/cvat_exports/` (git-ignored); legacy JSONs and the `Annotate` device-data
+  dump moved under `data/`. T3 implemented TDD (14 new tests, suite now 46):
+  `merge_convert()` renumbers ids, drops unannotated frames, hard-errors on
+  duplicate file_names. Merged batch = 164 images / 492 annotations ✓.
+- **Known open defect (owner approval needed to fix):** running the CLI as
+  `python -m src.cvat_to_coco` names the module logger `__main__`, which bypasses
+  the `src` logger hierarchy — INFO logs (conversion report) are lost on CLI runs
+  and never reach `logs/pipeline.log`. Violates CLAUDE.md §7. Fix + regression
+  test pending approval.

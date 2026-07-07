@@ -158,18 +158,8 @@ def bbox_from_segmentation(segmentation: Sequence[float]) -> List[float]:
     return [x_min, y_min, max(xs) - x_min, max(ys) - y_min]
 
 
-def convert(
-    xml_path: Union[str, Path],
-    output_path: Optional[Union[str, Path]] = None,
-    buffer_px: float = DEFAULT_BUFFER_PX,
-) -> Dict[str, Any]:
-    """Convert a CVAT XML export to a COCO dict; optionally write it to JSON.
-
-    Polylines are buffered by ``buffer_px``; polygons pass through unchanged.
-    The result is validated before any file is written — validation errors
-    raise ``ValueError`` (write-time error, never a silent bad file).
-    """
-    images = parse_cvat_xml(xml_path)
+def _build_coco(images: List[CvatImage], buffer_px: float) -> Dict[str, Any]:
+    """Build a COCO dict from parsed CVAT image records (ids used as given)."""
     coco: Dict[str, Any] = {
         "images": [
             {"id": img["id"], "file_name": img["name"],
@@ -202,24 +192,97 @@ def convert(
             })
             ann_id += 1
 
+    logger.info(
+        "Built COCO: %d images, %d annotations (%d polylines buffered @ %.1fpx, "
+        "%d polygons passed through)",
+        len(coco["images"]), len(coco["annotations"]),
+        buffered, buffer_px, passed_through,
+    )
+    return coco
+
+
+def _validate_and_write(
+    coco: Dict[str, Any], output_path: Optional[Union[str, Path]]
+) -> Dict[str, Any]:
+    """Validate a COCO dict, then optionally write it to JSON.
+
+    Validation failures raise ``ValueError`` before anything touches disk
+    (write-time error, never a silent bad file).
+    """
     errors = validate_coco(coco)
     if errors:
         raise ValueError(
             "Conversion produced invalid COCO:\n" + "\n".join(errors)
         )
-    logger.info(
-        "Converted %s: %d images, %d annotations (%d polylines buffered @ %.1fpx, "
-        "%d polygons passed through)",
-        xml_path, len(coco["images"]), len(coco["annotations"]),
-        buffered, buffer_px, passed_through,
-    )
-
     if output_path is not None:
         output_path = Path(output_path)
         output_path.parent.mkdir(parents=True, exist_ok=True)
         output_path.write_text(json.dumps(coco, indent=2), encoding="utf-8")
         logger.info("Wrote COCO file: %s", output_path)
     return coco
+
+
+def convert(
+    xml_path: Union[str, Path],
+    output_path: Optional[Union[str, Path]] = None,
+    buffer_px: float = DEFAULT_BUFFER_PX,
+) -> Dict[str, Any]:
+    """Convert one CVAT XML export to a COCO dict; optionally write it to JSON.
+
+    Polylines are buffered by ``buffer_px``; polygons pass through unchanged.
+    CVAT image ids are kept as-is, including unannotated images. For combining
+    multiple exports use :func:`merge_convert`.
+    """
+    coco = _build_coco(parse_cvat_xml(xml_path), buffer_px)
+    return _validate_and_write(coco, output_path)
+
+
+def merge_convert(
+    xml_paths: Sequence[Union[str, Path]],
+    output_path: Optional[Union[str, Path]] = None,
+    buffer_px: float = DEFAULT_BUFFER_PX,
+) -> Dict[str, Any]:
+    """Merge multiple CVAT XML exports into one COCO dict (task T3).
+
+    CVAT numbers image ids from 0 in every export, so images are renumbered
+    sequentially (1..N) and annotation ids run 1..M across the whole merge.
+    Unannotated images are dropped (CVAT exports every task frame regardless
+    of annotation state). A duplicate ``file_name`` among the kept images —
+    within one file or across files — raises ``ValueError``: this is the
+    permanent guard against double-counting annotations from overlapping
+    exports (e.g. a pilot job re-exported inside a later task).
+    """
+    if not xml_paths:
+        raise ValueError("merge_convert needs at least one input XML")
+
+    kept: List[CvatImage] = []
+    dropped = 0
+    for xml_path in xml_paths:
+        images = parse_cvat_xml(xml_path)
+        annotated = [img for img in images if img["shapes"]]
+        dropped += len(images) - len(annotated)
+        kept.extend(annotated)
+
+    seen: Dict[str, int] = {}
+    duplicates = []
+    for img in kept:
+        if img["name"] in seen:
+            duplicates.append(img["name"])
+        seen[img["name"]] = 1
+    if duplicates:
+        raise ValueError(
+            "Duplicate file_name(s) across merge inputs — refusing to "
+            f"double-count annotations: {sorted(set(duplicates))}"
+        )
+
+    for new_id, img in enumerate(kept, start=1):
+        img["id"] = new_id
+    logger.info(
+        "Merging %d exports: %d annotated images kept, %d unannotated dropped",
+        len(xml_paths), len(kept), dropped,
+    )
+    coco = _build_coco(kept, buffer_px)
+    return _validate_and_write(coco, output_path)
 
 
 def validate_coco(coco: Dict[str, Any]) -> List[str]:
@@ -287,10 +350,12 @@ def validate_coco(coco: Dict[str, Any]) -> List[str]:
 def main(argv: Optional[Sequence[str]] = None) -> int:
     """CLI entry point. Returns a process exit code (0 = success)."""
     parser = argparse.ArgumentParser(
-        description="Convert a CVAT-for-images-1.1 XML export to COCO JSON, "
-                    "buffering polylines into polygon masks.",
+        description="Convert CVAT-for-images-1.1 XML export(s) to COCO JSON, "
+                    "buffering polylines into polygon masks. Multiple inputs "
+                    "are merged (ids renumbered, unannotated images dropped, "
+                    "duplicate file_names are a hard error).",
     )
-    parser.add_argument("xml_path", help="CVAT XML export file")
+    parser.add_argument("xml_paths", nargs="+", help="CVAT XML export file(s)")
     parser.add_argument("output_path", help="COCO JSON file to write")
     parser.add_argument(
         "--buffer-px", type=float, default=DEFAULT_BUFFER_PX,
@@ -298,7 +363,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     )
     args = parser.parse_args(argv)
     try:
-        convert(args.xml_path, args.output_path, buffer_px=args.buffer_px)
+        if len(args.xml_paths) == 1:
+            convert(args.xml_paths[0], args.output_path, buffer_px=args.buffer_px)
+        else:
+            merge_convert(args.xml_paths, args.output_path, buffer_px=args.buffer_px)
     except (FileNotFoundError, ValueError) as exc:
         logger.error("Conversion failed: %s", exc)
         return 1

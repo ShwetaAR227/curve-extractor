@@ -16,6 +16,7 @@ from src.cvat_to_coco import (
     buffer_polyline,
     convert,
     main,
+    merge_convert,
     parse_cvat_xml,
     polygon_area,
     validate_coco,
@@ -23,6 +24,29 @@ from src.cvat_to_coco import (
 
 FIXTURES = Path(__file__).parent / "fixtures" / "cvat"
 SAMPLE_XML = FIXTURES / "sample.xml"
+PILOT_XML = FIXTURES / "pilot7_job4199936.xml"
+
+
+def make_cvat_xml(path: Path, images: list) -> Path:
+    """Write a minimal CVAT-for-images-1.1 XML.
+
+    ``images``: list of ``(name, [curve_name, ...])`` — each curve becomes a
+    3-point polyline; an empty list produces an unannotated image.
+    """
+    parts = ['<?xml version="1.0" encoding="utf-8"?><annotations><version>1.1</version>']
+    for img_id, (name, curves) in enumerate(images):
+        parts.append(f'<image id="{img_id}" name="{name}" width="800" height="600">')
+        for i, curve in enumerate(curves):
+            y = 100.0 + 50 * i
+            parts.append(
+                f'<polyline label="line" occluded="0" '
+                f'points="10.0,{y};400.0,{y + 20};790.0,{y + 40}">'
+                f'<attribute name="curve_name">{curve}</attribute></polyline>'
+            )
+        parts.append("</image>")
+    parts.append("</annotations>")
+    path.write_text("".join(parts))
+    return path
 
 
 # ---------------------------------------------------------------- parse_cvat_xml
@@ -238,6 +262,103 @@ class TestValidateCoco:
         assert any("curve_name" in e for e in validate_coco(coco))
 
 
+# -------------------------------------------------------------- merge_convert
+
+class TestMergeConvert:
+    def _two_files(self, tmp_path):
+        a = make_cvat_xml(tmp_path / "a.xml",
+                          [("dev_A__fig1.png", ["c1", "c2", "c3"]),
+                           ("dev_B__fig1.png", ["c1", "c2"])])
+        b = make_cvat_xml(tmp_path / "b.xml",
+                          [("dev_C__fig1.png", ["c1"])])
+        return a, b
+
+    def test_merge_counts(self, tmp_path):
+        a, b = self._two_files(tmp_path)
+        coco = merge_convert([a, b])
+        assert len(coco["images"]) == 3
+        assert len(coco["annotations"]) == 6
+
+    def test_image_ids_renumbered_sequentially(self, tmp_path):
+        # Both CVAT exports number image ids from 0; the merge must renumber.
+        a, b = self._two_files(tmp_path)
+        coco = merge_convert([a, b])
+        assert [img["id"] for img in coco["images"]] == [1, 2, 3]
+
+    def test_annotation_ids_unique_and_sequential(self, tmp_path):
+        a, b = self._two_files(tmp_path)
+        coco = merge_convert([a, b])
+        assert [ann["id"] for ann in coco["annotations"]] == list(range(1, 7))
+
+    def test_annotations_map_to_correct_images(self, tmp_path):
+        a, b = self._two_files(tmp_path)
+        coco = merge_convert([a, b])
+        by_id = {img["id"]: img["file_name"] for img in coco["images"]}
+        from collections import Counter
+        per_file = Counter(by_id[ann["image_id"]] for ann in coco["annotations"])
+        assert per_file == {"dev_A__fig1.png": 3, "dev_B__fig1.png": 2,
+                            "dev_C__fig1.png": 1}
+
+    def test_duplicate_file_name_across_files_raises(self, tmp_path):
+        # The permanent guard against merging overlapping exports
+        # (e.g. the pilot job, which is a subset of task 4200303).
+        a = make_cvat_xml(tmp_path / "a.xml", [("same__fig.png", ["c1"])])
+        b = make_cvat_xml(tmp_path / "b.xml", [("same__fig.png", ["c1"])])
+        with pytest.raises(ValueError, match="same__fig.png"):
+            merge_convert([a, b])
+
+    def test_duplicate_file_name_within_one_file_raises(self, tmp_path):
+        a = make_cvat_xml(tmp_path / "a.xml",
+                          [("dup__fig.png", ["c1"]), ("dup__fig.png", ["c2"])])
+        with pytest.raises(ValueError, match="dup__fig.png"):
+            merge_convert([a])
+
+    def test_unannotated_images_dropped(self, tmp_path):
+        a = make_cvat_xml(tmp_path / "a.xml",
+                          [("annotated__fig.png", ["c1", "c2"]),
+                           ("empty__fig.png", [])])
+        coco = merge_convert([a])
+        names = [img["file_name"] for img in coco["images"]]
+        assert names == ["annotated__fig.png"]
+        assert len(coco["annotations"]) == 2
+
+    def test_single_file_merge_matches_convert(self):
+        merged = merge_convert([PILOT_XML])
+        converted = convert(PILOT_XML)
+        assert len(merged["images"]) == len(converted["images"]) == 7
+        assert len(merged["annotations"]) == len(converted["annotations"]) == 21
+
+    def test_empty_input_list_raises(self):
+        with pytest.raises(ValueError):
+            merge_convert([])
+
+    def test_curve_names_preserved_across_files(self, tmp_path):
+        a = make_cvat_xml(tmp_path / "a.xml", [("x__fig.png", ["Vgs=4.5V"])])
+        b = make_cvat_xml(tmp_path / "b.xml", [("y__fig.png", ["Vgs=10V"])])
+        coco = merge_convert([a, b])
+        names = {ann["attributes"]["curve_name"] for ann in coco["annotations"]}
+        assert names == {"Vgs=4.5V", "Vgs=10V"}
+
+    def test_merged_output_validates_and_writes(self, tmp_path):
+        a, b = self._two_files(tmp_path)
+        out = tmp_path / "merged.json"
+        merge_convert([a, b], output_path=out)
+        loaded = json.loads(out.read_text())
+        assert validate_coco(loaded) == []
+
+    def test_merge_with_committed_pilot_fixture(self, tmp_path):
+        # Merging the pilot with a disjoint generated file must work…
+        extra = make_cvat_xml(tmp_path / "extra.xml", [("zz__fig.png", ["c1"])])
+        coco = merge_convert([PILOT_XML, extra])
+        assert len(coco["images"]) == 8
+        assert len(coco["annotations"]) == 22
+        # …and merging the pilot with an overlapping name must hard-error.
+        dup = make_cvat_xml(tmp_path / "dup.xml",
+                            [("94-3316__fig_p4_007.png", ["c1"])])
+        with pytest.raises(ValueError, match="94-3316__fig_p4_007.png"):
+            merge_convert([PILOT_XML, dup])
+
+
 # ------------------------------------------------------------------------ CLI
 
 class TestCli:
@@ -252,3 +373,22 @@ class TestCli:
     def test_cli_missing_input_returns_nonzero(self, tmp_path):
         rc = main([str(tmp_path / "missing.xml"), str(tmp_path / "o.json")])
         assert rc != 0
+
+    def test_cli_multiple_inputs_merges(self, tmp_path):
+        a = make_cvat_xml(tmp_path / "a.xml", [("m1__fig.png", ["c1", "c2"])])
+        b = make_cvat_xml(tmp_path / "b.xml", [("m2__fig.png", ["c1"])])
+        out = tmp_path / "merged.json"
+        rc = main([str(a), str(b), str(out)])
+        assert rc == 0
+        coco = json.loads(out.read_text())
+        assert len(coco["images"]) == 2
+        assert len(coco["annotations"]) == 3
+        assert validate_coco(coco) == []
+
+    def test_cli_merge_duplicate_file_name_fails(self, tmp_path):
+        a = make_cvat_xml(tmp_path / "a.xml", [("same__fig.png", ["c1"])])
+        b = make_cvat_xml(tmp_path / "b.xml", [("same__fig.png", ["c1"])])
+        out = tmp_path / "merged.json"
+        rc = main([str(a), str(b), str(out)])
+        assert rc != 0
+        assert not out.exists()

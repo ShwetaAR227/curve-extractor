@@ -54,9 +54,14 @@ pytest -v
 Run tools as they appear (each tool documents its own CLI; current tools):
 
 ```bash
-# CVAT XML → COCO converter (T2)
-python -m src.cvat_to_coco <cvat_export.xml> <output_coco.json> [--buffer-px N]
+# CVAT XML → COCO converter (T2); multiple inputs are merged (T3):
+# ids renumbered, unannotated images dropped, duplicate file_names hard-error.
+python -m src.cvat_to_coco <cvat_export.xml> [<more.xml> ...] <output_coco.json> [--buffer-px N]
 ```
+
+⚠ The pilot export (`tests/fixtures/cvat/pilot7_job4199936.xml`) is a **converter test
+fixture only** — it duplicates 7 images of task 4200303 and must NEVER be merged into
+training data. The merge's duplicate-file_name hard error enforces this.
 
 ## Data layout
 
