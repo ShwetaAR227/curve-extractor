@@ -10,6 +10,8 @@ import pytest
 
 from src.cvat_to_coco import validate_coco
 from src.dataset_tools.split_dataset import (
+    FAMILY_MERGE_MAP,
+    PINNED_FAMILIES,
     RATIOS,
     assign_family,
     extract_device,
@@ -56,18 +58,39 @@ class TestExtractDevice:
 
 class TestAssignFamily:
     def test_prefix_letters_up_to_first_digit(self):
-        assert assign_family("BSZ100N03MSGATMA1") == "BSZ"
-        assert assign_family("BSC032N04LSATMA1") == "BSC"
         assert assign_family("AUIRF1010EZS") == "AUIRF"
         assert assign_family("AUIRL3705N") == "AUIRL"
-        assert assign_family("IAUC120N04S6L005ATMA1") == "IAUC"
         assert assign_family("IPB012N04NF2SATMA1") == "IPB"
+        assert assign_family("BSP125H6327XTSA1") == "BSP"
 
     def test_lowercase_uppercased(self):
-        assert assign_family("bsz100n03") == "BSZ"
+        assert assign_family("ipb012n04") == "IPB"
 
     def test_no_letter_prefix_is_own_family(self):
         assert assign_family("94-3316") == "94-3316"
+
+    def test_owner_merge_map_is_explicit_dict(self):
+        # Owner decision 2026-07-07 (T5): template-true families.
+        assert FAMILY_MERGE_MAP == {
+            "IAUA": "IAU", "IAUAN": "IAU", "IAUC": "IAU",
+            "AUIRFS": "AUIRF", "AUIRFP": "AUIRF", "AUIRFZ": "AUIRF",
+            "AUIRLU": "AUIRL",
+            "BSC": "BSC-BSZ", "BSZ": "BSC-BSZ",
+        }
+
+    def test_merged_families_applied(self):
+        assert assign_family("BSZ100N03MSGATMA1") == "BSC-BSZ"
+        assert assign_family("BSC032N04LSATMA1") == "BSC-BSZ"
+        assert assign_family("IAUC120N04S6L005ATMA1") == "IAU"
+        assert assign_family("IAUA120N04S5N014AUMA1") == "IAU"
+        assert assign_family("IAUAN04S7N004AUMA1") == "IAU"
+        assert assign_family("AUIRFS4115-7P") == "AUIRF"
+        assert assign_family("AUIRFP4568-E") == "AUIRF"
+        assert assign_family("AUIRFZ34N") == "AUIRF"
+        assert assign_family("AUIRLU3114Z") == "AUIRL"
+
+    def test_bsc_bsz_pinned_to_train(self):
+        assert PINNED_FAMILIES == {"BSC-BSZ": "train"}
 
 
 # ---------------------------------------------------------------- group_split
@@ -121,15 +144,39 @@ class TestGroupSplit:
         with pytest.raises(ValueError):
             group_split({"A": [1, 2], "B": [3]}, seed=42)
 
+    def test_pinned_family_respected(self):
+        # Unpinned, D lands in val (greedy); pinning must override that.
+        fams = self._families()
+        unpinned = group_split(fams, seed=42)
+        assert set(fams["D"]) <= set(unpinned["val"])
+        for seed in (42, 7):  # pinning is not luck of the seed
+            split = group_split(fams, seed=seed, pinned={"D": "test"})
+            assert set(fams["D"]) <= set(split["test"])
+
+    def test_eval_split_minimums_enforced(self):
+        # Owner invariant: val and test each need >=2 families and >=15
+        # images. A dataset that cannot satisfy it must hard-error.
+        fams = {"A": list(range(50)), "B": [50, 51], "C": [52, 53]}
+        with pytest.raises(ValueError, match="val|test"):
+            group_split(fams, seed=42)
+
 
 # ------------------------------------------------------- write_split and CLI
 
 class TestWriteSplitAndCli:
     def _coco(self, tmp_path):
-        names = (family_names("BSZ", 8) + family_names("BSC", 6)
-                 + family_names("AUIRF", 4) + family_names("IAUC", 3)
-                 + family_names("IPB", 2) + ["94-3316__fig_p4_007.png"])
+        # Large enough that the >=2-family / >=15-image eval minimums are
+        # satisfiable (BSZ+BSC merge into one pinned train family).
+        names = (family_names("BSZ", 15) + family_names("BSC", 15)
+                 + family_names("AUIRF", 20) + family_names("IAUC", 18)
+                 + family_names("IPB", 16) + family_names("BTS", 12)
+                 + family_names("BUZ", 10) + family_names("BSP", 10)
+                 + family_names("BSS", 8) + ["94-3316__fig_p4_007.png"])
         return make_coco(tmp_path / "src.json", names)
+
+    def test_pinned_family_lands_in_train(self, tmp_path):
+        proposal = propose_split(self._coco(tmp_path), seed=42)
+        assert proposal["families"]["BSC-BSZ"] == "train"
 
     def test_written_splits_are_valid_filtered_cocos(self, tmp_path):
         coco_path = self._coco(tmp_path)

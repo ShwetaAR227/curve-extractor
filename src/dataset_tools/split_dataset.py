@@ -38,6 +38,21 @@ SIDES = ("train", "val", "test")
 MANIFEST_NAME = "split_manifest.json"
 _LETTER_PREFIX = re.compile(r"^([A-Za-z]+)")
 
+# Owner decision 2026-07-07 (T5 review): merge prefix families that share a
+# manufacturer plot template, so no template straddles the split.
+FAMILY_MERGE_MAP: Dict[str, str] = {
+    "IAUA": "IAU", "IAUAN": "IAU", "IAUC": "IAU",
+    "AUIRFS": "AUIRF", "AUIRFP": "AUIRF", "AUIRFZ": "AUIRF",
+    "AUIRLU": "AUIRL",
+    "BSC": "BSC-BSZ", "BSZ": "BSC-BSZ",
+}
+# Owner decision: the dominant Infineon template family always trains.
+PINNED_FAMILIES: Dict[str, str] = {"BSC-BSZ": "train"}
+# Owner invariant: evaluation splits must be meaningful.
+MIN_EVAL_FAMILIES = 2
+MIN_EVAL_IMAGES = 15
+EVAL_SIDES = ("val", "test")
+
 
 def extract_device(file_name: str) -> str:
     """Device name: the part before ``__`` (else the file stem)."""
@@ -46,38 +61,52 @@ def extract_device(file_name: str) -> str:
 
 
 def assign_family(device: str) -> str:
-    """Family key for a device: leading letters uppercased, or — for names
-    with no letter prefix — the device itself (its own group)."""
+    """Template-family key for a device: leading letters uppercased (or the
+    device itself when it has no letter prefix), then folded through
+    ``FAMILY_MERGE_MAP`` so template-sharing prefixes form one family."""
     match = _LETTER_PREFIX.match(device)
-    return match.group(1).upper() if match else device
+    family = match.group(1).upper() if match else device
+    return FAMILY_MERGE_MAP.get(family, family)
 
 
 def group_split(
     families: Dict[str, List[int]],
     ratios: Tuple[float, float, float] = RATIOS,
     seed: int = 42,
+    pinned: Optional[Dict[str, str]] = None,
 ) -> Dict[str, List[int]]:
     """Assign whole families to train/val/test, balancing image counts.
 
-    Greedy: families in descending size order (ties broken by ``seed``) each
-    go to the side furthest below its target image count. If greedy leaves a
-    side empty, the smallest family from the side richest in families is
-    moved there. Raises ``ValueError`` for fewer than 3 families.
+    ``pinned`` forces named families onto a given side before the greedy
+    pass. Remaining families, in descending size order (ties broken by
+    ``seed``), each go to the side furthest below its target image count.
+    If greedy leaves a side empty, the smallest family from the side richest
+    in families is moved there (pinned families never move).
+
+    Raises ``ValueError`` for fewer than 3 families, or when the result
+    violates the owner invariant: val and test each need at least
+    ``MIN_EVAL_FAMILIES`` families and ``MIN_EVAL_IMAGES`` images.
     """
     if len(families) < len(SIDES):
         raise ValueError(
             f"Need at least {len(SIDES)} families to fill every split, "
             f"got {len(families)}"
         )
+    pinned = pinned or {}
     total = sum(len(ids) for ids in families.values())
     targets = {side: ratio * total for side, ratio in zip(SIDES, ratios)}
 
-    rng = random.Random(seed)
-    tiebreak = {fam: rng.random() for fam in sorted(families)}
-    order = sorted(families, key=lambda f: (-len(families[f]), tiebreak[f]))
-
     by_side: Dict[str, List[str]] = {side: [] for side in SIDES}
     counts = {side: 0 for side in SIDES}
+    for fam, side in sorted(pinned.items()):
+        if fam in families:
+            by_side[side].append(fam)
+            counts[side] += len(families[fam])
+
+    rng = random.Random(seed)
+    tiebreak = {fam: rng.random() for fam in sorted(families)}
+    order = sorted((f for f in families if f not in pinned),
+                   key=lambda f: (-len(families[f]), tiebreak[f]))
     for fam in order:
         side = max(SIDES, key=lambda s: targets[s] - counts[s])
         by_side[side].append(fam)
@@ -86,12 +115,23 @@ def group_split(
     for side in SIDES:  # enforce the non-empty invariant
         if not by_side[side]:
             donor = max(SIDES, key=lambda s: (len(by_side[s]), counts[s]))
-            fam = min(by_side[donor], key=lambda f: (len(families[f]), f))
+            movable = [f for f in by_side[donor] if f not in pinned]
+            fam = min(movable, key=lambda f: (len(families[f]), f))
             by_side[donor].remove(fam)
             by_side[side].append(fam)
             counts[donor] -= len(families[fam])
             counts[side] += len(families[fam])
             logger.warning("Moved family %s to empty split %r", fam, side)
+
+    problems = []
+    for side in EVAL_SIDES:
+        if len(by_side[side]) < MIN_EVAL_FAMILIES or counts[side] < MIN_EVAL_IMAGES:
+            problems.append(
+                f"{side}: {len(by_side[side])} families / {counts[side]} images "
+                f"(need >={MIN_EVAL_FAMILIES} families and >={MIN_EVAL_IMAGES} images)"
+            )
+    if problems:
+        raise ValueError("Eval-split minimums violated — " + "; ".join(problems))
 
     return {side: [i for fam in by_side[side] for i in families[fam]]
             for side in SIDES}
@@ -123,7 +163,8 @@ def propose_split(
     for entry in inventory.values():
         entry["devices"] = len(entry["devices"])
 
-    assignment = group_split(families, ratios=ratios, seed=seed)
+    assignment = group_split(families, ratios=ratios, seed=seed,
+                             pinned=PINNED_FAMILIES)
     families_by_split = {
         fam: side for side in SIDES for fam in
         {assign_family(extract_device(img["file_name"]))
@@ -143,6 +184,8 @@ def propose_split(
     proposal = {
         "seed": seed,
         "ratios": list(ratios),
+        "family_merge_map": dict(FAMILY_MERGE_MAP),
+        "pinned": dict(PINNED_FAMILIES),
         "inventory": inventory,
         "assignment": assignment,
         "families": families_by_split,
@@ -183,8 +226,9 @@ def write_split(
                     len(part["images"]), len(part["annotations"]))
 
     manifest = {k: proposal[k] for k in
-                ("seed", "ratios", "families", "counts", "achieved_ratios",
-                 "source_coco", "source_coco_sha256")}
+                ("seed", "ratios", "family_merge_map", "pinned", "families",
+                 "counts", "achieved_ratios", "source_coco",
+                 "source_coco_sha256")}
     (out_dir / MANIFEST_NAME).write_text(json.dumps(manifest, indent=2),
                                          encoding="utf-8")
     logger.info("Wrote %s", out_dir / MANIFEST_NAME)
