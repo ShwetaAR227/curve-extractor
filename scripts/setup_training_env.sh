@@ -3,9 +3,10 @@
 # Idempotent; run ON the GPU box from the repo root:
 #   bash scripts/setup_training_env.sh
 # Optional env vars:
-#   CHECKPOINT_URL   URL (or Google-Drive file id via gdown) of the published
-#                    pretrained LineFormer checkpoint. Required for the
-#                    download step; skipped with a warning if unset.
+#   CHECKPOINT_URL   Override for the pretrained-checkpoint source. Default is
+#                    the Google-Drive file id of iter_3000.pth from the
+#                    official README ("Inference" section, step 1); expected
+#                    sha256 recorded in envs/lineformer_checkpoint.sha256.
 #   LINEFORMER_REPO  Git URL of the official LineFormer repo
 #                    (default: https://github.com/TheJaeLal/LineFormer).
 #
@@ -72,21 +73,24 @@ echo "$COMMIT" > "$LOCK_DIR/lineformer.commit"
 echo "LineFormer commit: $COMMIT (recorded in envs/lineformer.commit; copy into SETUP.md)"
 
 # --- 5. pretrained checkpoint --------------------------------------------------
-CKPT="$WEIGHTS_DIR/lineformer_pretrained.pth"
-if [ -f "$CKPT" ]; then
-    echo "checkpoint already present: $CKPT"
-elif [ -n "${CHECKPOINT_URL:-}" ]; then
+# Source: official README "Inference" step 1 -> Drive folder
+# https://drive.google.com/drive/folders/1K_zLZwgoUIAJtfjwfCU5Nv33k17R0O5T
+# containing iter_3000.pth (file id below). Verified sha256 in
+# envs/lineformer_checkpoint.sha256 — a mismatch aborts.
+CHECKPOINT_URL="${CHECKPOINT_URL:-1cIWM7lTisd1GajDR98IymDssvvLAKH1n}"
+CKPT="$WEIGHTS_DIR/iter_3000.pth"
+if [ ! -f "$CKPT" ]; then
     case "$CHECKPOINT_URL" in
         http*) curl -fL "$CHECKPOINT_URL" -o "$CKPT" ;;
         *)     pip install -q gdown && gdown "$CHECKPOINT_URL" -O "$CKPT" ;;
     esac
-else
-    echo "WARNING: CHECKPOINT_URL not set — skipping checkpoint download." \
-         "Set it to the repo's published weights URL (see LineFormer README)."
 fi
-if [ -f "$CKPT" ]; then
-    sha256sum "$CKPT" | tee "$LOCK_DIR/lineformer_checkpoint.sha256"
-    echo "record URL + sha256 in SETUP.md"
+EXPECTED_SHA="$(awk '{print $1}' "$LOCK_DIR/lineformer_checkpoint.sha256")"
+ACTUAL_SHA="$(sha256sum "$CKPT" | awk '{print $1}')"
+if [ "$ACTUAL_SHA" != "$EXPECTED_SHA" ]; then
+    echo "FAIL: checkpoint sha256 mismatch: got $ACTUAL_SHA want $EXPECTED_SHA"
+    exit 1
 fi
+echo "checkpoint OK: $CKPT (sha256 verified)"
 
 echo "=== setup complete — now run: bash scripts/verify_training_env.sh ==="

@@ -116,11 +116,19 @@ Reproducibility artifacts (committed under `envs/`):
 
 LineFormer source: cloned by the setup script into `third_party/lineformer`
 (git-ignored). **Never copy from `D:\LineFormerModel`** — the legacy tree is
-reference-only. Pretrained checkpoint: `data/weights/lineformer_pretrained.pth`
-(git-ignored), downloaded via `CHECKPOINT_URL=<url> bash scripts/setup_training_env.sh`.
+reference-only.
 
-> ⚠ TO FILL after first successful box run: LineFormer commit hash `________`,
-> checkpoint URL `________`, checkpoint sha256 `________`.
+**Pinned provenance (verified 2026-07-08):**
+- LineFormer commit: `7952e27b4653dea025394618fbd655f41d82ab6b`
+  (github.com/TheJaeLal/LineFormer, also in `envs/lineformer.commit`)
+- Pretrained checkpoint `iter_3000.pth` (570 MB → `data/weights/iter_3000.pth`,
+  git-ignored). Source: **README section "Inference", step 1** — Google Drive
+  folder `https://drive.google.com/drive/folders/1K_zLZwgoUIAJtfjwfCU5Nv33k17R0O5T`
+  (file id `1cIWM7lTisd1GajDR98IymDssvvLAKH1n`, fetched via gdown).
+- Checkpoint sha256:
+  `ac03d7d52a11ce253350bf4bc73416e42ac68021c00bcce14d47fcc28ec65eb0`
+  (also in `envs/lineformer_checkpoint.sha256`; the setup script verifies the
+  hash after download and aborts on mismatch).
 
 ## Data layout
 

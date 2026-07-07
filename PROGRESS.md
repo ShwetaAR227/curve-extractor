@@ -34,7 +34,7 @@ Track this item until closed. Opened: 2026-07-07. Status: **OPEN**.
 
 | Task | Status | Notes |
 |---|---|---|
-| T6 — Training env on AWS GPU box | 🚧 Scripted; **BLOCKED on instance access** | 2026-07-08; `scripts/setup_training_env.sh` + `scripts/verify_training_env.sh` committed (pinned legacy-compatible stack, lock-file export, LineFormer clone + commit recording, checkpoint sha256 recording, 4 smoke tests incl. GPU-mem report). SSH `aws-lineformer` (44.211.240.4) times out — instance appears stopped/IP changed; no AWS CLI/credentials on this machine. **Owner: start the instance (or give new IP) + supply the LineFormer checkpoint URL**, then the scripts run and SETUP.md placeholders get filled. |
+| T6 — Training env on AWS GPU box | 🚧 Scripted + provenance pinned; **BLOCKED on instance access** | 2026-07-08; `scripts/setup_training_env.sh` + `scripts/verify_training_env.sh` committed (pinned legacy-compatible stack, lock-file export, 4 smoke tests incl. GPU-mem report). Provenance verified locally per owner instruction: LineFormer cloned @ `7952e27b…`, checkpoint `iter_3000.pth` downloaded from the README "Inference" link (Drive file `1cIWM7lTisd1GajDR98IymDssvvLAKH1n`), sha256 `ac03d7d5…` recorded in `envs/` + SETUP.md; setup script hash-verifies the download and aborts on mismatch. **Remaining blocker: SSH `aws-lineformer` (44.211.240.4) times out — owner must start the instance / update IP**, then setup + smoke tests run on the box. |
 
 ## Upcoming
 

@@ -7,7 +7,7 @@ set -euo pipefail
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENV_NAME="lineformer"
 CONFIG="${LINEFORMER_CONFIG:-$REPO_ROOT/third_party/lineformer/lineformer_swin_t_config.py}"
-CKPT="${LINEFORMER_CKPT:-$REPO_ROOT/data/weights/lineformer_pretrained.pth}"
+CKPT="${LINEFORMER_CKPT:-$REPO_ROOT/data/weights/iter_3000.pth}"
 IMAGE="${1:-$(ls "$REPO_ROOT"/data/images/*.png 2>/dev/null | head -1)}"
 OUT_DIR="$REPO_ROOT/data/smoke_test"
 mkdir -p "$OUT_DIR"
