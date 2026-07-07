@@ -30,6 +30,12 @@ The legacy repo contains a **committed AWS private key** (`aws_key/lineformer-ke
 **Owner must rotate/revoke the key in AWS and scrub git history.**
 Track this item until closed. Opened: 2026-07-07. Status: **OPEN**.
 
+## M2 — LineFormer Retraining
+
+| Task | Status | Notes |
+|---|---|---|
+| T6 — Training env on AWS GPU box | 🚧 Scripted; **BLOCKED on instance access** | 2026-07-08; `scripts/setup_training_env.sh` + `scripts/verify_training_env.sh` committed (pinned legacy-compatible stack, lock-file export, LineFormer clone + commit recording, checkpoint sha256 recording, 4 smoke tests incl. GPU-mem report). SSH `aws-lineformer` (44.211.240.4) times out — instance appears stopped/IP changed; no AWS CLI/credentials on this machine. **Owner: start the instance (or give new IP) + supply the LineFormer checkpoint URL**, then the scripts run and SETUP.md placeholders get filled. |
+
 ## Upcoming
 
 - Train/val/test split

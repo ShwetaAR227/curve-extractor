@@ -16,3 +16,6 @@ logs/*
 
 # Data outputs (large / regenerable — never commit)
 data/
+
+# Third-party clones (commit hash recorded in envs/ + SETUP.md instead)
+third_party/

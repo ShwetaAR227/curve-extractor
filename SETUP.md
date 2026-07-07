@@ -88,6 +88,40 @@ python -m src.dataset_tools.collect_images data/coco/batch_merged.json data/imag
     "D:/Extractor/data" "D:/LineFormerDataset_v2"
 ```
 
+## Training environment (T6 — AWS g4dn.xlarge, T4 16 GB)
+
+Fully scripted; never hand-run ad-hoc installs. On the GPU box, from the repo root:
+
+```bash
+bash scripts/setup_training_env.sh      # idempotent env creation + clone + weights
+bash scripts/verify_training_env.sh    # 4 smoke tests, ALL must pass
+```
+
+Conda env `lineformer` — pins and **why each exists** (owner-approved
+legacy-compatible stack; do not change without approval — a wrong mmcv/torch
+pairing produces silent garbage, not errors):
+
+| Pin | Why |
+|---|---|
+| `python=3.8` | LineFormer/MMDetection 2.x era; newer pythons break mmcv-full 1.7 wheels |
+| `pytorch==1.13.1 torchvision==0.14.1 pytorch-cuda=11.7` | last torch 1.x line with prebuilt mmcv-full CUDA ops; cu117 matches the T4 driver on the box |
+| `mmcv-full==1.7.1` via **openmim** | openmim selects the wheel built for exactly torch 1.13/cu117; plain pip installs a mismatched/CPU build whose CUDA ops fail (`from mmcv.ops import RoIAlign` is the canary) |
+| `mmdet==2.28.2` | last MMDetection 2.x compatible with mmcv-full 1.7.x and the LineFormer configs |
+| `scipy==1.9.3` | known-good legacy pairing; **conflicts with the pipeline venv's scipy — the two environments must NEVER be shared** |
+
+Reproducibility artifacts (committed under `envs/`):
+- `envs/lineformer.lock.yml` — `conda env export` of the working env
+- `envs/lineformer.commit` — exact LineFormer commit hash
+- `envs/lineformer_checkpoint.sha256` — pretrained-weights hash
+
+LineFormer source: cloned by the setup script into `third_party/lineformer`
+(git-ignored). **Never copy from `D:\LineFormerModel`** — the legacy tree is
+reference-only. Pretrained checkpoint: `data/weights/lineformer_pretrained.pth`
+(git-ignored), downloaded via `CHECKPOINT_URL=<url> bash scripts/setup_training_env.sh`.
+
+> ⚠ TO FILL after first successful box run: LineFormer commit hash `________`,
+> checkpoint URL `________`, checkpoint sha256 `________`.
+
 ## Data layout
 
 | What | Where |
