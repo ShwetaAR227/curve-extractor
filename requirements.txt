@@ -3,3 +3,4 @@
 numpy==2.4.6
 shapely==2.1.2
 pytest==9.1.1
+opencv-python==5.0.0.93

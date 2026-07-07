@@ -63,6 +63,16 @@ python -m src.cvat_to_coco <cvat_export.xml> [<more.xml> ...] <output_coco.json>
 fixture only** — it duplicates 7 images of task 4200303 and must NEVER be merged into
 training data. The merge's duplicate-file_name hard error enforces this.
 
+```bash
+# Overlay visual check of buffered masks (T4) — renders sampled annotations
+# over source figures for buffer-width review:
+python -m src.dataset_tools.overlay_check <coco.json> <output_dir> \
+    --images-dir <dir> [--images-dir <dir2> ...] [--n 6] [--seed 42]
+# Source figures are NOT in the repo. Known local locations:
+#   D:/datasheet/datasheet-studio-v2/data/cache/<DEVICE>/figures/  (160/164 covered)
+#   D:/images/  (flat, single-underscore names; 35/164)
+```
+
 ## Data layout
 
 | What | Where |

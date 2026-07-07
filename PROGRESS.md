@@ -19,6 +19,7 @@
 | T2 — CVAT XML → COCO converter | ✅ Done (pending owner review) | 2026-07-07; `src/cvat_to_coco.py`, **32 tests passing** (TDD: red confirmed before implementation). ⚠ T2 spec was reconstructed from the task outline — the verbatim spec from the earlier chat never reached this session; owner must confirm API/behavior match. |
 | T3 — Merge mode (multi-export → one COCO) | ✅ Done | 2026-07-07; `merge_convert()` + multi-input CLI, **46 tests passing** (14 new, TDD red→green). Batch merged: `data/coco/batch_merged.json` = **164 images / 492 annotations** (matches owner's expected counts), 148 unannotated frames dropped, 0 validation errors. Duplicate-file_name hard error verified live against the pilot overlap. |
 | Legacy review | ✅ Done | See `LEGACY_REVIEW.md` |
+| T4 — Overlay visual check of buffered masks | 🔍 Awaiting owner review | 2026-07-07; `src/dataset_tools/overlay_check.py` (TDD waived by owner for this script). 6 overlays + contact sheet at `data/overlay_check/overlay_check.html`, rendered from `batch_merged.json` @ 3.0 px buffer. Owner decides: keep 3.0 px or adjust. Source figures resolved from the `datasheet-studio-v2` cache (160/164 covered; 4 batch images have no matching local figure crop — different OCR-run numbering in backup caches). |
 
 ### ⚠ OPEN SECURITY ITEM
 
@@ -28,7 +29,6 @@ Track this item until closed. Opened: 2026-07-07. Status: **OPEN**.
 
 ## Upcoming
 
-- Overlay visual check of buffered masks (T2 output vs. figure PNGs)
 - Train/val/test split
 - LineFormer retraining
 - Stages 4–7 rebuild
