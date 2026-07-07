@@ -1,0 +1,5 @@
+# Pinned dependencies (CLAUDE.md §3: pin all dependency versions).
+# Extend as the pipeline grows; update SETUP.md when you do.
+numpy==2.4.6
+shapely==2.1.2
+pytest==9.1.1

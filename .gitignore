@@ -1,0 +1,18 @@
+# Environments & secrets
+.venv/
+venv/
+.env
+*.pem
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+
+# Logs
+logs/*
+!logs/.gitkeep
+
+# Data outputs (large / regenerable — never commit)
+data/
