@@ -22,6 +22,26 @@ CSV → [2] PDF download → [3] Azure OCR (figure PNGs + tick text) → [4] cla
 - The LineFormer path **must** have NMS/dedup + a confidence threshold.
 - Output schema is **always keyed by `curve_type`**; an empty `curve_type` is a **write-time error**.
 
+**In-scope curve types (owner-approved, 2026-07-08) — the full scope of stage 4's
+classifier and stages 5–7's extraction/review/orchestration logic:**
+
+| # | curve_type | Description | Status |
+|---|---|---|---|
+| 1 | `capacitance_vs_vds` | Ciss/Coss/Crss vs. drain-source voltage | ✅ **DONE** — Run A, production checkpoint, mAP@50 0.88 |
+| 2 | `rdson_vs_tj` | on-resistance vs. junction temperature | not started |
+| 3 | `if_vs_vsd` (body_diode) | forward current vs. source-drain voltage | not started |
+| 4 | `id_vs_vgs` (transfer_char) | drain current vs. gate-source voltage | not started |
+| 5 | `vgs_vs_qg` (gate_charge) | gate-source voltage vs. gate charge | not started |
+| 6 | `vgsth_vs_tj` | gate threshold voltage vs. junction temperature | not started |
+| 7 | `zth_vs_time` (thermal_impedance) | thermal impedance vs. time | not started |
+
+Other curve-type folders exist in the legacy/local corpus (`avalanche_energy`,
+`breakdown_voltage`, `derating`, `output_char`, `soa`, `irrm_vs_didt`,
+`qrr_vs_didt`, `switching_energy`) — these are **OUT OF SCOPE** for this
+project; do not build classifier/extraction/training support for them
+without explicit owner approval first (this is a scope change, same rule as
+§4 Pipeline Integrity).
+
 ## 2. STRICT TDD
 
 - **Red → Green → Refactor, no exceptions.** Tests are written **BEFORE** implementation.
