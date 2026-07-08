@@ -15,6 +15,21 @@
 # pairing produces silent garbage, not errors.
 set -euo pipefail
 
+# Redirect conda's envs + package cache to the larger attached data volume
+# (T6 EBS fix, 2026-07-08) — the small root volume cannot hold a full
+# python+torch+cuda+mmcv+mmdet env. No-op if /mnt/data isn't present (e.g. a
+# fresh box before the volume is attached/mounted).
+if [ -d /mnt/data ]; then
+    export CONDA_ENVS_PATH="/mnt/data/conda-envs"
+    export CONDA_PKGS_DIRS="/mnt/data/conda-pkgs"
+    mkdir -p "$CONDA_ENVS_PATH" "$CONDA_PKGS_DIRS"
+fi
+
+# See the matching comment in verify_training_env.sh: a pre-existing
+# `pip install --user` torch on this box shadows the conda env's own pinned
+# torch via Python's user-site mechanism. Harmless to set during setup too.
+export PYTHONNOUSERSITE=1
+
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ENV_NAME="lineformer"
 LINEFORMER_REPO="${LINEFORMER_REPO:-https://github.com/TheJaeLal/LineFormer}"
@@ -28,7 +43,10 @@ exec > >(tee -a "$LOG_FILE") 2>&1
 echo "=== setup_training_env $(date -u +%FT%TZ) ==="
 
 # --- 1. miniconda ------------------------------------------------------------
-if ! command -v conda >/dev/null 2>&1; then
+# Check the install directory, not `command -v conda` — a non-interactive SSH
+# shell doesn't have conda's init sourced onto PATH even when it's installed,
+# so a PATH-only check would try (and fail) to reinstall over an existing one.
+if [ ! -d "$HOME/miniconda3" ] && ! command -v conda >/dev/null 2>&1; then
     echo "conda not found — installing miniconda to \$HOME/miniconda3"
     curl -fsSL https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh \
         -o /tmp/miniconda.sh
@@ -65,20 +83,34 @@ conda env export -n "$ENV_NAME" > "$LOCK_DIR/lineformer.lock.yml"
 echo "lock written: $LOCK_DIR/lineformer.lock.yml"
 
 # --- 4. LineFormer source (reference-only clone; NOT from the legacy tree) ----
+# Pinned to the exact commit recorded in envs/lineformer.commit (owner-verified
+# provenance) — if that file exists we check out that commit and verify HEAD
+# matches; otherwise we record whatever HEAD the default branch clones to.
 if [ ! -d "$THIRD_PARTY/lineformer/.git" ]; then
     git clone "$LINEFORMER_REPO" "$THIRD_PARTY/lineformer"
 fi
+if [ -f "$LOCK_DIR/lineformer.commit" ]; then
+    PINNED_COMMIT="$(cat "$LOCK_DIR/lineformer.commit")"
+    git -C "$THIRD_PARTY/lineformer" fetch --quiet origin
+    git -C "$THIRD_PARTY/lineformer" checkout --quiet "$PINNED_COMMIT"
+fi
 COMMIT="$(git -C "$THIRD_PARTY/lineformer" rev-parse HEAD)"
+if [ -f "$LOCK_DIR/lineformer.commit" ] && [ "$COMMIT" != "$PINNED_COMMIT" ]; then
+    echo "FAIL: LineFormer checkout is $COMMIT, expected pinned $PINNED_COMMIT"
+    exit 1
+fi
 echo "$COMMIT" > "$LOCK_DIR/lineformer.commit"
-echo "LineFormer commit: $COMMIT (recorded in envs/lineformer.commit; copy into SETUP.md)"
+echo "LineFormer commit: $COMMIT (pinned, recorded in envs/lineformer.commit)"
 
 # --- 5. pretrained checkpoint --------------------------------------------------
 # Source: official README "Inference" step 1 -> Drive folder
 # https://drive.google.com/drive/folders/1K_zLZwgoUIAJtfjwfCU5Nv33k17R0O5T
-# containing iter_3000.pth (file id below). Verified sha256 in
-# envs/lineformer_checkpoint.sha256 — a mismatch aborts.
+# containing iter_3000.pth (file id below), renamed on arrival to disambiguate
+# from the project's own (rejected/legacy) fine-tuned checkpoint — see
+# LEGACY_REVIEW.md. Verified sha256 in envs/lineformer_checkpoint.sha256 — a
+# mismatch aborts (catches a changed Drive file OR transit corruption).
 CHECKPOINT_URL="${CHECKPOINT_URL:-1cIWM7lTisd1GajDR98IymDssvvLAKH1n}"
-CKPT="$WEIGHTS_DIR/iter_3000.pth"
+CKPT="$WEIGHTS_DIR/lineformer_pretrained_official_iter3000.pth"
 if [ ! -f "$CKPT" ]; then
     case "$CHECKPOINT_URL" in
         http*) curl -fL "$CHECKPOINT_URL" -o "$CKPT" ;;

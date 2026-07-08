@@ -94,8 +94,52 @@ Fully scripted; never hand-run ad-hoc installs. On the GPU box, from the repo ro
 
 ```bash
 bash scripts/setup_training_env.sh      # idempotent env creation + clone + weights
-bash scripts/verify_training_env.sh    # 4 smoke tests, ALL must pass
+bash scripts/verify_training_env.sh    # smoke tests 1-3 must pass; see fp32 note below
 ```
+
+### Data volume (`/mnt/data`) — required on this box
+
+The default 25 GB root EBS volume cannot hold `python + torch + cuda + mmcv-full
++ mmdet` (setup hit `ENOSPC` mid-install at 94% root usage the first time). A
+second **116 GB EBS volume** is attached, formatted XFS, and mounted at
+`/mnt/data` (owner decision, 2026-07-08) — **root is left untouched**, only the
+heavy stuff moves:
+
+| What | Where |
+|---|---|
+| Root filesystem | `/dev/nvme0n1p1`, 25 GB — code/scripts only |
+| Data volume | `/dev/nvme1n1`, 116 GB, XFS, mounted at `/mnt/data`, persisted via UUID in `/etc/fstab` (`nofail` so a missing volume never blocks boot) |
+| conda envs | `/mnt/data/conda-envs` (`conda config --add envs_dirs` + `CONDA_ENVS_PATH`, both set) |
+| conda package cache | `/mnt/data/conda-pkgs` (`conda config --add pkgs_dirs` + `CONDA_PKGS_DIRS`) |
+| Pretrained checkpoint | actually stored at `/mnt/data/my-datasheet/weights/`; `data/weights/` in the repo is a **symlink** to it (transparent to every script/path in this repo) |
+| Future training checkpoint output | `/mnt/data/my-datasheet/checkpoints/` (created, currently empty — point any `work_dir` here, never at a path under the repo/root) |
+
+`setup_training_env.sh` sets `CONDA_ENVS_PATH`/`CONDA_PKGS_DIRS` automatically
+when `/mnt/data` exists (no-op otherwise, e.g. a fresh box before the volume is
+attached). If this box is ever rebuilt: attach a volume of similar size,
+`mkfs.xfs` it, mount at `/mnt/data`, add the same `/etc/fstab` line (by UUID),
+recreate `/mnt/data/conda-envs`, `/mnt/data/conda-pkgs`,
+`/mnt/data/my-datasheet/{weights,checkpoints}`, then re-point the
+`data/weights` symlink — then the scripts work unchanged.
+
+### fp32-only training decision (owner, 2026-07-08)
+
+Smoke test 4 (fp16/AMP forward pass) fails with:
+```
+RuntimeError: "ms_deform_attn_forward_cuda" not implemented for 'Half'
+```
+`mmcv-full==1.7.1`'s deformable-attention CUDA op (`MultiScaleDeformableAttnFunction`,
+used by LineFormer's Mask2Former-style pixel decoder) only has a float32 CUDA
+kernel — no half-precision variant exists to install or pin around. This is an
+architecture/op-build limitation, not an environment misconfiguration.
+
+**Decision: skip AMP entirely, train fp32-only.** Justification: smoke test 3
+(real inference, batch size 1, fp32) measured only **~1 GiB peak GPU memory**
+on the T4's 15 GiB — fp32 has ample headroom even at larger batch sizes, so
+there is no memory-pressure reason to chase fp16. **Do not wrap the model or
+training loop in `torch.cuda.amp.autocast()` or use a `GradScaler`.**
+`scripts/verify_training_env.sh` reports this test as N/A rather than a
+failing gate.
 
 Conda env `lineformer` — pins and **why each exists** (owner-approved
 legacy-compatible stack; do not change without approval — a wrong mmcv/torch
@@ -120,15 +164,31 @@ reference-only.
 
 **Pinned provenance (verified 2026-07-08):**
 - LineFormer commit: `7952e27b4653dea025394618fbd655f41d82ab6b`
-  (github.com/TheJaeLal/LineFormer, also in `envs/lineformer.commit`)
-- Pretrained checkpoint `iter_3000.pth` (570 MB → `data/weights/iter_3000.pth`,
-  git-ignored). Source: **README section "Inference", step 1** — Google Drive
-  folder `https://drive.google.com/drive/folders/1K_zLZwgoUIAJtfjwfCU5Nv33k17R0O5T`
-  (file id `1cIWM7lTisd1GajDR98IymDssvvLAKH1n`, fetched via gdown).
+  (github.com/TheJaeLal/LineFormer, also in `envs/lineformer.commit`; the
+  setup script checks out this exact commit and aborts if it can't).
+- Pretrained checkpoint → `data/weights/lineformer_pretrained_official_iter3000.pth`
+  (570 MB, git-ignored). Source: **README section "Inference", step 1** —
+  Google Drive folder
+  `https://drive.google.com/drive/folders/1K_zLZwgoUIAJtfjwfCU5Nv33k17R0O5T`
+  (file id `1cIWM7lTisd1GajDR98IymDssvvLAKH1n`, fetched via gdown). The file
+  is named `iter_3000.pth` at the source; we rename it on arrival — see the
+  disambiguation warning below.
 - Checkpoint sha256:
   `ac03d7d52a11ce253350bf4bc73416e42ac68021c00bcce14d47fcc28ec65eb0`
   (also in `envs/lineformer_checkpoint.sha256`; the setup script verifies the
-  hash after download and aborts on mismatch).
+  hash after every download/copy and aborts on mismatch — this also catches
+  transit corruption when the file is scp'd rather than freshly downloaded).
+
+> ⚠ **Do not confuse this with the project's own old checkpoint.** The legacy
+> tree (`D:\LineFormerModel\LineFormer\models\iter_3000.pth`) contains a
+> *different*, project-specific fine-tuned checkpoint that **happens to share
+> the exact same filename** `iter_3000.pth`. That legacy checkpoint is
+> reference-only per `CLAUDE.md` §6 (untrusted, never copied blindly) and its
+> quality has not been assessed here. The file in this repo,
+> `lineformer_pretrained_official_iter3000.pth`, is always the **official
+> upstream pretrained weights** from the README link above — the descriptive
+> filename and the sha256 pin are the guard against the two ever being mixed
+> up.
 
 ## Data layout
 
