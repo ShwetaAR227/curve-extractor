@@ -24,6 +24,8 @@ import argparse
 import json
 import random
 import re
+import shutil
+import sys
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
@@ -234,6 +236,193 @@ def write_split(
     logger.info("Wrote %s", out_dir / MANIFEST_NAME)
 
 
+def allocate_new_batch(
+    families: Dict[str, List[int]],
+    val_family_count: Optional[int] = None,
+    val_image_target: Optional[int] = None,
+) -> Dict[str, List[int]]:
+    """Route a NEW batch's families into train/val only (task T9).
+
+    Promotes the ad-hoc allocation used for the semiauto-batch merge
+    (commit 2c33a17) into a tested, reusable function. This function has
+    **no path that references or writes test data** — it only ever returns
+    ``{"train": [...], "val": [...]}``.
+
+    Families are sorted ascending by image count (ties broken
+    alphabetically for determinism); whole families go to ``val`` until
+    either mode's stopping condition is met, everything else goes to
+    ``train``. Exactly one of the two modes must be given:
+
+    - ``val_family_count``: take the N smallest families whole.
+    - ``val_image_target``: take smallest families while doing so keeps the
+      cumulative image count closer to the target than stopping would
+      (the same "closest boundary" greedy used in the original ad-hoc
+      script) — always takes at least the single smallest family.
+    """
+    if (val_family_count is None) == (val_image_target is None):
+        raise ValueError(
+            "Exactly one of val_family_count or val_image_target must be given"
+        )
+    order = sorted(families, key=lambda f: (len(families[f]), f))
+
+    if val_family_count is not None:
+        val_families = order[:val_family_count]
+    else:
+        val_families = []
+        cum = 0
+        for fam in order:
+            if cum >= val_image_target:
+                break
+            size = len(families[fam])
+            if cum == 0 or (cum + size - val_image_target) <= (val_image_target - cum):
+                val_families.append(fam)
+                cum += size
+
+    val_set = set(val_families)
+    train = [i for fam in order if fam not in val_set for i in families[fam]]
+    val = [i for fam in val_families for i in families[fam]]
+    return {"train": train, "val": val}
+
+
+def _combine_and_renumber(
+    existing: Dict[str, Any], new_part: Dict[str, Any]
+) -> Dict[str, Any]:
+    """Combine two COCO dicts with independent (possibly overlapping) id
+    spaces into one, with fresh sequential ids so nothing can collide."""
+    images: List[Dict[str, Any]] = []
+    annotations: List[Dict[str, Any]] = []
+    next_img_id = 1
+    next_ann_id = 1
+
+    for source in (existing, new_part):
+        img_id_map: Dict[int, int] = {}
+        for img in source["images"]:
+            img_id_map[img["id"]] = next_img_id
+            new_img = dict(img)
+            new_img["id"] = next_img_id
+            images.append(new_img)
+            next_img_id += 1
+        for ann in source["annotations"]:
+            if ann["image_id"] not in img_id_map:
+                continue
+            new_ann = dict(ann)
+            new_ann["id"] = next_ann_id
+            new_ann["image_id"] = img_id_map[ann["image_id"]]
+            annotations.append(new_ann)
+            next_ann_id += 1
+
+    categories = existing.get("categories") or new_part.get("categories")
+    return {"images": images, "annotations": annotations, "categories": categories}
+
+
+def merge_new_batch_into_split(
+    new_batch_coco_path: Union[str, Path],
+    existing_split_dir: Union[str, Path],
+    out_dir: Union[str, Path],
+    val_family_count: Optional[int] = None,
+    val_image_target: Optional[int] = None,
+) -> Dict[str, Any]:
+    """Fold a new batch's images into an existing train/val/test split.
+
+    Adds to (never replaces) the existing ``train.json``/``val.json``;
+    ``test.json`` is copied byte-for-byte and its hash is verified
+    unchanged before vs. after — this function never derives test.json from
+    scratch, so it can never accidentally leak new data into it.
+    """
+    new_batch_coco_path = Path(new_batch_coco_path)
+    existing_split_dir = Path(existing_split_dir)
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    new_coco = json.loads(new_batch_coco_path.read_text(encoding="utf-8"))
+    families: Dict[str, List[int]] = {}
+    for img in new_coco["images"]:
+        fam = assign_family(extract_device(img["file_name"]))
+        families.setdefault(fam, []).append(img["id"])
+
+    allocation = allocate_new_batch(families, val_family_count=val_family_count,
+                                    val_image_target=val_image_target)
+    families_by_side: Dict[str, str] = {}
+    for side in ("train", "val"):
+        ids = set(allocation[side])
+        for fam, fam_ids in families.items():
+            if set(fam_ids) & ids:
+                families_by_side[fam] = side
+
+    existing_train = json.loads(
+        (existing_split_dir / "train.json").read_text(encoding="utf-8"))
+    existing_val = json.loads(
+        (existing_split_dir / "val.json").read_text(encoding="utf-8"))
+    test_path = existing_split_dir / "test.json"
+    test_hash_before = _sha256(test_path)
+
+    def build_side(existing_part: Dict[str, Any], new_ids: Sequence[int]) -> Dict[str, Any]:
+        new_ids_set = set(new_ids)
+        new_images = [i for i in new_coco["images"] if i["id"] in new_ids_set]
+        new_image_ids = {i["id"] for i in new_images}
+        new_annotations = [a for a in new_coco["annotations"]
+                          if a["image_id"] in new_image_ids]
+        return _combine_and_renumber(existing_part, {
+            "images": new_images, "annotations": new_annotations,
+            "categories": new_coco["categories"],
+        })
+
+    train_out = build_side(existing_train, allocation["train"])
+    val_out = build_side(existing_val, allocation["val"])
+    for name, part in (("train", train_out), ("val", val_out)):
+        errors = validate_coco(part)
+        if errors:
+            raise ValueError(f"{name} split invalid after merge:\n" + "\n".join(errors))
+
+    (out_dir / "train.json").write_text(json.dumps(train_out, indent=2), encoding="utf-8")
+    (out_dir / "val.json").write_text(json.dumps(val_out, indent=2), encoding="utf-8")
+
+    out_test_path = out_dir / "test.json"
+    if out_test_path.resolve() != test_path.resolve():
+        shutil.copyfile(test_path, out_test_path)
+    test_hash_after = _sha256(out_test_path)
+    if test_hash_after != test_hash_before:
+        raise ValueError(
+            "test.json hash changed during allocate-new-batch merge! "
+            f"before={test_hash_before} after={test_hash_after} — this must never happen."
+        )
+
+    manifest_path = existing_split_dir / MANIFEST_NAME
+    previous_manifest = (json.loads(manifest_path.read_text(encoding="utf-8"))
+                        if manifest_path.is_file() else None)
+    manifest = {
+        "previous_manifest": previous_manifest,
+        "new_batch_merge": {
+            "source_coco": str(new_batch_coco_path),
+            "source_coco_sha256": _sha256(new_batch_coco_path),
+            "val_family_count": val_family_count,
+            "val_image_target": val_image_target,
+            "families_by_side": families_by_side,
+            "n_images_to_train": len(allocation["train"]),
+            "n_images_to_val": len(allocation["val"]),
+        },
+        "counts": {
+            "train": {"images": len(train_out["images"]),
+                      "annotations": len(train_out["annotations"])},
+            "val": {"images": len(val_out["images"]),
+                    "annotations": len(val_out["annotations"])},
+        },
+        "test_json_sha256": test_hash_after,
+    }
+    (out_dir / MANIFEST_NAME).write_text(json.dumps(manifest, indent=2), encoding="utf-8")
+
+    logger.info("Merged new batch %s: train +%d, val +%d, test unchanged (sha256 %s)",
+               new_batch_coco_path, len(allocation["train"]), len(allocation["val"]),
+               test_hash_after[:12])
+    return {
+        "train": manifest["counts"]["train"],
+        "val": manifest["counts"]["val"],
+        "test_json_hash_unchanged": test_hash_after == test_hash_before,
+        "families_by_side": families_by_side,
+        "out_dir": str(out_dir),
+    }
+
+
 def format_proposal(proposal: Dict[str, Any]) -> str:
     """Human-readable proposal report (used by --dry-run)."""
     lines = [f"Split proposal — seed {proposal['seed']}, "
@@ -255,8 +444,41 @@ def format_proposal(proposal: Dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def _main_allocate_new_batch(argv: Sequence[str]) -> int:
+    """CLI: python -m src.dataset_tools.split_dataset allocate-new-batch ..."""
+    parser = argparse.ArgumentParser(
+        prog="split_dataset.py allocate-new-batch",
+        description="Fold a new batch's images into an existing train/val "
+                    "split. test.json is never touched (copied byte-for-byte, "
+                    "hash-verified unchanged).")
+    parser.add_argument("new_batch_coco", help="COCO file for the new batch")
+    parser.add_argument("existing_split_dir",
+                        help="Directory with existing train.json/val.json/test.json")
+    group = parser.add_mutually_exclusive_group(required=True)
+    group.add_argument("--val-families", type=int,
+                       help="Route the N smallest new-batch families to val")
+    group.add_argument("--val-images", type=int,
+                       help="Route smallest new-batch families to val until "
+                            "closest to this many images")
+    parser.add_argument("--out", required=True, help="Output directory")
+    args = parser.parse_args(argv)
+    try:
+        summary = merge_new_batch_into_split(
+            args.new_batch_coco, args.existing_split_dir, args.out,
+            val_family_count=args.val_families, val_image_target=args.val_images)
+    except (FileNotFoundError, ValueError, KeyError) as exc:
+        logger.error("allocate-new-batch failed: %s", exc)
+        return 1
+    print(json.dumps(summary, indent=2))
+    return 0
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
     """CLI entry point. Returns a process exit code (0 = success)."""
+    raw_argv = sys.argv[1:] if argv is None else list(argv)
+    if raw_argv and raw_argv[0] == "allocate-new-batch":
+        return _main_allocate_new_batch(raw_argv[1:])
+
     parser = argparse.ArgumentParser(
         description="Group-aware (family-level) train/val/test split of a "
                     "COCO dataset.")

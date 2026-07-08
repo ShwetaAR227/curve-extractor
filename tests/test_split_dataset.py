@@ -13,6 +13,7 @@ from src.dataset_tools.split_dataset import (
     FAMILY_MERGE_MAP,
     PINNED_FAMILIES,
     RATIOS,
+    allocate_new_batch,
     assign_family,
     extract_device,
     group_split,
@@ -224,3 +225,111 @@ class TestWriteSplitAndCli:
         assert rc == 0
         for f in ("train.json", "val.json", "test.json", "split_manifest.json"):
             assert (out / f).exists()
+
+
+# --------------------------------------------------------- allocate_new_batch
+# T9: promoting the ad-hoc semiauto-batch split (commit 2c33a17) into a
+# tested, reusable tool. Routes a NEW batch's families into train/val only —
+# never references or writes test data.
+
+class TestAllocateNewBatch:
+    def _families(self):
+        return {"A": [1, 2, 3, 4, 5], "B": [6, 7], "C": [8], "D": [9, 10, 11]}
+
+    def test_val_family_count_takes_smallest_n(self):
+        result = allocate_new_batch(self._families(), val_family_count=2)
+        assert set(result["val"]) == {6, 7, 8}  # smallest: C(1), B(2)
+        assert set(result["train"]) == {1, 2, 3, 4, 5, 9, 10, 11}
+
+    def test_val_family_count_ties_broken_alphabetically(self):
+        families = {"B": [1, 2], "A": [3, 4], "C": [5, 6, 7]}
+        result = allocate_new_batch(families, val_family_count=1)
+        assert result["val"] == [3, 4]  # 'A' ties with 'B' at size 2, A wins alphabetically
+
+    def test_val_image_target_stops_at_closest_boundary(self):
+        families = {"A": [1], "B": [2], "C": [3], "D": [4, 5, 6, 7, 8]}
+        result = allocate_new_batch(families, val_image_target=2)
+        assert set(result["val"]) == {1, 2}
+        assert set(result["train"]) == {3, 4, 5, 6, 7, 8}
+
+    def test_no_family_straddles_train_val(self):
+        families = self._families()
+        for kwargs in [{"val_family_count": 2}, {"val_image_target": 5}]:
+            result = allocate_new_batch(families, **kwargs)
+            val_set, train_set = set(result["val"]), set(result["train"])
+            for fam_ids in families.values():
+                sides = {"val" if i in val_set else "train" for i in fam_ids}
+                assert len(sides) == 1, f"family straddled: {fam_ids}"
+
+    def test_all_images_accounted_for_no_duplicates(self):
+        families = self._families()
+        result = allocate_new_batch(families, val_family_count=1)
+        all_ids = [i for ids in families.values() for i in ids]
+        combined = result["train"] + result["val"]
+        assert sorted(combined) == sorted(all_ids)
+        assert not (set(result["train"]) & set(result["val"]))
+
+    def test_deterministic(self):
+        families = self._families()
+        a = allocate_new_batch(families, val_family_count=2)
+        b = allocate_new_batch(families, val_family_count=2)
+        assert a == b
+
+    def test_neither_mode_given_raises(self):
+        with pytest.raises(ValueError):
+            allocate_new_batch(self._families())
+
+    def test_both_modes_given_raises(self):
+        with pytest.raises(ValueError):
+            allocate_new_batch(self._families(), val_family_count=1, val_image_target=5)
+
+    def test_val_family_count_exceeding_total_is_safe(self):
+        families = self._families()
+        result = allocate_new_batch(families, val_family_count=10)
+        assert result["train"] == []
+        assert sorted(result["val"]) == sorted(i for ids in families.values() for i in ids)
+
+
+class TestAllocateNewBatchCli:
+    def _existing_split(self, tmp_path):
+        split_dir = tmp_path / "existing_split"
+        split_dir.mkdir()
+        make_coco(split_dir / "train.json", family_names("BSC", 3))
+        make_coco(split_dir / "val.json", family_names("BSP", 2))
+        make_coco(split_dir / "test.json", family_names("BSS", 2))
+        return split_dir
+
+    def test_test_json_byte_identical_before_and_after(self, tmp_path):
+        split_dir = self._existing_split(tmp_path)
+        before = (split_dir / "test.json").read_bytes()
+        new_batch = make_coco(tmp_path / "new_batch.json",
+                              family_names("IPD", 4) + family_names("IPP", 2))
+        out = tmp_path / "out"
+        rc = main(["allocate-new-batch", str(new_batch), str(split_dir),
+                  "--val-families", "1", "--out", str(out)])
+        assert rc == 0
+        after = (out / "test.json").read_bytes()
+        assert after == before
+        # Original, untouched location is also unaffected.
+        assert (split_dir / "test.json").read_bytes() == before
+
+    def test_merge_appends_existing_and_new_without_duplication(self, tmp_path):
+        split_dir = self._existing_split(tmp_path)
+        existing_train_names = {
+            i["file_name"] for i in
+            json.loads((split_dir / "train.json").read_text())["images"]
+        }
+        new_batch = make_coco(tmp_path / "new_batch.json",
+                              family_names("IPD", 4) + family_names("IPP", 2))
+        out = tmp_path / "out"
+        rc = main(["allocate-new-batch", str(new_batch), str(split_dir),
+                  "--val-families", "1", "--out", str(out)])
+        assert rc == 0
+        train_out = json.loads((out / "train.json").read_text())
+        names = [i["file_name"] for i in train_out["images"]]
+        assert len(names) == len(set(names))  # no duplicates
+        assert existing_train_names <= set(names)  # all originals preserved
+        assert len(names) > len(existing_train_names)  # new ones were added
+        ids = [i["id"] for i in train_out["images"]]
+        assert len(ids) == len(set(ids))  # ids unique after renumbering
+        assert validate_coco(train_out) == []
