@@ -68,3 +68,27 @@ def detect_divergence(
     loss_decreasing = loss_window[-1] < loss_window[0]
     map_not_improving = map_window[-1] <= map_window[0]
     return loss_decreasing and map_not_improving
+
+
+def format_status_line(
+    iteration: int,
+    train_loss: float,
+    metric_key: str,
+    metric_value: float,
+    best_value: Optional[float],
+    best_iteration: Optional[int],
+    iters_since_best: Optional[int],
+) -> str:
+    """One-line, `cat`-able training status (task T7 Run A2).
+
+    Written to ``status.txt`` in the work dir at every eval interval so
+    progress can be checked without reading the full raw log. ``best_*``/
+    ``iters_since_best`` may be ``None`` on the very first eval point (no
+    history yet) — rendered as ``n/a``.
+    """
+    best_str = (f"{best_value:.4f}@iter{best_iteration}"
+               if best_value is not None else "n/a")
+    since_str = str(iters_since_best) if iters_since_best is not None else "n/a"
+    return (f"iter={iteration} train_loss={train_loss:.4f} "
+           f"{metric_key}={metric_value:.4f} best={best_str} "
+           f"iters_since_best={since_str}")

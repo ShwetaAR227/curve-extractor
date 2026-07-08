@@ -146,6 +146,14 @@ def run_training(config_path: str, work_dir: str, seed: int = 42) -> Dict[str, A
     set_random_seed(seed, deterministic=False)
     cfg.seed = seed
 
+    # status_path depends on work_dir, which is only known at runtime (not
+    # inside the static config file) — inject it into the already-configured
+    # EarlyStoppingDivergenceHook entry so `cat status.txt` works for any run.
+    status_path = str(Path(work_dir) / "status.txt")
+    for hook_cfg in cfg.get("custom_hooks", []):
+        if hook_cfg.get("type") == "EarlyStoppingDivergenceHook":
+            hook_cfg["status_path"] = status_path
+
     commit = None
     commit_file = repo_root / "envs" / "lineformer.commit"
     if commit_file.is_file():

@@ -9,19 +9,26 @@ Registered via config (``custom_hooks``), not instantiated directly:
 
     custom_hooks = [dict(type="EarlyStoppingDivergenceHook",
                          eval_interval=200, patience_iters=600,
-                         metric_key="segm_mAP_50", divergence_window=3)]
+                         metric_key="segm_mAP_50", divergence_window=3,
+                         status_path="/path/to/work_dir/status.txt")]
 
 Stopping mechanism: sets ``runner._max_iters = runner.iter + 1`` so the
 IterBasedRunner's own loop condition ends the run after the current
 iteration finishes — this lets ``after_run`` hooks (final checkpoint save,
 logger flush) still execute normally, unlike raising an exception mid-loop.
+
+``status_path`` (task T7 Run A2), if given, is overwritten with one line via
+the tested :func:`src.training.early_stopping.format_status_line` at every
+eval interval, so progress can be checked with a plain ``cat`` instead of
+reading the full raw log.
 """
-from typing import List, Tuple
+from pathlib import Path
+from typing import List, Optional, Tuple
 
 from mmcv.runner import HOOKS, Hook
 
 from src.common.log import get_logger
-from src.training.early_stopping import detect_divergence, should_stop
+from src.training.early_stopping import detect_divergence, format_status_line, should_stop
 
 logger = get_logger(__name__)
 
@@ -38,11 +45,13 @@ class EarlyStoppingDivergenceHook(Hook):
         patience_iters: int,
         metric_key: str = "segm_mAP_50",
         divergence_window: int = 3,
+        status_path: Optional[str] = None,
     ) -> None:
         self.eval_interval = eval_interval
         self.patience_iters = patience_iters
         self.metric_key = metric_key
         self.divergence_window = divergence_window
+        self.status_path = status_path
         self._loss_buffer: List[float] = []
         self.val_history: List[Tuple[int, float]] = []
         self.train_loss_history: List[float] = []
@@ -89,6 +98,12 @@ class EarlyStoppingDivergenceHook(Hook):
             runner.iter, mean_train_loss, self.metric_key, metric,
             info["best_value"], info["best_iteration"], info["iters_since_best"],
         )
+        if self.status_path:
+            line = format_status_line(
+                runner.iter + 1, mean_train_loss, self.metric_key, float(metric),
+                info["best_value"], info["best_iteration"], info["iters_since_best"],
+            )
+            Path(self.status_path).write_text(line + "\n", encoding="utf-8")
         if stop:
             logger.warning(
                 "EARLY STOPPING at iter %d: no improvement in %s for %d "

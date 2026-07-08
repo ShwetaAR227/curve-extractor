@@ -8,6 +8,7 @@ import pytest
 from src.training.early_stopping import (
     DEFAULT_DIVERGENCE_WINDOW,
     detect_divergence,
+    format_status_line,
     should_stop,
 )
 
@@ -95,3 +96,26 @@ class TestDetectDivergence:
     def test_mismatched_lengths_raises(self):
         with pytest.raises(ValueError):
             detect_divergence([1.0, 0.9, 0.8], [0.1, 0.2], window=2)
+
+
+class TestFormatStatusLine:
+    def test_contains_all_fields(self):
+        line = format_status_line(800, 27.5, "segm_mAP_50", 0.50, 0.50, 800, 0)
+        assert "iter=800" in line
+        assert "train_loss=27.5000" in line
+        assert "segm_mAP_50=0.5000" in line
+        assert "best=0.5000@iter800" in line
+        assert "iters_since_best=0" in line
+
+    def test_single_line_no_newline(self):
+        line = format_status_line(200, 38.4, "segm_mAP_50", 0.19, 0.19, 200, 0)
+        assert "\n" not in line
+
+    def test_none_best_values_render_as_na(self):
+        line = format_status_line(200, 38.4, "segm_mAP_50", 0.19, None, None, None)
+        assert "best=n/a" in line
+        assert "iters_since_best=n/a" in line
+
+    def test_different_metric_key_used_verbatim(self):
+        line = format_status_line(100, 1.0, "bbox_mAP", 0.3, 0.3, 100, 0)
+        assert "bbox_mAP=0.3000" in line
