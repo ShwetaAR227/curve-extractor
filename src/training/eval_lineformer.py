@@ -141,10 +141,18 @@ def run_eval(
     device: str = "cuda:0",
 ) -> Dict[str, Any]:
     """Evaluate a checkpoint on the frozen test COCO. Returns the report dict."""
+    import os
+
     import pycocotools.mask as mask_util
     from mmdet.apis import inference_detector, init_detector
     from pycocotools.coco import COCO
     from pycocotools.cocoeval import COCOeval
+
+    # Configs using our _base_ chain (e.g. lineformer_run_a.py) need this env
+    # var — see the matching comment in train_lineformer.py. Harmless no-op
+    # for configs that don't reference it (e.g. LineFormer's own upstream
+    # config, used directly for the baseline evals).
+    os.environ["LINEFORMER_REPO_ROOT"] = str(Path(__file__).resolve().parents[2])
 
     test_coco = Path(test_coco)
     images_dir = Path(images_dir)
