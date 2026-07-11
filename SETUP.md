@@ -33,6 +33,8 @@ as-is; stages 4–7 are rebuilt here under strict TDD and the rules in `CLAUDE.m
 | **MongoDB** | Final storage of validated curve data (stage 7). |
 | **pytest** | Strict TDD (see `CLAUDE.md` §2). |
 | **numpy / scipy / matplotlib** | Numeric work, calibration fitting, overlay rendering. |
+| **scikit-image** | Mask skeletonization (stage 5: predicted curve masks -> single-pixel-wide centerlines before pixel-to-data conversion). |
+| **pycocotools** | Mask format decoding (RLE/ndarray -> boolean mask) shared by eval, CVAT pre-annotation, and stage-5 inference. |
 
 ## Setup steps
 
