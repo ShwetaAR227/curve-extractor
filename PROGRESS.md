@@ -173,3 +173,20 @@ Track this item until closed. Opened: 2026-07-07. Status: **OPEN**.
 - **End:** T22 complete (pending owner review). `src/pdf_download/` (typed exceptions,
   source registry, verified downloads), 38 tests all-mocked (red→green), suite
   **577 passing**. No real download run yet — awaits owner design review. Details in T22 row.
+
+### 2026-07-12 — T22 follow-up: owner approval + real download sanity check
+- **Owner approved T22.** Infineon direct-mfr question answered: not needed now —
+  CSV-URL covers Infineon in practice (DigiKey exports carry a Datasheet URL for every
+  vendor); a direct Infineon pattern isn't constructible (unpredictable version slug,
+  same reason legacy skipped it); Mouser API is the better fallback if recovery
+  becomes an issue. Decision: no Infineon source unless a real gap shows up.
+- **Real sanity run (6 attempts, 3 downloaded):**
+  - ✅ `csv_url` — TI CSD18536KCS via ti.com symlink (922,031 bytes, PDF 1.4, EOF ok, ~13 pages)
+  - ✅ `direct_mfr` ST — STP55NF06 (812,175 bytes, PDF 1.3; text extracted and read — genuine datasheet)
+  - ✅ `direct_mfr` onsemi — NTD5867NL (272,801 bytes, PDF 1.4)
+  - ❌ onsemi 2N7002 + Nexperia BSS138: servers returned HTML → **InvalidPdfError correctly
+    raised, nothing written to disk — the HTML-as-.pdf guard proven on real traffic**
+  - ❌ hand-guessed Vishay URL: 404 → typed PdfNotFoundError, single attempt (no-retry-on-404 confirmed live)
+- **No credentials in logs:** MOUSER_API_KEY unset (source no-op'd); log lines contain
+  only public URLs + byte counts; the mouser_api module never logs its request URL
+  (the key rides in the query string by Mouser's design — kept out of logs by construction).
