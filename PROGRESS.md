@@ -202,3 +202,14 @@ Track this item until closed. Opened: 2026-07-07. Status: **OPEN**.
   masking fix + composite_suspect flagging + sub-caption candidate signal; 37 tests
   (red→green, spanning-caption regression included), suite **614 passing**. No real
   Azure call made. Details in T23 row.
+
+### 2026-07-12 — id_vs_vgs training data: batch 1 converted + split
+- CVAT job 4225954 (200 images, temperature-labeled TJ_25C/150C/175C/-40C) converted
+  via the frozen `cvat_to_coco` tool → `data/coco/id_vs_vgs_batch1.json`:
+  **200 images / 324 annotations, validate_coco clean; the 40 zero-shape images are
+  intentional (misclassified charts) and kept as empty negatives.**
+- Group-aware split (same family tool as capacitance, seed 42) with **owner-approved
+  val/test swap** (original test side was 76% empty / 14 annotations):
+  `data/coco/split_id_vs_vgs/` → train 141 img / 256 ann (13 empty),
+  val 29 / 14 (22 empty), test 30 / 54 (5 empty). Decision recorded in the
+  split manifest. Data files git-ignored per policy.
