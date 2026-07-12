@@ -8,7 +8,7 @@ train_lineformer.py.
 import numpy as np
 import pytest
 
-from src.cvat_to_coco import parse_cvat_xml
+from src.dataset_tools.cvat_to_coco import parse_cvat_xml
 from src.training.predict_to_cvat import (
     CURVE_NAME_PLACEHOLDER,
     MIN_POLYGON_POINTS,

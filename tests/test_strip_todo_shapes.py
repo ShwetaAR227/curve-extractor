@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 
 import pytest
 
-from src.cvat_to_coco import parse_cvat_xml
+from src.dataset_tools.cvat_to_coco import parse_cvat_xml
 from src.dataset_tools.strip_todo_shapes import strip_todo_xml
 
 

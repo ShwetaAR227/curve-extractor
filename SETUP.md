@@ -29,7 +29,7 @@ as-is; stages 4–7 are rebuilt here under strict TDD and the rules in `CLAUDE.m
 | **LineFormer / Mask2Former via MMDetection** | Instance segmentation for the hard cases the classical path can't do: overlapping curves, same-color curves, banded (thick) curves. |
 | **shapely** | Polyline buffering — turns annotated polylines into polygon masks for training-data generation (T2 converter). |
 | **Azure Document Intelligence** | OCR for axis tick labels — stage 3, imported from legacy. |
-| **CVAT.ai cloud** | Annotation tool. Convention: **polyline** for thin curves, **polygon** for thick bands; label `line` with attribute `curve_name`. Export **ONLY as "CVAT for images 1.1" XML** — CVAT's own COCO exporter **silently drops polylines**, so we convert XML→COCO ourselves (see `src/cvat_to_coco.py`). |
+| **CVAT.ai cloud** | Annotation tool. Convention: **polyline** for thin curves, **polygon** for thick bands; label `line` with attribute `curve_name`. Export **ONLY as "CVAT for images 1.1" XML** — CVAT's own COCO exporter **silently drops polylines**, so we convert XML→COCO ourselves (see `src/dataset_tools/cvat_to_coco.py`). |
 | **MongoDB** | Final storage of validated curve data (stage 7). |
 | **pytest** | Strict TDD (see `CLAUDE.md` §2). |
 | **numpy / scipy / matplotlib** | Numeric work, calibration fitting, overlay rendering. |
@@ -58,7 +58,7 @@ Run tools as they appear (each tool documents its own CLI; current tools):
 ```bash
 # CVAT XML → COCO converter (T2); multiple inputs are merged (T3):
 # ids renumbered, unannotated images dropped, duplicate file_names hard-error.
-python -m src.cvat_to_coco <cvat_export.xml> [<more.xml> ...] <output_coco.json> [--buffer-px N]
+python -m src.dataset_tools.cvat_to_coco <cvat_export.xml> [<more.xml> ...] <output_coco.json> [--buffer-px N]
 ```
 
 ⚠ The pilot export (`tests/fixtures/cvat/pilot7_job4199936.xml`) is a **converter test

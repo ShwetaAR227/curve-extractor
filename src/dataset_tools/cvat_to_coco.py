@@ -10,7 +10,7 @@ Every annotation carries its ``curve_name`` attribute; an empty or missing
 are a write-time error).
 
 CLI:
-    python -m src.cvat_to_coco <cvat_export.xml> <output_coco.json> [--buffer-px N]
+    python -m src.dataset_tools.cvat_to_coco <cvat_export.xml> <output_coco.json> [--buffer-px N]
 """
 import argparse
 import json

@@ -30,7 +30,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 from src.common.log import get_logger
-from src.cvat_to_coco import validate_coco
+from src.dataset_tools.cvat_to_coco import validate_coco
 from src.dataset_tools.collect_images import _sha256
 
 logger = get_logger(__name__)

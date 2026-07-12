@@ -1,4 +1,4 @@
-"""Tests for src.cvat_to_coco — written FIRST per CLAUDE.md §2 (strict TDD).
+"""Tests for src.dataset_tools.cvat_to_coco — written FIRST per CLAUDE.md §2 (strict TDD).
 
 Covers: parse_cvat_xml, buffer_polyline, polygon_area, bbox_from_segmentation,
 convert, validate_coco, and the CLI entry point.
@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from src.cvat_to_coco import (
+from src.dataset_tools.cvat_to_coco import (
     CATEGORY_NAME,
     DEFAULT_BUFFER_PX,
     bbox_from_segmentation,

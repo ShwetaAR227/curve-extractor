@@ -152,3 +152,12 @@ Track this item until closed. Opened: 2026-07-07. Status: **OPEN**.
   found on disk — fixtures built from the real DigiKey header names in the legacy tables.
 - **End:** T21 complete (pending owner review). `src/ingest/` ×5 modules, 113 tests
   (red→green), full suite **539 passing**. PROGRESS.md M6 section added. Details in T21 row.
+
+### 2026-07-12 — Session: structural cleanup (owner-approved)
+- `src/cvat_to_coco.py` → `src/dataset_tools/cvat_to_coco.py` (data-prep tool, per
+  inventory recommendation); imports updated in `split_dataset.py` + 4 test files,
+  CLI is now `python -m src.dataset_tools.cvat_to_coco` (SETUP.md updated).
+  Historical PROGRESS.md references left as written (§8: never delete history).
+- Git-ignored scratch renames to the two-digit tNN convention: `data/t8a_overlay` →
+  `t08a_overlay`, `t8f_overlay` → `t08f_overlay`, `t8b_*.xml` → `t08b_*.xml`.
+- Full suite 539 passing after the move.

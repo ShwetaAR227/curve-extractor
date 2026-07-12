@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from src.cvat_to_coco import validate_coco
+from src.dataset_tools.cvat_to_coco import validate_coco
 from src.dataset_tools.split_dataset import (
     FAMILY_MERGE_MAP,
     PINNED_FAMILIES,
