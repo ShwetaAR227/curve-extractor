@@ -1,0 +1,5 @@
+Mfr Part #,Mfr,Drain to Source Voltage (Vdss),Current - Continuous Drain (Id) @ 25°C,"Rds On (Max) @ Id, Vgs",Vgs(th) (Max) @ Id,Input Capacitance (Ciss) (Max) @ Vds,Operating Temperature,Package / Case,Datasheet,Price
+IRF540N-ND,Infineon,100V,33A (Tc),"44mOhm @ 25A, 10V",4V @ 250uA,1960 pF @ 25 V,-55°C ~ 175°C (TJ),TO-220-3,https://example.com/irf540n.pdf,$1.02
+BSC042N03MS-DKR,Infineon,30V,55A (Tc),"4.2mOhm @ 30A, 10V",2.4V @ 65uA,3200 pF @ 15 V,-55°C ~ 150°C (TJ),PG-TDSON-8,https://example.com/bsc042.pdf,$0.87
+,Vishay,60V,20A (Tc),"22mOhm @ 10A, 10V",3V @ 250uA,1200 pF @ 30 V,-55°C ~ 175°C (TJ),TO-220-3,https://example.com/missing.pdf,$0.55
+SUD50N04,Vishay,40V,not-a-current,garbage-rdson,junk,junk,junk,TO-252,https://example.com/sud50n04.pdf,$0.44

@@ -1,0 +1,3 @@
+Part Number,Manufacturer,Vdss,Drain Current,RDS(ON),Gate Threshold Voltage,Input Capacitance,Package
+IPB017N10N5-ND,Infineon,100V,120A (Tc),"1.7mOhm @ 100A, 10V",4V @ 340uA,9500 pF @ 50 V,PG-TO263-7
+STP55NF06,STMicroelectronics,60V,50A (Tc),"18mOhm @ 27.5A, 10V",4V @ 250uA,1350 pF @ 25 V,TO-220-3
