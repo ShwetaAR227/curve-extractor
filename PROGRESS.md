@@ -124,6 +124,17 @@ Track this item until closed. Opened: 2026-07-07. Status: **OPEN**.
 
 | T25 — Stage-4 `rdson_vs_tj` registry entry + Infineon "Diagram"-template classification fix (TDD) | ✅ Done (pending owner review) — **27→43 matched of 50, 0 regressions** | 2026-07-13; permanent `rdson_vs_tj` entry added to `src/classification/curve_registry.py` (owner-approved; previously runtime-injected in the T24 runs, validated at 11/13 then 27/50). **21 new tests, TDD red→green confirmed** (red demonstrated by stashing the entry: 19/20 fail; the `"R DS(on)"` case red-first separately), every caption/OCR string verbatim from the real corpus — `tests/test_curve_registry_rdson.py`. Suite **651 passing, no regressions.** **Quarantine diagnosis (15 devices):** two shared root causes — (1) the known Stage-3 caption off-by-one shifts "Diagram N: Drain-source on-state resistance" onto the WRONG figure (page-header Infineon logo, output characteristics, or RDS(on)=f(ID)), so the true chart is captionless; (2) the true chart's axis text is OCR-mangled (y `RDS(on) [m_2]`/`[22]`/`[mQ]`/`[mW]`/`R DS(on)`, x `Tj[C]`/`T [C]`/`T, [º℃]`), leaving it at 2.5–3.5 vs. the 5.0 threshold. **Fix is registry DATA only** (no scoring/classify logic touched): mangled-Tj x keywords (`"tj ["`/`"tj["`/`"t, ["`/`"t [c"` — deliberately NOT `"tc ["`; a test locks that case-temperature axes gain no credit), `"r ds(on)"` y variant, and two evidence-backed negatives (`"parameter: v"` for multi-Vgs-curve footers, `"output characteristic"` for shifted captions); every keyword commented with the device that motivated it. **50-device before/after: 27→43 matched, 15→0 quarantined** (all 15 now match, each verified as the TRUE chart), plus `BSB012N03LX3G` (previously no_match). **All 27 original matches unchanged (same device → same figure).** Remaining 7 no_match verified as **upstream Stage 1–3 data gaps, not classifier issues** — their `figures/` dirs are incomplete on disk (e.g. `AUIRFZ34N`: 22 figures in `full_extraction.json`, 1 PNG rendered, rdson chart missing); flagged for the stage 1–3 migration. **Open item for owner:** several Infineon rdson charts plot **TWO curves ("typ" and "max")**, unlike the single-curve IR template — decide how `rdson_vs_tj`'s expected-curve-count (currently 1) should treat these before finalizing the mono detector design. |
 
+## M8 — id_vs_vgs: LineFormer retraining
+
+> Recorded 2026-07-14 from owner-supplied results (runs executed 2026-07-13 on the
+> GPU box; manifests/eval reports live there, not in this repo's `data/`).
+
+| Task | Status | Notes |
+|---|---|---|
+| Run 3 — fine-tune on combined batch1+batch2 | ✅ Done — **PRODUCTION CHECKPOINT for id_vs_vgs** (owner, 2026-07-13) | Dataset: combined id_vs_vgs pool, **train 299 / val 70 / test 30 images** (the owner-fixed split, test sha256 `6e8e96d1b4ce…`). Config: 8000-iteration ceiling, patience 600, buffer radius 4.5 px. Best checkpoint `best_segm_mAP_50_iter_4800.pth` — GPU box `/mnt/data/my-datasheet/checkpoints/id_vs_vgs_run3_combined_8000iter/` (local copy under `checkpoints/id_vs_vgs/`, git-ignored). **Frozen test set: mAP@50 0.7414, mAP@75 0.0021, overall recall 0.8889.** Per-temperature recall: TJ_25C 0.92, TJ_150C 1.00, TJ_175C 0.91, TJ_-40C 0.50 (low sample size — only 4 TJ_-40C instances in test; TJ_-55C has zero val/test instances by split construction, noted 2026-07-13). mAP@75 near-zero matches the pattern seen in capacitance Runs A/A2 (4.5 px GT buffer wider than the printed stroke). |
+| 2px buffer-radius experiment | ❌ Abandoned (owner decision, 2026-07-13) — **4.5 px stays; revisit in the diversity pass** | Finding: id_vs_vgs had inherited the 4.5 px default buffer from capacitance (owner-tuned there, T4) without ever being tuned for transfer-char charts; visual comparison showed **2 px matches the real printed line width better**. Retrained with 2 px masks: **training repeatedly got stuck at 0.0 score** — early stopping too aggressive for thinner masks needing more localization precision. A longer patience (1200) was attempted but a command-line mixup prevented confirming it actually applied. **Decision: reverted to the working 4.5 px Run-3 checkpoint (74%) as production; 2 px abandoned for now** — not worth the debugging time. Revisit during the "diversity pass" phase after all 7 curve types are built. |
+| T26 — Real-world spot check: Rohm id_vs_vgs figures | 🔍 Reported | **10/12 spot-checked images looked correct** despite different chart styles — the model generalizes reasonably well even though training data is all-Infineon so far. Overlays: `data/t26_id_vs_vgs_rohm/` (git-ignored). |
+
 ## Upcoming
 
 - **Next: owner decision on T15's log-axis calibration finding**, then a real model-inference sample run on the GPU box (T15 used GT masks as a stand-in), then stage 6 (visual review) and stage 7 (orchestrator/validation → MongoDB)
@@ -270,6 +281,15 @@ Track this item until closed. Opened: 2026-07-07. Status: **OPEN**.
   while IAUTN/IAUZ sit in val — if these subseries share one chart template, val
   style-leaks from train; extending `FAMILY_MERGE_MAP` is an owner call.
 - **STOPPED before retraining per instruction — owner reviews these numbers first.**
+
+### 2026-07-13 — id_vs_vgs Run 3 + 2px experiment + T26 Rohm check (logged 2026-07-14)
+- Executed on the GPU box 2026-07-13; numbers supplied by the owner 2026-07-14 and
+  recorded in the new M8 section (Run 3 details, 2px abandonment decision, T26 result).
+- **Run 3 (combined 299/70/30) is the id_vs_vgs production checkpoint**: mAP@50 0.7414,
+  recall 0.8889, `best_segm_mAP_50_iter_4800.pth`.
+- 2px buffer experiment abandoned (training stuck at 0.0 score; owner reverted to
+  4.5 px) — revisit in the diversity pass after all 7 curve types are built.
+- T26: 10/12 Rohm figures spot-checked correct — first cross-manufacturer evidence.
 
 ### 2026-07-13 — id_vs_vgs batch 2: three owner-approved fixes + split re-run
 - Owner approved all three flags from the first pass; split rebuilt from the
