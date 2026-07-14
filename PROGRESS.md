@@ -116,12 +116,21 @@ Track this item until closed. Opened: 2026-07-07. Status: **OPEN**.
 
 | T23 — Stage 3 Azure OCR: figures + OCR attachment + composite splitting (TDD, clean-room) | ✅ Done (pending owner review) — **no real Azure run yet by design** | 2026-07-12; `src/azure_ocr/` (`config.py`, `figures.py`, `figure_ocr.py`, `composite.py`). **37 new tests, TDD red→green confirmed; suite 614 passing — zero Azure/network calls (OCR callable injected + mocked; synthetic images).** Clean-room from legacy `D:\Extractor_azure_ocr\` (16 files read). **Scope**: the three task-named concerns; azure_client/batch/assembler/tables/metadata/CLI are follow-ups. **Investigation finds:** (1) legacy snapshot is broken — every module imports a `..config` that exists nowhere in `D:\Extractor` (never copied from the original repo); constants reconstructed, `DEFAULT_DPI=200` verified against real page PNGs (A4 1654×2339). (2) Azure creds correctly env-based (4 vars), no hardcoded paths ✓. **The composite-split bug, diagnosed:** legacy pixel-gap detection needed ~97% white columns over the FULL image height, so caption text spanning under both charts crossed every gap and killed detection; squarish 2-ups also fell under the 2.2 candidate aspect threshold; failures passed through silently at DEBUG. **Fixes built + tested:** (1) **OCR-text masking** — all OCR line boxes painted white before gap detection (spanning captions are OCR text and vanish; chart ink isn't OCR'd and still blocks false gaps) with the whiteness bar raised to 0.995 (masking removes the reason legacy needed 3% tolerance) — dedicated regression test draws the exact spanning-caption composite and asserts it splits; (2) ≥2 "Figure N" sub-captions is now an independent candidate signal (catches squarish 2-ups); (3) unsplittable candidates get `composite_suspect: True` instead of passing silently; (4) OCR-cluster column fallback kept (axis-title keyword+unit/length/position, 30% cluster gap, 0.55 band validation). **Legacy behavior preserved:** inches→pixels polygon cropping at render DPI with padding+clamping, contour fallback with legacy gates, package-outline keyword flagging incl. the `[mm]`-misread guard + graph-keyword override, OCR idempotency/budget/rate-limit/failure-isolation, split-at-⅓-of-gap positioning, min sub-size 200×150, max 8 subs, sub-caption assignment + local OCR re-coordinates, partial-split file cleanup. **OCR callable is injected** (`ocr_fn`) — production wires Azure Read API later with client/batch migration; tests mock it. Per task, no real Azure OCR run yet — follow-up after owner review. |
 
+## M7 — rdson_vs_tj: classical (non-AI) extraction
+
+| Task | Status | Notes |
+|---|---|---|
+| T24 — Classical extraction path for `rdson_vs_tj` (TDD) | ✅ Done (pending owner review) — **no real rdson corpus run yet (no rdson figures on disk)** | 2026-07-13; `src/extraction/classical.py` (`detect_curve_classical`, `run_classical_pipeline`, `detect_rdson_units`) + `src/extraction/naming/rdson_vs_tj.py`. **16 new tests, TDD red→green confirmed** (owner approved the test file before any implementation existed; red = `ModuleNotFoundError` verified) — suite now **630 passing, no regressions** (was 614). rdson_vs_tj is a single solid-colored curve, so no LineFormer/GPU: curve pixels are isolated classically (chromatic-pixel segmentation — axes/grid/text are achromatic; morphological close bridges small print/compression gaps; too-small/too-short components like legend swatches dropped with logged reasons) and emitted as the SAME `Detection` objects the AI path produces, then handed to the **existing frozen Stage-5 core unchanged**: `process_detections(..., expected_curve_count=1)` runs dedup, count gating, skeletonize, naming (registry), calibration (`parse_numeric_ticks`/`fit_axis`), and schema validation — zero reimplementation, output dict is byte-for-byte the Stage-6/Stage-7 contract. Never-guess preserved: 2+ credible curves are ALL returned and quarantine via the count gate; no curve → `needs_review`, not a crash; malformed OCR input raises (→ Stage 7 `failed_extraction`). New rdson y-axis unit detection (mΩ→`mOhm`, Ω→`Ohm`, `normalized`; ASCII-canonical, milli pattern case-sensitive so "MΩ" never reads as milli) fills units when the core's capacitance-only unit detector comes back `units_undetected` — already-computed curves/calibration reused verbatim. **Files: new code only**, except the owner-authorized registry entry in `src/extraction/naming/__init__.py` (import + 2 data entries — the designed extension point). No frozen Stage-5 file modified. **Open items for owner:** (1) **monochrome/black-curve charts not handled yet** — a chroma-free figure correctly quarantines rather than extracting; a mono fallback needs the real rdson corpus (none in `data/` yet — needs a Stage 1–3 batch) to size properly; (2) **plausibility range check for `rdson_vs_tj` deferred** (would be a `PLAUSIBILITY_SPECS` entry in frozen `pipeline.py` — separate approval) until tested on real data. |
+
+| T25 — Stage-4 `rdson_vs_tj` registry entry + Infineon "Diagram"-template classification fix (TDD) | ✅ Done (pending owner review) — **27→43 matched of 50, 0 regressions** | 2026-07-13; permanent `rdson_vs_tj` entry added to `src/classification/curve_registry.py` (owner-approved; previously runtime-injected in the T24 runs, validated at 11/13 then 27/50). **21 new tests, TDD red→green confirmed** (red demonstrated by stashing the entry: 19/20 fail; the `"R DS(on)"` case red-first separately), every caption/OCR string verbatim from the real corpus — `tests/test_curve_registry_rdson.py`. Suite **651 passing, no regressions.** **Quarantine diagnosis (15 devices):** two shared root causes — (1) the known Stage-3 caption off-by-one shifts "Diagram N: Drain-source on-state resistance" onto the WRONG figure (page-header Infineon logo, output characteristics, or RDS(on)=f(ID)), so the true chart is captionless; (2) the true chart's axis text is OCR-mangled (y `RDS(on) [m_2]`/`[22]`/`[mQ]`/`[mW]`/`R DS(on)`, x `Tj[C]`/`T [C]`/`T, [º℃]`), leaving it at 2.5–3.5 vs. the 5.0 threshold. **Fix is registry DATA only** (no scoring/classify logic touched): mangled-Tj x keywords (`"tj ["`/`"tj["`/`"t, ["`/`"t [c"` — deliberately NOT `"tc ["`; a test locks that case-temperature axes gain no credit), `"r ds(on)"` y variant, and two evidence-backed negatives (`"parameter: v"` for multi-Vgs-curve footers, `"output characteristic"` for shifted captions); every keyword commented with the device that motivated it. **50-device before/after: 27→43 matched, 15→0 quarantined** (all 15 now match, each verified as the TRUE chart), plus `BSB012N03LX3G` (previously no_match). **All 27 original matches unchanged (same device → same figure).** Remaining 7 no_match verified as **upstream Stage 1–3 data gaps, not classifier issues** — their `figures/` dirs are incomplete on disk (e.g. `AUIRFZ34N`: 22 figures in `full_extraction.json`, 1 PNG rendered, rdson chart missing); flagged for the stage 1–3 migration. **Open item for owner:** several Infineon rdson charts plot **TWO curves ("typ" and "max")**, unlike the single-curve IR template — decide how `rdson_vs_tj`'s expected-curve-count (currently 1) should treat these before finalizing the mono detector design. |
+
 ## Upcoming
 
 - **Next: owner decision on T15's log-axis calibration finding**, then a real model-inference sample run on the GPU box (T15 used GT masks as a stand-in), then stage 6 (visual review) and stage 7 (orchestrator/validation → MongoDB)
 - Stage-3 follow-ups: azure_client/batch/assembler/tables/metadata migration (T23 covered figures+OCR+composite), then a real Azure OCR sanity run (owner-gated; costs money)
 - Synthetic data generation for capacitance — deferred until all 7 target curve types have working models (list above; 6 of 7 not started)
 - Extend LineFormer training/eval pipeline to the remaining 6 curve types once stages 4–7 exist to drive that work
+- rdson_vs_tj follow-ups (T24): produce a real rdson figure corpus via stages 1–3, sanity-run the classical path on it, then decide the mono/black-curve fallback and the `PLAUSIBILITY_SPECS` entry (frozen-file approval needed)
 
 ## Session log
 
@@ -202,6 +211,92 @@ Track this item until closed. Opened: 2026-07-07. Status: **OPEN**.
   masking fix + composite_suspect flagging + sub-caption candidate signal; 37 tests
   (red→green, spanning-caption regression included), suite **614 passing**. No real
   Azure call made. Details in T23 row.
+
+### 2026-07-13 — Session: T24 rdson_vs_tj classical extraction
+- Design proposed and discussed first (CLAUDE.md §5): classical detector as a
+  drop-in `Detection` front-end so the frozen Stage-5 core is reused, not copied.
+- Owner approved the 16-test file (red phase confirmed: module absent) BEFORE any
+  implementation; scenarios owner-specified (clean/gridline/axis-edge/gaps/legend/
+  faint/border/blank-quarantine/bad-calibration/single-valued-x/axis-range +
+  Stage-6 output-format match).
+- **End:** T24 complete (pending owner review). New: `src/extraction/classical.py`,
+  `src/extraction/naming/rdson_vs_tj.py`; authorized edit: naming-registry entry in
+  `src/extraction/naming/__init__.py`. 16/16 new tests green, full suite
+  **630 passing**, no regressions. Open items: mono/black-curve fallback and
+  rdson plausibility bounds — both deferred until a real rdson corpus exists
+  (requires a Stage 1–3 batch run). Details in T24 row.
+
+### 2026-07-13 — Session: T24 runs + T25 classification fix
+- 13-device pipeline run (Stage 4→5→6): 11 rdson figures matched, 0 ok / 11
+  needs_review / 0 errors — all quarantines from the documented mono limitation
+  (every chart black-and-white). Gallery at `data/t24_rdson_run/gallery/`.
+- 50-device mono survey: 27 matched charts measured (all solid, 4–9 px, two grid
+  templates); requirements doc at `data/t24_mono_survey/MONO_DETECTOR_REQUIREMENTS.md`.
+- T25: permanent registry entry + Infineon quarantine fix (details in T25 row).
+  21 tests red→green; suite **651 passing**; 50-device re-run 27→43 matched, 0 regressions.
+
+### 2026-07-13 — id_vs_vgs training data: batch 2 converted + merged into split
+- CVAT job 4235434 export (`data/cvat_exports/id_vs_vgs_batch2_cleaned.xml`, 200 images)
+  pre-validated: labels 100% `line`, 0 duplicate file_names, **0 overlap with batch 1**,
+  no degenerate shapes. Two findings, both handled: (1) **2 leftover "TODO" shapes** on
+  `IPA60R180P7SXKSA1__fig_p9_022.png` — stripped via the tested `strip_todo_shapes` tool;
+  the image then had ZERO real shapes (an unfinished annotation of a real chart, NOT a
+  verified negative), so it was **dropped entirely** rather than kept as a false empty
+  negative — needs re-annotation if it should be recovered (staged intermediates:
+  `data/staging/id_vs_vgs_batch2_{stripped,final}.xml`). (2) **New temperature label
+  `TJ_-55` (46 shapes)** — not in batch 1's vocabulary (TJ_25C/150C/175C/-40C) and
+  missing the "C" suffix; kept verbatim (never-guess), **owner to decide** whether to
+  normalize to `TJ_-55C`.
+- Converted via frozen `convert()` (buffer 4.5 px, empty negatives kept, same as batch 1)
+  → `data/coco/id_vs_vgs_batch2.json`: **199 images / 420 annotations, validate_coco
+  clean; 11 zero-shape images kept as empty negatives** (TJ_25C 182 / TJ_150C 110 /
+  TJ_175C 72 / TJ_-55 46 / TJ_-40C 10).
+- Combined pool `data/coco/id_vs_vgs_combined.json`: **399 images / 744 annotations**
+  (200+199, 324+420 — exact), clean, 0 duplicate file_names.
+- Merged into the existing split via the T9 tool (`merge_new_batch_into_split`,
+  `val_image_target=20` = round(10% × 199), greedy landed on 12): 11 batch-2 families,
+  6 → train (BSC-BSZ, IAU, IAUCN, IPA, IPB, IPD = 187 img), 5 smallest → val
+  (BUZ, IAUTN, IAUZ, IMZA, IPAN = 12 img). **Final split: train 328 img / 651 ann
+  (22 empty), val 41 / 39 (24 empty), test UNCHANGED 30 / 54 — sha256
+  `6e8e96d1b4ce7633ca6d3f17044db1916db39bf44c85698d011c8e1a45107616` verified
+  identical before/after.** All three parts validate clean, pairwise disjoint,
+  total exactly 399. Batch-1-only split backed up at
+  `data/staging/split_id_vs_vgs_backup_batch1_only/`. Data files git-ignored per policy.
+- **Two flags for owner before retraining:** (1) val is 59% empty images (24/41) and
+  annotation-light (39 ann vs train's 651) — same imbalance that motivated batch 1's
+  val/test swap; consider whether val is still a meaningful early-stopping signal.
+  (2) `assign_family` treats IAU / IAUCN / IAUTN / IAUZ as four distinct families
+  (only IAUA/IAUAN/IAUC merge into IAU per the T5 map), so IAU+IAUCN sit in train
+  while IAUTN/IAUZ sit in val — if these subseries share one chart template, val
+  style-leaks from train; extending `FAMILY_MERGE_MAP` is an owner call.
+- **STOPPED before retraining per instruction — owner reviews these numbers first.**
+
+### 2026-07-13 — id_vs_vgs batch 2: three owner-approved fixes + split re-run
+- Owner approved all three flags from the first pass; split rebuilt from the
+  batch-1-only backup with the fixes applied:
+- **(1) `TJ_-55` → `TJ_-55C`** renamed at the source (exact-match, XML-parsed,
+  46 shapes — verified nothing else touched) in
+  `data/staging/id_vs_vgs_batch2_final.xml`; `id_vs_vgs_batch2.json` and
+  `id_vs_vgs_combined.json` regenerated (199/420 and 399/744, both clean).
+  Vocabulary is now uniform: TJ_25C / TJ_150C / TJ_175C / TJ_-40C / TJ_-55C.
+- **(2) `FAMILY_MERGE_MAP` extended (TDD red→green):** IAUCN/IAUTN/IAUZ → IAU
+  (one Infineon automotive template) in `src/dataset_tools/split_dataset.py`;
+  tests updated with real batch-2 device names, red confirmed (2 failures)
+  before the 3-line map change. Suite **674 passing**.
+- **(3) Weak-val fix — owner-approved manual allocation** (same precedent as
+  the batch-1 capacitance ad-hoc split, commit `2c33a17`): the greedy
+  smallest-first tool would have routed owner-pinned BSC-BSZ to val, so
+  allocation was set explicitly — val = IMZA (1/2) + BUZ (2/0) + IPAN (4/8)
+  + **annotation-rich IPA (34 img / 68 ann, 0 empty)**; train = BSC-BSZ, IPD,
+  IAU (merged, 43 img / 129 ann), IPB. Decision + rationale recorded in
+  `split_manifest.json` (`allocation_mode: manual`).
+- **Final split: train 299 img / 598 ann (22 empty), val 70 / 92 (24 empty,
+  34% — was 59%), test UNCHANGED 30 / 54 — sha256 `6e8e96d1b4ce…` verified
+  identical.** All three validate clean, pairwise disjoint, total exactly 399.
+- Note for training review: all 46 `TJ_-55C` annotations sit in train (they
+  belong to the IAU family); val/test contain none, so per-temperature eval
+  on -55 °C curves isn't possible with this split.
+- **STOPPED before retraining — combined dataset ready for owner review / Run scoping.**
 
 ### 2026-07-12 — id_vs_vgs training data: batch 1 converted + split
 - CVAT job 4225954 (200 images, temperature-labeled TJ_25C/150C/175C/-40C) converted
