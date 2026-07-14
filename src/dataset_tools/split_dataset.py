@@ -42,8 +42,11 @@ _LETTER_PREFIX = re.compile(r"^([A-Za-z]+)")
 
 # Owner decision 2026-07-07 (T5 review): merge prefix families that share a
 # manufacturer plot template, so no template straddles the split.
+# Extended 2026-07-13 (owner, id_vs_vgs batch 2): IAUCN/IAUTN/IAUZ share the
+# IAU Infineon automotive template.
 FAMILY_MERGE_MAP: Dict[str, str] = {
     "IAUA": "IAU", "IAUAN": "IAU", "IAUC": "IAU",
+    "IAUCN": "IAU", "IAUTN": "IAU", "IAUZ": "IAU",
     "AUIRFS": "AUIRF", "AUIRFP": "AUIRF", "AUIRFZ": "AUIRF",
     "AUIRLU": "AUIRL",
     "BSC": "BSC-BSZ", "BSZ": "BSC-BSZ",

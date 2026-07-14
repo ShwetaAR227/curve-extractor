@@ -72,8 +72,11 @@ class TestAssignFamily:
 
     def test_owner_merge_map_is_explicit_dict(self):
         # Owner decision 2026-07-07 (T5): template-true families.
+        # Extended 2026-07-13 (owner, id_vs_vgs batch 2): IAUCN/IAUTN/IAUZ
+        # share the IAU Infineon automotive template.
         assert FAMILY_MERGE_MAP == {
             "IAUA": "IAU", "IAUAN": "IAU", "IAUC": "IAU",
+            "IAUCN": "IAU", "IAUTN": "IAU", "IAUZ": "IAU",
             "AUIRFS": "AUIRF", "AUIRFP": "AUIRF", "AUIRFZ": "AUIRF",
             "AUIRLU": "AUIRL",
             "BSC": "BSC-BSZ", "BSZ": "BSC-BSZ",
@@ -85,6 +88,10 @@ class TestAssignFamily:
         assert assign_family("IAUC120N04S6L005ATMA1") == "IAU"
         assert assign_family("IAUA120N04S5N014AUMA1") == "IAU"
         assert assign_family("IAUAN04S7N004AUMA1") == "IAU"
+        # Real id_vs_vgs batch-2 devices (owner-approved merge, 2026-07-13):
+        assert assign_family("IAUCN04S6N013TATMA1") == "IAU"
+        assert assign_family("IAUTN12S5N017ATMA1") == "IAU"
+        assert assign_family("IAUZ40N06S5L050ATMA1") == "IAU"
         assert assign_family("AUIRFS4115-7P") == "AUIRF"
         assert assign_family("AUIRFP4568-E") == "AUIRF"
         assert assign_family("AUIRFZ34N") == "AUIRF"
