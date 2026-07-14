@@ -28,9 +28,9 @@ classifier and stages 5–7's extraction/review/orchestration logic:**
 | # | curve_type | Description | Status |
 |---|---|---|---|
 | 1 | `capacitance_vs_vds` | Ciss/Coss/Crss vs. drain-source voltage | ✅ **DONE** — Run A, production checkpoint, mAP@50 0.88 |
-| 2 | `rdson_vs_tj` | on-resistance vs. junction temperature | not started |
+| 2 | `rdson_vs_tj` | on-resistance vs. junction temperature | 🔨 classical extraction built, pending real-data testing (T24/T25) |
 | 3 | `if_vs_vsd` (body_diode) | forward current vs. source-drain voltage | not started |
-| 4 | `id_vs_vgs` (transfer_char) | drain current vs. gate-source voltage | not started |
+| 4 | `id_vs_vgs` (transfer_char) | drain current vs. gate-source voltage | 🔨 in progress — Run 3 production checkpoint set, mAP@50 0.74 |
 | 5 | `vgs_vs_qg` (gate_charge) | gate-source voltage vs. gate charge | not started |
 | 6 | `vgsth_vs_tj` | gate threshold voltage vs. junction temperature | not started |
 | 7 | `zth_vs_time` (thermal_impedance) | thermal impedance vs. time | not started |
