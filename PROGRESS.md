@@ -135,6 +135,9 @@ Track this item until closed. Opened: 2026-07-07. Status: **OPEN**.
 | 2px buffer-radius experiment | ❌ Abandoned (owner decision, 2026-07-13) — **4.5 px stays; revisit in the diversity pass** | Finding: id_vs_vgs had inherited the 4.5 px default buffer from capacitance (owner-tuned there, T4) without ever being tuned for transfer-char charts; visual comparison showed **2 px matches the real printed line width better**. Retrained with 2 px masks: **training repeatedly got stuck at 0.0 score** — early stopping too aggressive for thinner masks needing more localization precision. A longer patience (1200) was attempted but a command-line mixup prevented confirming it actually applied. **Decision: reverted to the working 4.5 px Run-3 checkpoint (74%) as production; 2 px abandoned for now** — not worth the debugging time. Revisit during the "diversity pass" phase after all 7 curve types are built. |
 | T26 — Real-world spot check: Rohm id_vs_vgs figures | 🔍 Reported | **10/12 spot-checked images looked correct** despite different chart styles — the model generalizes reasonably well even though training data is all-Infineon so far. Overlays: `data/t26_id_vs_vgs_rohm/` (git-ignored). |
 
+| T27 — Monochrome (black-curve) detector for `rdson_vs_tj` (TDD) | ✅ Done (pending owner review) — **9/11 previously-quarantined charts now extract cleanly; 2 have a diagnosed spurious-branch artifact** | 2026-07-14; `detect_curve_monochrome(image, ocr_lines=None)` added to `src/extraction/classical.py` as a **fallback** to the color path (color runs first; only when it finds nothing — every real rdson chart, 0 chromatic pixels — does mono run). **23 new tests, TDD red→green confirmed** (red = ImportError; suite **697 passing**, was 674, no regressions). Emits the SAME `Detection` objects, so the frozen Stage-5 core is untouched (no frozen file modified; only new code + the already-authorized `classical.py`). **Two ideas adopted from the reviewed legacy `cv_curve_extract.py` (never copied):** OCR-label-box **inpainting** (not white-out — a white hole splits a curve a label sits on; inpaint reconstructs it; proven by a white-out-baseline test that splits where inpaint stays one) and a **density+width-span** component filter for text. **The legacy flat-curve failure is guarded:** only near-full-span straight runs (≥50% of the dimension) are treated as gridlines/axes, so a partially-flat curve survives — locked by a dedicated test. Design driven by the real corpus (`data/t24_mono_survey/MONO_DETECTOR_REQUIREMENTS.md`): ink = gray<128 (curve AND dark grid), gridlines/axes removed by STRUCTURE not intensity (Infineon axes can be lighter than the curve), crossing nicks reconnected by a small **dilation** (not a close — the close's erosion severs the thin diagonal bridge; skeletonize thins the extra width away downstream), two stacked typ/max curves never merged (tested at 18px separation). **Real-data run — the 11 T24 charts that ALL quarantined before (0 color detections):** now **11/11 status ok** with correct calibration and units (`normalized`), values physically sane (x −55→175 °C, y ~0.65→2.5 rising, strictly increasing). **BUT visual overlay check (`data/t27_mono_rdson_run/overlays/`, git-ignored) found 2/11 are silently partly-wrong** (`AUIRF7675M2TR`, `AUIRF7736M2TR`): a spurious upper branch drifts above the true curve over the warm half. **Diagnosed:** a non-full-width horizontal line (partial gridline/scan streak) running parallel just above the curve survives gridline removal (its run is <50% width) and the dilation bridge MERGES it into the curve component (mask mean column-thickness ~20px / max 33px vs ~14/19 on the 9 clean charts); the per-column mean then rides up. **9/11 are clean end-to-end** (overlays track the printed curve tightly). Same "ok-but-wrong slips the schema" class as the T15 capacitance finding — reported, not patched (adding more heuristics to the near-frozen `classical.py` needs owner review per §4/§5). **Open items for owner:** (a) the merged-parallel-line artifact — options are a max-column-thickness plausibility gate (downgrade abnormally thick masks to needs_review) or a smarter line-vs-curve separation; (b) still no `PLAUSIBILITY_SPECS` entry for rdson value ranges (deferred from T24, frozen-file approval). |
+| T27 follow-up — Max-column-thickness safety gate for the mono merge artifact | ✅ Done (pending owner review) — **owner-approved fix confirmed on both real known-bad devices, zero false positives on the 9 clean ones** | 2026-07-14; owner approved option (a) from T27's open items. `MONO_MAX_MEDIAN_COL_THICKNESS_PX = 18` + `_median_col_thickness()` added to `src/extraction/classical.py` (new code only, no frozen file touched — `pipeline.py`/`PLAUSIBILITY_SPECS` deliberately left alone, same as T24's rdson-specific unit/name overrides already living in `run_classical_pipeline`). **Threshold corpus-calibrated, not guessed:** measured MEDIAN (not mean/max — median proved the cleanest separator) column thickness across all 11 real T24 charts — the 9 genuinely single-stroke extractions cluster at 12–16px, the 2 known merged-line cases at 21–22px; 18px sits at the midpoint with margin both sides. Gate fires only when `used_monochrome` is true (the color path is exempt by design — the merge mechanism is specific to monochrome gridline-removal + gap-bridging) and only downgrades a currently-"ok" result, keeping the traced curves/calibration/units for the reviewer (same "never an empty shell" pattern as the existing implausible-calibration gate) rather than dropping them. **3 new tests, TDD red→green confirmed** (red = the merged-streak fixture stayed "ok"; a synthetic partial-width streak 10px above the curve was tuned empirically — same iterative-fixture approach used earlier in the T27 session — to reproduce the diagnosed mechanism, measured at 20.0px, safely clear of the 11.0px clean control). Suite **700 passing** (was 697), no regressions. **Real-data confirmation (owner-specified acceptance test) — re-ran the exact same 11-device corpus:** `AUIRF7675M2TR` now `needs_review` (median 21.0px, was silently "ok"), `AUIRF7736M2TR` now `needs_review` (median 22.0px, was silently "ok") — **both known-bad devices caught, exactly as diagnosed.** All 9 genuinely clean devices (`94-3316`, `AUIRF1010EZS`, `AUIRF1010ZL`, `AUIRF1404`, `AUIRF1404STRL`, `AUIRF1405-INF`, `AUIRF2804STRL7P`, `AUIRF7640S2TR`, `AUIRF7739L2TR`) **still `ok`** — zero false positives. **Net result: 9/11 correctly `ok`, 2/11 correctly `needs_review` — zero silently-wrong results on this sample**, closing the gap T27 flagged. Updated outputs: `data/t27_mono_rdson_run/` (git-ignored). Still open: no `PLAUSIBILITY_SPECS` entry for rdson value ranges (unrelated to this fix). |
+
 ## Upcoming
 
 - **Next: owner decision on T15's log-axis calibration finding**, then a real model-inference sample run on the GPU box (T15 used GT masks as a stand-in), then stage 6 (visual review) and stage 7 (orchestrator/validation → MongoDB)
@@ -281,6 +284,40 @@ Track this item until closed. Opened: 2026-07-07. Status: **OPEN**.
   while IAUTN/IAUZ sit in val — if these subseries share one chart template, val
   style-leaks from train; extending `FAMILY_MERGE_MAP` is an owner call.
 - **STOPPED before retraining per instruction — owner reviews these numbers first.**
+
+### 2026-07-14 — Session: T27 monochrome rdson detector
+- Design provided/approved by owner in-task (color-first, mono-fallback; adopt
+  legacy inpaint + density filter; guard the flat-curve failure). Legacy
+  `cv_curve_extract.py` reviewed first (read-only) — technique is the same
+  "remove straight lines, remove text, keep bendy" idea, more fully built;
+  lifted two ideas, kept our schema discipline.
+- TDD: 23 tests written first (red = ImportError), then `detect_curve_monochrome`
+  + color→mono fallback wiring. Suite **697 passing** (was 674), no regressions.
+  Two fixture/impl tunings during green: dilation-bridge (not close) to
+  reconnect crossings without severing them; tight OCR box for the on-curve
+  inpaint-vs-whiteout test (TELEA only reconstructs a stroke-tight box).
+- Real run on the 11 T24 charts that were 0/11 before: **11/11 status ok, sane
+  values**, but overlay check found **2/11 silently partly-wrong** (spurious
+  upper branch from a merged parallel line — diagnosed via mask thickness).
+  **9/11 clean end-to-end.** Reported, not patched (frozen-module change needs
+  owner review). Outputs: `data/t27_mono_rdson_run/` (git-ignored).
+
+### 2026-07-14 — Session: T27 follow-up, max-column-thickness safety gate
+- Owner approved the merged-parallel-line fix flagged at the end of the T27
+  session (option (a): a max-column-thickness plausibility gate).
+- Measured MEDIAN column thickness across the real 11-device corpus to pick a
+  non-guessed threshold: clean cluster 12–16px, the 2 known-bad devices
+  21–22px — set the gate at 18px.
+- TDD: 3 tests written first (red — merged-streak fixture stayed "ok"),
+  synthetic fixture tuned empirically to reproduce the diagnosed mechanism
+  (streak 10px above the curve → measured 20.0px, vs 11.0px clean control),
+  then wired the gate into `run_classical_pipeline` (mono-only, "ok"-only,
+  keeps curves/calibration/units for the reviewer). Suite **700 passing**
+  (was 697), no regressions.
+- Re-ran the exact real 11-device corpus per the owner's acceptance test:
+  both known-bad devices now correctly `needs_review`; all 9 clean devices
+  still `ok`. Zero false positives, zero silently-wrong results remaining
+  on this sample.
 
 ### 2026-07-13 — id_vs_vgs Run 3 + 2px experiment + T26 Rohm check (logged 2026-07-14)
 - Executed on the GPU box 2026-07-13; numbers supplied by the owner 2026-07-14 and
