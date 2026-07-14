@@ -48,6 +48,52 @@ _REGISTRY: Dict[str, CurveTypeSpec] = {
             ("gate charge", 3.0),
         ],
     ),
+    "rdson_vs_tj": CurveTypeSpec(
+        name="rdson_vs_tj",
+        # Wording confirmed against real OCR across 50 devices (T24 survey,
+        # 2026-07-13; runtime-injected spec matched 27/50, then extended
+        # from the 15-quarantine diagnosis). Two template families:
+        # - IR/AUIRF: caption "Fig N. Normalized On-Resistance vs.
+        #   Temperature", clean labels "RDS(on) , Drain-to-Source On
+        #   Resistance" / "(Normalized)" / "TJ , Junction Temperature (℃)".
+        # - Infineon "Diagram": the Stage-3 caption off-by-one bug usually
+        #   shifts "Diagram N: Drain-source on-state resistance" onto the
+        #   WRONG figure (page-header logo, output char, RDS(on)=f(ID)),
+        #   leaving the true chart captionless with OCR-mangled labels:
+        #   y "RDS(on) [m_2]"/"[22]"/"[mQ]"/"[mW]", x "Tj[C]"/"T [C]"/
+        #   "T, [º℃]"/"Tj [ºC]" — hence the mangled-Tj x keywords below.
+        caption_keywords=[
+            "normalized on-resistance",
+            "on-state resistance",
+        ],
+        axis_keywords={
+            # "r ds(on)" (space inside RDS) is a real OCR mangling seen on
+            # BSB012N03LX3G; it never co-occurs with "rds(on)" in one line,
+            # so the two keywords can't double-count the same label.
+            "y": ["rds(on)", "r ds(on)", "on resistance", "normalized"],
+            # "tj["/"tj ["/"t, ["/"t [c" are the observed OCR manglings of
+            # "Tj [°C]". Deliberately NOT "tc [" — case-temperature axes
+            # (power dissipation, drain-current derating) must not match.
+            "x": ["junction temperature", "tj [", "tj[", "t, [", "t [c"],
+        },
+        positive_phrases=[
+            ("normalized", 1.5),
+            ("junction temperature", 1.5),
+        ],
+        negative_phrases=[
+            # Same-device distractors that share RDS(on)/on-resistance
+            # wording, each observed winning or crowding the margin in the
+            # T24 diagnosis:
+            ("gate voltage", 3.0),           # "Typical On-Resistance vs. Gate Voltage"
+            ("drain current", 3.0),          # "... vs. Drain Current" (IR caption)
+            ("safe operating area", 3.0),    # SOA: "LIMITED BY RDS(on)"
+            ("output characteristic", 3.0),  # shifted-caption output char
+            ("parameter: v", 2.5),           # multi-Vgs-curve footers: "parameter: VGs"/"Vas"
+            ("transfer characteristic", 3.0),
+            ("capacitance", 3.0),
+            ("gate charge", 3.0),
+        ],
+    ),
     "id_vs_vgs": CurveTypeSpec(
         name="id_vs_vgs",
         caption_keywords=[
