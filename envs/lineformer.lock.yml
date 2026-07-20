@@ -50,7 +50,7 @@ dependencies:
   - libffi=3.4.8=h06d3fd0_3
   - libgcc=15.2.0=h69a1729_8
   - libgcc-ng=15.2.0=h166f726_8
-  - libglib=2.86.3=ha16e27a_1
+  - libglib=2.86.3=ha16e27a_2
   - libgomp=15.2.0=h4751f2c_8
   - libiconv=1.18=h75a1612_0
   - libnl=3.11.0=hb25bd0a_0
@@ -167,7 +167,7 @@ dependencies:
       - tomli==2.4.1
       - tqdm==4.65.2
       - typing-extensions==4.13.2
-      - tzdata==2026.2
+      - tzdata==2026.3
       - urllib3==1.26.20
       - yapf==0.43.0
       - zipp==3.20.2

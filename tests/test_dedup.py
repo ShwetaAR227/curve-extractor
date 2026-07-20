@@ -96,3 +96,68 @@ def test_different_x_span_not_deduplicated_even_at_same_y():
     kept, n_removed = dedup_detections([a, b])
     assert len(kept) == 2
     assert n_removed == 0
+
+
+# --------------------------------------------------------------------------
+# use_flat_curve_heuristic opt-in parameter (default True == unchanged
+# behavior above, so capacitance's existing callers are unaffected).
+# --------------------------------------------------------------------------
+
+def test_default_matches_explicit_flat_curve_heuristic_true():
+    # Same fixture as test_low_iou_but_same_vertical_band_and_x_span_deduplicated;
+    # explicit True must behave identically to the default (no-arg) call.
+    a = Detection(score=0.85, mask=rect_mask((100, 100), 40, 43, 10, 90))
+    b = Detection(score=0.55, mask=rect_mask((100, 100), 45, 48, 10, 90))
+    kept_default, removed_default = dedup_detections([a, b])
+    kept_explicit, removed_explicit = dedup_detections(
+        [a, b], use_flat_curve_heuristic=True
+    )
+    assert len(kept_default) == len(kept_explicit) == 1
+    assert removed_default == removed_explicit == 1
+
+
+def test_flat_curve_heuristic_disabled_keeps_low_iou_same_band_curves_distinct():
+    # Same fixture that IS deduplicated by default (flat-band heuristic) —
+    # with the heuristic off, low mask IoU alone must NOT merge them.
+    a = Detection(score=0.85, mask=rect_mask((100, 100), 40, 43, 10, 90))
+    b = Detection(score=0.55, mask=rect_mask((100, 100), 45, 48, 10, 90))
+    kept, n_removed = dedup_detections([a, b], use_flat_curve_heuristic=False)
+    assert len(kept) == 2
+    assert n_removed == 0
+
+
+def test_flat_curve_heuristic_disabled_still_dedupes_high_mask_iou():
+    # The mask-IoU check itself must stay active regardless of the flag.
+    a = Detection(score=0.9, mask=rect_mask((100, 100), 40, 50, 10, 90))
+    b = Detection(score=0.7, mask=rect_mask((100, 100), 41, 51, 10, 90))  # 1px shift
+    kept, n_removed = dedup_detections([a, b], use_flat_curve_heuristic=False)
+    assert len(kept) == 1
+    assert kept[0].score == pytest.approx(0.9)
+    assert n_removed == 1
+
+
+def test_flat_curve_heuristic_disabled_exact_duplicates_still_deduped():
+    mask = rect_mask((100, 100), 40, 50, 10, 90)
+    a = Detection(score=0.9, mask=mask)
+    b = Detection(score=0.6, mask=mask.copy())
+    kept, n_removed = dedup_detections([a, b], use_flat_curve_heuristic=False)
+    assert len(kept) == 1
+    assert kept[0].score == pytest.approx(0.9)
+    assert n_removed == 1
+
+
+def test_flat_curve_heuristic_disabled_three_detections_keeps_near_parallel_pair():
+    # Regression case from the zth_multicurve investigation: two genuinely
+    # distinct, near-parallel curves (same vertical band, overlapping
+    # x-span, low mask IoU) plus one clearly-duplicate pair — with the
+    # heuristic off, only the true duplicate collapses.
+    a = Detection(score=0.9, mask=rect_mask((100, 100), 40, 50, 10, 90))
+    a_dup = Detection(score=0.6, mask=rect_mask((100, 100), 41, 51, 10, 90))
+    near_parallel = Detection(score=0.8, mask=rect_mask((100, 100), 55, 58, 10, 90))
+    kept, n_removed = dedup_detections(
+        [a, a_dup, near_parallel], use_flat_curve_heuristic=False
+    )
+    assert len(kept) == 2
+    assert n_removed == 1
+    kept_scores = {round(d.score, 2) for d in kept}
+    assert kept_scores == {0.9, 0.8}

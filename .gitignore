@@ -15,7 +15,11 @@ logs/*
 !logs/.gitkeep
 
 # Data outputs (large / regenerable — never commit)
-data/
+# No trailing slash: `data` at the repo root is a symlink to /mnt/data/...,
+# and a trailing-slash pattern only matches real directories, not symlinks —
+# verified via `git add -A --dry-run` staging the symlink under the old
+# `data/` pattern. This form matches the entry regardless of type.
+data
 
 # Third-party clones (commit hash recorded in envs/ + SETUP.md instead)
 third_party/

@@ -22,16 +22,29 @@ yet validate against a fixed vocabulary — leaving "TODO" unedited would slip
 through that check; flagged here, not fixed, since cvat_to_coco.py is a
 frozen pipeline stage — see CLAUDE.md §4).
 
-KNOWN LIMITATION — documented, not auto-filtered (owner decision, 2026-07-08,
-T8a): the model occasionally emits a near-duplicate second mask on flat,
-low-texture curves (seen on Ciss plateaus in the T8a check). No NMS/dedup is
-applied here — annotators should expect to occasionally delete one duplicate
-polygon per batch during correction.
+KNOWN LIMITATION — documented, not auto-filtered for most curve types (owner
+decision, 2026-07-08, T8a): the model occasionally emits a near-duplicate
+second mask on flat, low-texture curves (seen on Ciss plateaus in the T8a
+check). No NMS/dedup is applied here for those curve types — annotators
+should expect to occasionally delete one duplicate polygon per batch during
+correction.
+
+CURVE-TYPE-GATED EXCEPTION (owner-approved 2026-07-17, zth_vs_time ONLY):
+``curve_type="zth_vs_time"`` runs each image's kept predictions through
+``dedup_detections(..., use_flat_curve_heuristic=False)`` (reused from
+``src.extraction.dedup``, not reimplemented) before polygon extraction —
+see ``apply_curve_type_dedup()``. This was investigated specifically for
+the ``zth_multicurve_run1`` checkpoint (51-image before/after: 41.2% ->
+78.4% exact curve-count match, 2 known residual regressions, full detail in
+PROGRESS.md) and is gated strictly on ``curve_type`` so every other curve
+type's behavior — including the default (``curve_type=None``, what every
+call site used before this change) — is completely unaffected.
 
 CLI (run on the GPU box inside the `lineformer` conda env):
     python -m src.training.predict_to_cvat \
         --checkpoint <path> --config <path> --images-dir <dir> \
-        --out <preannotations.xml> [--score-thr 0.5] [--limit N]
+        --out <preannotations.xml> [--score-thr 0.5] [--limit N] \
+        [--curve-type zth_vs_time]
 """
 import argparse
 from pathlib import Path
@@ -50,6 +63,10 @@ MIN_POLYGON_POINTS = 3
 # cv2.approxPolyDP epsilon as a fraction of the contour perimeter — keeps
 # polygons small/editable without materially changing their shape.
 APPROX_EPSILON_RATIO = 0.003
+# The only curve_type that triggers dedup (2026-07-17, owner-approved) — see
+# apply_curve_type_dedup(). Every other curve_type, including the None
+# default, is a no-op here by construction.
+ZTH_VS_TIME_CURVE_TYPE = "zth_vs_time"
 
 T = TypeVar("T")
 Point = Tuple[float, float]
@@ -85,6 +102,42 @@ def filter_by_score(
 ) -> List[Tuple[float, T]]:
     """Keep (score, item) pairs with score >= score_thr, order preserved."""
     return [p for p in predictions if p[0] >= score_thr]
+
+
+def apply_curve_type_dedup(
+    kept: Sequence[Tuple[float, np.ndarray]], curve_type: Optional[str]
+) -> Tuple[List[Tuple[float, np.ndarray]], int]:
+    """Curve-type-gated post-filter dedup (owner-approved 2026-07-17).
+
+    ONLY ``curve_type == ZTH_VS_TIME_CURVE_TYPE`` applies
+    ``dedup_detections(..., use_flat_curve_heuristic=False)`` — reused
+    directly from ``src.extraction.dedup``, not reimplemented. Every other
+    ``curve_type`` value, including ``None`` (the default every pre-existing
+    caller used), returns ``kept`` as a new list with identical contents —
+    behaviorally unchanged, input never mutated.
+
+    Args:
+        kept: Score-filtered (score, mask) pairs for one image, in the same
+            shape ``run_predict_to_cvat`` already builds via
+            ``filter_by_score``.
+        curve_type: The curve type this image's predictions belong to.
+
+    Returns:
+        ``(kept_or_deduped, n_removed)``.
+    """
+    if curve_type != ZTH_VS_TIME_CURVE_TYPE:
+        return list(kept), 0
+
+    # Local import: src.extraction.inference imports DEFAULT_SCORE_THR/
+    # filter_by_score FROM this module, so a module-level import here would
+    # be circular.
+    from src.extraction.dedup import dedup_detections
+    from src.extraction.inference import Detection
+
+    detections = [Detection(score=score, mask=np.asarray(mask, dtype=bool))
+                  for score, mask in kept]
+    deduped, n_removed = dedup_detections(detections, use_flat_curve_heuristic=False)
+    return [(d.score, d.mask) for d in deduped], n_removed
 
 
 def build_cvat_xml(images: Sequence[Dict[str, Any]]) -> str:
@@ -130,6 +183,7 @@ def run_predict_to_cvat(
     score_thr: float = DEFAULT_SCORE_THR,
     limit: Optional[int] = None,
     device: str = "cuda:0",
+    curve_type: Optional[str] = None,
 ) -> Dict[str, Any]:
     """Run inference over every image in ``images_dir`` and write a CVAT
     pre-annotation XML. Returns a small summary dict for the CLI/report."""
@@ -156,6 +210,7 @@ def run_predict_to_cvat(
         scores = [float(b[4]) for cb in bbox_result for b in cb]
         masks = [m for cm in segm_result for m in cm]
         kept = filter_by_score(list(zip(scores, masks)), score_thr=score_thr)
+        kept, n_deduped = apply_curve_type_dedup(kept, curve_type)
 
         polygons = []
         for score, mask in kept:
@@ -165,6 +220,9 @@ def run_predict_to_cvat(
         images.append({"name": name, "width": w, "height": h,
                        "polygons": polygons})
         counts.append(len(polygons))
+        if n_deduped:
+            logger.info("%s: dedup removed %d duplicate prediction(s) "
+                        "(curve_type=%s)", name, n_deduped, curve_type)
         logger.info("%s: %d predictions >= %.2f -> %d polygons written",
                     name, len(kept), score_thr, len(polygons))
 
@@ -195,20 +253,32 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     parser.add_argument("--score-thr", type=float, default=DEFAULT_SCORE_THR)
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--device", default="cuda:0")
+    parser.add_argument(
+        "--curve-type", default=None,
+        help=f"Only '{ZTH_VS_TIME_CURVE_TYPE}' changes behavior (enables "
+             "dedup); every other value or omitting this flag entirely "
+             "matches pre-existing behavior.")
     args = parser.parse_args(argv)
     try:
         summary = run_predict_to_cvat(
             args.checkpoint, args.config, args.images_dir, args.out,
-            score_thr=args.score_thr, limit=args.limit, device=args.device)
+            score_thr=args.score_thr, limit=args.limit, device=args.device,
+            curve_type=args.curve_type)
     except (FileNotFoundError, ValueError, KeyError) as exc:
         logger.error("Pre-annotation generation failed: %s", exc)
         return 1
     print(f"Images processed : {summary['n_images']}")
     print(f"Polygons written : {summary['n_polygons_total']}")
     print(f"Output           : {summary['out_path']}")
-    print("\nKNOWN LIMITATION: duplicate masks can occur on flat/low-texture "
-          "curves (e.g. Ciss plateaus) — not filtered here; expect to "
-          "occasionally delete a duplicate polygon during correction.")
+    if args.curve_type == ZTH_VS_TIME_CURVE_TYPE:
+        print(f"\ncurve_type={ZTH_VS_TIME_CURVE_TYPE}: dedup "
+              "(use_flat_curve_heuristic=False) was applied before polygon "
+              "extraction — 2 known residual regression cases still exist, "
+              "see PROGRESS.md.")
+    else:
+        print("\nKNOWN LIMITATION: duplicate masks can occur on flat/low-texture "
+              "curves (e.g. Ciss plateaus) — not filtered here; expect to "
+              "occasionally delete a duplicate polygon during correction.")
     print(f"Every polygon's curve_name is the placeholder "
           f"'{CURVE_NAME_PLACEHOLDER}' — fill in the real name "
           f"(Ciss/Coss/Crss) for every curve before exporting.")

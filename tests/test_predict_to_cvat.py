@@ -12,6 +12,8 @@ from src.dataset_tools.cvat_to_coco import parse_cvat_xml
 from src.training.predict_to_cvat import (
     CURVE_NAME_PLACEHOLDER,
     MIN_POLYGON_POINTS,
+    ZTH_VS_TIME_CURVE_TYPE,
+    apply_curve_type_dedup,
     build_cvat_xml,
     filter_by_score,
     mask_to_polygon,
@@ -168,3 +170,76 @@ class TestBuildCvatXml:
         xml_path = tmp_path / "preanno.xml"
         xml_path.write_text(xml_text, encoding="utf-8")
         assert parse_cvat_xml(xml_path) == []
+
+
+# ----------------------------------------------------- apply_curve_type_dedup
+#
+# Curve-type-gated dedup (2026-07-17, owner-approved): ONLY curve_type ==
+# "zth_vs_time" applies dedup_detections(..., use_flat_curve_heuristic=False).
+# HARD RULE: every other curve_type value, including the default (None, what
+# every pre-existing caller of run_predict_to_cvat used before this task),
+# must come back with `kept` completely unchanged.
+
+ALL_OTHER_CURVE_TYPES = [
+    None,  # default — capacitance_vs_vds and id_vs_vgs's real historical calls
+    "capacitance_vs_vds",
+    "rdson_vs_tj",
+    "if_vs_vsd",
+    "id_vs_vgs",
+    "vgs_vs_qg",
+    "vgsth_vs_tj",
+]
+
+
+class TestApplyCurveTypeDedup:
+    @pytest.mark.parametrize("curve_type", ALL_OTHER_CURVE_TYPES)
+    def test_non_zth_curve_types_return_kept_unchanged(self, curve_type):
+        # Two heavily-overlapping masks that WOULD be deduplicated under
+        # zth_vs_time — every other curve_type must leave both untouched.
+        a = box_mask(100, 100, 40, 50, 10, 90)
+        b = box_mask(100, 100, 41, 51, 10, 90)
+        kept = [(0.9, a), (0.7, b)]
+        result, n_removed = apply_curve_type_dedup(kept, curve_type)
+        assert result == kept
+        assert n_removed == 0
+
+    def test_zth_vs_time_dedupes_high_iou_duplicate(self):
+        a = box_mask(100, 100, 40, 50, 10, 90)
+        b = box_mask(100, 100, 41, 51, 10, 90)  # 1px shift, high IoU
+        kept = [(0.9, a), (0.7, b)]
+        result, n_removed = apply_curve_type_dedup(kept, ZTH_VS_TIME_CURVE_TYPE)
+        assert len(result) == 1
+        assert result[0][0] == pytest.approx(0.9)
+        assert n_removed == 1
+
+    def test_zth_vs_time_uses_iou_only_not_flat_band_heuristic(self):
+        # Low mask IoU, same vertical band, overlapping x-span — the T8a/T8b
+        # flat-curve heuristic WOULD merge these; IoU-only (approved for
+        # zth_vs_time) must NOT, since that heuristic over-merges
+        # zth_multicurve_run1's near-parallel duty-cycle curve families.
+        a = box_mask(100, 100, 40, 43, 10, 90)
+        b = box_mask(100, 100, 45, 48, 10, 90)
+        kept = [(0.85, a), (0.55, b)]
+        result, n_removed = apply_curve_type_dedup(kept, ZTH_VS_TIME_CURVE_TYPE)
+        assert len(result) == 2
+        assert n_removed == 0
+
+    def test_zth_vs_time_no_duplicates_is_a_noop(self):
+        a = box_mask(100, 100, 10, 15, 10, 90)
+        b = box_mask(100, 100, 70, 75, 10, 90)
+        kept = [(0.9, a), (0.8, b)]
+        result, n_removed = apply_curve_type_dedup(kept, ZTH_VS_TIME_CURVE_TYPE)
+        assert len(result) == 2
+        assert n_removed == 0
+
+    def test_zth_vs_time_empty_kept_is_a_noop(self):
+        result, n_removed = apply_curve_type_dedup([], ZTH_VS_TIME_CURVE_TYPE)
+        assert result == []
+        assert n_removed == 0
+
+    def test_non_zth_curve_type_does_not_mutate_input_list(self):
+        a = box_mask(100, 100, 40, 50, 10, 90)
+        kept = [(0.9, a)]
+        original = list(kept)
+        apply_curve_type_dedup(kept, "capacitance_vs_vds")
+        assert kept == original
