@@ -11,12 +11,17 @@ from src.extraction.naming.capacitance_vs_vds import (
     CURVE_ORDER_TOP_TO_BOTTOM as _CAPACITANCE_NAMES,
     name_curves as _capacitance_vs_vds,
 )
+from src.extraction.naming.rdson_vs_tj import (
+    CURVE_NAMES as _RDSON_NAMES,
+    name_curves as _rdson_vs_tj,
+)
 
 Point = Tuple[float, float]
 NamingFn = Callable[[Sequence[Sequence[Point]]], List[str]]
 
 _NAMING_REGISTRY: Dict[str, NamingFn] = {
     "capacitance_vs_vds": _capacitance_vs_vds,
+    "rdson_vs_tj": _rdson_vs_tj,
 }
 
 # The canonical curve-name set each naming function can produce — sourced
@@ -25,6 +30,7 @@ _NAMING_REGISTRY: Dict[str, NamingFn] = {
 # expected curves present?").
 _EXPECTED_NAMES: Dict[str, List[str]] = {
     "capacitance_vs_vds": list(_CAPACITANCE_NAMES),
+    "rdson_vs_tj": list(_RDSON_NAMES),
 }
 
 

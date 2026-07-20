@@ -21,5 +21,8 @@ logs/*
 # `data/` pattern. This form matches the entry regardless of type.
 data
 
+# Model checkpoints (hundreds of MB; live on the GPU box / local disk only)
+checkpoints/
+
 # Third-party clones (commit hash recorded in envs/ + SETUP.md instead)
 third_party/
