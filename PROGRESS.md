@@ -303,6 +303,213 @@ Track this item until closed. Opened: 2026-07-07. Status: **OPEN**.
   **9/11 clean end-to-end.** Reported, not patched (frozen-module change needs
   owner review). Outputs: `data/t27_mono_rdson_run/` (git-ignored).
 
+### 2026-07-16 — zth_vs_time multi-curve: training config prepared (not yet run)
+- Owner approved: do NOT merge with the single-curve `zth_vs_time` split;
+  train on `data/coco/split_zth_multicurve_batch1/` alone.
+- New config `src/training/configs/lineformer_zth_multicurve_run1.py`,
+  chained via `_base_` from `lineformer_run_a.py` — same pattern Run A2
+  used, only the DATA (new split/image-folder paths, `data/zth_vs_time_images/`
+  — already fully populated, all 51 needed images confirmed present) and
+  schedule numbers overridden. Inherits unchanged: official pretrained init,
+  fp32 (no fp16 key anywhere), LR 5e-6, no horizontal/vertical flip,
+  multi-scale resize + brightness/contrast jitter, batch size 1, "best +
+  latest only" retention. `classes=("line",)` and `num_queries=100` both
+  inherited as-is — correct for this dataset unchanged (label is "line"
+  here too; 100 queries comfortably covers the max 7 instances/image).
+  **Schedule, owner-specified directly this time (not re-derived from
+  dataset size like Run A2 was): max_iters=8000, patience_iters=2000**;
+  eval_interval kept at 800 (10% of max_iters, same ratio as Run A/A2) —
+  patience therefore ~2.5 eval intervals, looser than Run A/A2's clean 3,
+  since the owner gave the number directly. **Flagged, not resolved:**
+  train is only 41 images, so 8000 iters ≈ 195 epochs — far more than Run A
+  (~17.2) or Run A2 (~17.5) saw on their much larger splits; may be
+  intentional for a small first batch, noted for owner awareness.
+- **Could not be validated locally** — no mmcv/torch on this Windows box
+  (GPU-only training env lives on the AWS box per T6); real validation
+  happens when `train_lineformer.py` resolves and dumps the full config to
+  `run_manifest.json` before training starts, same as every prior run.
+- **Not yet run** — owner runs it on the GPU box. Exact command:
+  `python -m src.training.train_lineformer --config src/training/configs/lineformer_zth_multicurve_run1.py --work-dir /mnt/data/my-datasheet/checkpoints/zth_multicurve_run1 --seed 42`
+- **Transfer checklist for the GPU box** (none of this is git-tracked —
+  `data/` is git-ignored repo-wide): the new config file itself (tracked in
+  git, so a normal pull/push covers it), `data/coco/split_zth_multicurve_batch1/{train,val}.json`,
+  and `data/zth_vs_time_images/` (51 PNGs this run actually needs, out of
+  the folder's 315).
+- Suite **709 passing**, unchanged.
+
+### 2026-07-16 — zth_vs_time: first multi-curve annotation batch (all duty-cycle curves traced)
+- Same CVAT job (4244123), re-exported after progressive re-annotation: shapes
+  now traced with a GENERIC label/attribute (`label="line"`, `curve_name="Curve"`)
+  instead of the old single-curve `"single_pulse"` style. **The attribute
+  VALUE alone can't distinguish old vs. new** — CVAT reset ALL 436 shape
+  attribute values (old single-curve ones included) to the new schema's
+  default when the label's value list changed; the reliable signal is
+  **shape count per image**: 0 (41, unannotated, unchanged), 1 (117, still
+  old single-curve style, not yet re-annotated), 4/5/6/7 (54, the new
+  multi-curve tracing). Cross-checked against the 2026-07-14 export:
+  **all 54 multi-shape images were single-shape there** — confirms this is
+  a progressive upgrade of a subset of the same 171 previously-annotated
+  images, not a new device batch (the task's "~70" was an estimate; actual
+  is 54, then 51 after excluding 3 incomplete — see below).
+- **Completeness check — two automated heuristics tried and rejected, visual
+  ground truth used instead.** (1) OCR-label-count-vs-shape-count: too
+  unreliable (Azure OCR misses duty-factor labels inconsistently — flagged
+  a chart I'd already visually confirmed complete). (2) Geometric
+  "untraced dark component" scan (reused `_remove_straight_lines` from the
+  monochrome detector): also over-triggered, mostly on unmasked
+  caption/footer text and normal black-stroke "fringe" around a thin
+  colored polyline overlay (an artifact of the QC overlay rendering, not a
+  real gap) — both false-positived on images later confirmed complete.
+  **Settled on full-resolution colored-overlay visual review**, tiled into
+  5 contact sheets (`zth_bigsheet_0..4`, git-ignored scratch) covering all
+  54 images at legible size, each shape drawn in a distinct color: a
+  genuinely untraced curve reads as a solid uncolored stroke running the
+  chart's full span, unambiguous once the fringe artifact is understood.
+  **Result: the shape-count anomaly WAS the correct signal all along** —
+  every device family has a fixed template curve count (IAU*/IAUC*/IAUCN*/
+  IAUTN*/IAUZ* families: 5 curves always; IPA* family: 7 always, confirmed
+  across every image reviewed), so any image whose shape count falls short
+  of its family's fixed count is incomplete, no exceptions found either way
+  in the full visual pass. **3 confirmed incomplete, excluded:**
+  `IAUC80N04S6N036ATMA1__fig_p4_010.png` (4/5 traced, missing D=0.01),
+  `IPA60R120C7XKSA1__fig_p7_015.png` (6/7, missing D=0.05),
+  `IPA60R190P6XKSA1__fig_p8_015.png` (6/7, missing D=0.02) — each verified
+  by overlaying the traced curves in color and confirming exactly one
+  fully-uncolored duty-cycle curve remains. **51 images / 303 annotations
+  kept** (27×5 + 24×7 — exact), 0 TODOs, 0 duplicate file_names.
+- Filtered set staged at `data/cvat_exports/annotations_zth_multicurve_batch1.xml`
+  (git-ignored; source XML in Downloads untouched).
+- **Buffer radius re-measured for this export** (not assumed from the
+  single_pulse batch): same distance-transform method, 60 sampled points
+  across the 51 images gave **median 4.0px** full stroke width (single_pulse
+  batch: 4.4px) — consistent, same source rendering. **Kept buffer_px=2.5**
+  (the established `zth_vs_time` value) rather than retuning to 2.0, so
+  both annotation batches of this curve type share one mask convention;
+  visually confirmed on a 7-curve chart that the buffered outlines hug each
+  of the closely-packed curves without materially bleeding into neighbors.
+- Converted via `convert()` (buffer 2.5px) → `data/coco/zth_multicurve_batch1.json`:
+  **51 images / 303 annotations**, `validate_coco` clean, `curve_name` 100%
+  `"Curve"` (generic — Stage 4/5 naming for zth_vs_time doesn't exist yet,
+  same as every other zth batch so far; no per-curve-name uniqueness is
+  enforced at this conversion stage, confirmed against `validate_coco`'s
+  actual checks before relying on it).
+- **Simple 80/20 split** (owner-specified: no family-grouping this time,
+  small dataset) — seeded random per-image shuffle: **train 41 img / 247
+  ann, val 10 img / 56 ann**, both `validate_coco` clean, 0 overlap, total
+  exactly 51. Both the 5-curve and 7-curve templates present on each side
+  (train 20×5/21×7, val 7×5/3×7). Files at
+  `data/coco/split_zth_multicurve_batch1/` (git-ignored).
+- **Not yet combined with the single-curve `zth_vs_time` split** (T-batch
+  from 2026-07-15) — that dataset has 1 curve/image (`single_pulse` only);
+  this one has 5-7 curves/image (all duty factors, generic name) from a
+  partially-overlapping set of source images (all 51 devices here were
+  previously in that single-curve split, now upgraded) — combining them
+  needs an owner decision on how to handle the same image appearing with
+  two different annotation styles (e.g., does the multi-curve version
+  supersede the single-curve one for that image, or do both coexist under
+  different curve_type scoping?), not decided here.
+- Suite **709 passing**, unchanged (no source code touched this session).
+- **STOPPED before training per instruction — owner reviews these numbers first.**
+
+### 2026-07-15 — zth_vs_time: image collection + 6-device Stage 1-3 gap dropped (owner-approved)
+- `collect_images` (T4a tool, unchanged) run against the combined 321-image
+  COCO, searching the only local source root
+  (`D:\Extractor\data\OCR1-OCR13`): **315/321 copied** to
+  `data/zth_vs_time_images/` (flat, git-ignored). 6 missing, all confirmed
+  as a genuine **Stage 1-3 rendering gap, same class as the T25 finding**
+  (not a naming mismatch): each figure IS listed in its device's
+  `full_extraction.json` with a caption matching the annotated chart
+  ("Maximum Effective Transient Thermal Impedance" / "Max. transient
+  thermal impedance"), but the PNG was never rendered to disk —
+  `AUIRFZ34N__fig_p6_014.png`, `AUIRFZ48Z__fig_p6_013.png`,
+  `AUIRLU3114Z-701TRL__fig_p6_014.png`, `AUIRLU3114Z__fig_p5_018.png`,
+  `BSB165N15NZ3GXUMA2__fig_p6_012.png`, `BSC009N04LSSCATMA1__fig_p6_012.png`.
+  One near-miss checked and rejected: `AUIRLU3114Z`'s folder has a
+  `validated_fig_p5_018.png` — inspected visually, confirmed to be a
+  **legacy tool's curve-fit-overlay output** (colored curve_1..7 traces +
+  an RC-network Ri/τi table baked into the pixels), not the raw chart;
+  `collect_images`'s variant-name exclusion correctly refused to match it,
+  and it was NOT substituted in.
+- **Owner approved dropping the 6** (same resolution as T25's rdson gap).
+  Excised directly from `zth_vs_time_combined.json` and the three split
+  files (train -4, val -2, test -0 — no family lost its last image: AUIRF
+  19→17, AUIRL 4→2, BSB 3→2, BSC-BSZ 104→103, all still non-empty on their
+  side) — **no re-run of the split algorithm**, so every one of the other
+  315 images keeps its original train/val/test placement exactly. All four
+  files re-`validate_coco`-clean; `split_manifest.json` counts/ratios/
+  `source_coco_sha256` updated in place, with a new `missing_images_dropped`
+  field recording the reason, the 6 dropped names, and which side each came
+  from, for permanent traceability (CLAUDE.md §8: never delete history).
+- **Final: 315 images / 315 annotations total** — train 221/221 (was 225),
+  val 46/46 (was 48), test 48/48 (unchanged). All three re-verified
+  pairwise disjoint, `validate_coco` clean, and now byte-for-byte matching
+  the 315 images actually present in `data/zth_vs_time_images/`.
+- Suite **709 passing**, unchanged (no source code touched this session).
+
+### 2026-07-15 — zth_vs_time (thermal_impedance): first annotation batch combined + split
+- Two raw CVAT exports from Downloads (annotation-only, no images bundled —
+  source figures resolved from the known local corpus `D:\Extractor\data\OCR1-OCR13`).
+  **Task's file-to-format mapping was swapped vs. what's actually on disk** —
+  flagged and resolved by content, not filename, before touching anything:
+  - `job_4244123_annotations_...` (212 images / 171 shapes) is the file
+    already using `label="line"`/`curve_name="Single pluse"` (typo) —
+    matches the task's "File 2" description, not "File 1".
+  - `Zth_Archit_200` (declared job size 207, but only **155** `<image>`
+    elements actually exported — CVAT omits never-opened frames; 150 shapes)
+    is the file using `label="Curve_Zth_single"` directly / attribute
+    `Zth_curve="Single_Pulse"` — matches the task's "File 1" description.
+  - Both counts match the task's expected `~155/150` and `~212/171` exactly
+    once paired correctly.
+- Standardized both to `label="line"`, `curve_name="single_pulse"` (XML
+  rewritten via ElementTree, meta `<labels>` block + every shape's label/
+  attribute; **originals in Downloads never touched**, output staged at
+  `data/cvat_exports/annotations_zth_{job4244123,archit200}.xml`,
+  git-ignored). Re-validated with `parse_cvat_xml`: 0 TODOs, 0 duplicate
+  file_names within either export, **0 cross-export overlap**, uniform
+  `curve_name="single_pulse"` in both.
+- **Buffer radius measured, not assumed** (per instruction, same rigor as
+  the id_vs_vgs 2px check): a naive perpendicular-scan gave a misleading
+  ~8–9px median (inflated by sampling through the chart's convergence zone,
+  where the multi-duty-cycle Zth family visually merges — these are
+  standard 6-7-curve Zth-vs-time datasheet charts, D=0.5/0.2/0.1/0.05/0.02/
+  0.01 + single-pulse, and only single-pulse is in scope/annotated). A
+  robust distance-transform measurement at 40 sampled vertices across 20
+  images per source gave **combined median 4.4px full stroke width**
+  (job_4244123 4.0px, Zth_Archit_200 4.4px). Visually confirmed on an
+  isolated (non-convergence) segment: the CVAT polyline sits correctly at
+  the stroke's visual centerline, true width ~5–6px there — the
+  convergence-zone crop initially looked "off-center" only because it was
+  sampling a spot where 2–3 curves visually merge, not this curve's own
+  edge. **Buffer radius set to 2.5px** (total mask ≈5.0px, matching the
+  measured width) — deliberately NOT the inherited 4.5px default, which
+  would have overshot by ~2×. Visual overlay check on both a convergence-
+  zone and an isolated segment confirms tight, correct coverage at 2.5px.
+  **Flag for future extraction work (not this task):** the multi-duty-cycle
+  convergence zone has curve-to-curve gaps as low as 1px in places — no
+  buffer radius can avoid ambiguity there; classical/AI extraction will need
+  its own handling, same class of issue as rdson's typ/max proximity.
+- Converted via frozen `convert()`/`merge_convert()` (buffer 2.5px):
+  `zth_job4244123.json` (212/171), `zth_archit200.json` (155/150), combined
+  `zth_vs_time_combined.json` — **321 images / 321 annotations** (171+150
+  exact; `merge_convert` drops the 46 unannotated frames), `validate_coco`
+  clean, 0 duplicate file_names, curve_name 100% `single_pulse`.
+- **Group-aware split** (same family tool as every prior batch, seed 42,
+  `BSC-BSZ` pinned to train per the T5 map): proposal landed clean on the
+  first try, **no manual override needed** (unlike id_vs_vgs's val/test
+  swap) — both val and test clear the eval-diversity invariant (≥2
+  families/≥15 images) with 6 families each. **train 225 img/225 ann
+  (70.1%), val 48/48 (15.0%), test 48/48 (15.0%)** — every image has
+  exactly 1 shape (no empty-negative convention here, since `merge_convert`
+  already dropped unannotated frames), all three parts `validate_coco`
+  clean, pairwise disjoint, total exactly 321. Files at
+  `data/coco/split_zth_vs_time/` (git-ignored).
+- **STOPPED before training per instruction — no GPU/AWS work, owner reviews
+  these numbers first.** No naming/classification module exists yet for
+  `zth_vs_time` (Stage 4/5 registry work, separate from this dataset-prep
+  task) — `curve_name="single_pulse"` is carried as a plain COCO attribute
+  only, same as id_vs_vgs's `TJ_*` values before its own registry entry
+  existed.
+
 ### 2026-07-14 — Session: T28 rdson plausibility ranges
 - Owner approved the frozen-file addition (last T24 open item). TDD: 9 tests
   first (red: 5 failed / 4 in-range controls green), then the rdson
