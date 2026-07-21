@@ -159,20 +159,27 @@ class TestLabelAnchoredNaming:
 # ------------------------------------ end-to-end classical pipeline (2-curve case)
 
 def two_curve_chart():
-    """Standard synthetic chart plus a second curve 60 px below the first."""
+    """Standard synthetic chart plus a second curve 35 px below the first.
+
+    35 px (not more) keeps the lower curve's cold end ABOVE the x-axis /
+    0-mOhm tick row (240): the original +60 offset drew it down to row 260,
+    i.e. NEGATIVE resistance — physically impossible values that the
+    owner-approved rdson y-range gate now correctly rejects. The fixture was
+    the unphysical part; the assertions are unchanged.
+    """
     img = standard_chart()
     for col in range(60, 350):
-        row = curve_row(col) + 60
+        row = curve_row(col) + 35
         img[row:row + 3, col] = CURVE_BGR
     return img
 
 
 def two_curve_ocr_lines():
     # "max" floats near the upper curve (col ~200, row ~137), "typ" near the
-    # lower (col ~200, row ~197) — same geometry as the real Infineon charts.
+    # lower (col ~200, row ~172) — same geometry as the real Infineon charts.
     return good_ocr_lines() + [
         ocr_line("max", 180, 110, 215, 125),
-        ocr_line("typ", 180, 205, 215, 220),
+        ocr_line("typ", 180, 180, 215, 195),
     ]
 
 
@@ -202,7 +209,10 @@ class TestClassicalPipelineTwoCurves:
     def test_three_curves_still_quarantined_never_guessed(self):
         img = two_curve_chart()
         for col in range(60, 350):  # a third distinct curve, blue, further down
-            row = curve_row(col) + 30
+            # +70: well clear of the lower red curve at +35 so the three stay
+            # three components (quarantine fires at the count gate, before
+            # calibration, so this one running below the axis is irrelevant).
+            row = curve_row(col) + 70
             img[row:row + 3, col] = (220, 40, 40)
         result = run_standard(img)
         validate_result(result)
