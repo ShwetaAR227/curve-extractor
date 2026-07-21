@@ -121,6 +121,24 @@ MONO_INPAINT_RADIUS = 3
 # the 2 known merged-line cases measure 21-22px. Threshold set at the
 # midpoint, comfortably clear of both clusters.
 MONO_MAX_MEDIAN_COL_THICKNESS_PX = 18
+# Unit-aware plausible y-value ranges for rdson_vs_tj (owner-approved,
+# 2026-07-14) — the counterpart to the x_range (temperature) entry in the
+# core's PLAUSIBILITY_SPECS, living HERE because the bound depends on the
+# detected unit, which only this wrapper knows (the core's unit detector is
+# capacitance-only). Data table, same spirit as PLAUSIBILITY_SPECS.
+# - normalized: owner-specified 0.3..5; the whole real 11-chart corpus
+#   (all normalized) spans 0.52..2.5, comfortably inside.
+# - mOhm/Ohm: no such chart exists in the tested corpus yet, so these are
+#   physical bounds with the same one-decade margin idiom the capacitance
+#   spec used: real MOSFET rdson spans ~0.5 mOhm (large trench FETs) to
+#   ~10 Ohm (small high-voltage parts) -> mOhm (0.05, 1e5), Ohm (5e-5, 100).
+#   Deliberately generous — the gate targets orders-of-magnitude calibration
+#   failures, not tight physics.
+RDSON_Y_PLAUSIBLE_RANGES: Dict[str, tuple] = {
+    "normalized": (0.3, 5.0),
+    "mOhm": (0.05, 100_000.0),
+    "Ohm": (0.00005, 100.0),
+}
 
 OcrLine = Dict[str, Any]  # {"text": str, "bounding_box": {"x1","y1","x2","y2"}}
 
@@ -496,6 +514,29 @@ def run_classical_pipeline(
                 f"suspiciously_thick_monochrome_trace: median column "
                 f"thickness {worst:.1f}px exceeds {MONO_MAX_MEDIAN_COL_THICKNESS_PX}px "
                 "— likely two lines merged during gridline-gap bridging"
+            )
+            logger.warning("run_classical_pipeline(%s, %s): %s", device, curve_type, reason)
+            result = build_result(
+                device=device, curve_type=curve_type, source_image=source_image,
+                status="needs_review", review_reason=reason,
+                duplicates_removed=result["duplicates_removed"],
+                calibration=result["calibration"], curves=result["curves"],
+                units=result["units"],
+            )
+
+    # Unit-aware y-value plausibility (see RDSON_Y_PLAUSIBLE_RANGES): runs
+    # last because it needs the FINAL detected units. Applies to both color
+    # and mono paths — a units/calibration mismatch isn't path-specific.
+    # Curves/calibration/units are kept for the reviewer (never an empty
+    # shell), same as the core's implausible_calibration gate.
+    if result["status"] == "ok" and result["units"] in RDSON_Y_PLAUSIBLE_RANGES:
+        lo, hi = RDSON_Y_PLAUSIBLE_RANGES[result["units"]]
+        y_values = [p["y"] for c in result["curves"] for p in c["points"]]
+        if y_values and (min(y_values) < lo or max(y_values) > hi):
+            reason = (
+                f"implausible_rdson_values: y values span "
+                f"{min(y_values):.4g}..{max(y_values):.4g} {result['units']}, "
+                f"outside the plausible {result['units']} range {lo:g}..{hi:g}"
             )
             logger.warning("run_classical_pipeline(%s, %s): %s", device, curve_type, reason)
             result = build_result(

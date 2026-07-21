@@ -53,6 +53,17 @@ PLAUSIBILITY_SPECS: Dict[str, Dict[str, Any]] = {
     "capacitance_vs_vds": {
         "y_range": (0.1, 1_000_000.0),  # pF
     },
+    # rdson_vs_tj (owner-approved frozen-file addition, 2026-07-14): the
+    # x-axis is junction temperature — real charts span about -55..175 degC
+    # (confirmed on the 11-chart T27 corpus: -57..176) and silicon Tj(max)
+    # is 150-200 degC, so anything outside -75..200 is a calibration
+    # failure, not physics. No y_range here: the plausible rdson y bound
+    # depends on the detected UNIT (normalized vs mOhm vs Ohm), which this
+    # unit-blind core doesn't know — the unit-aware y check lives in
+    # classical.run_classical_pipeline (RDSON_Y_PLAUSIBLE_RANGES).
+    "rdson_vs_tj": {
+        "x_range": (-75.0, 200.0),  # degC
+    },
 }
 
 
@@ -63,6 +74,18 @@ def _implausibility_reason(
     spec = PLAUSIBILITY_SPECS.get(curve_type)
     if spec is None:
         return None
+
+    x_range = spec.get("x_range")
+    if x_range is not None:
+        x_values = [p["x"] for curve in curves for p in curve["points"]]
+        if x_values:
+            x_min, x_max = min(x_values), max(x_values)
+            lo, hi = x_range
+            if x_min < lo or x_max > hi:
+                return (
+                    f"implausible_calibration: x values span {x_min:.4g}..{x_max:.4g}, "
+                    f"outside the plausible {curve_type} range {lo:g}..{hi:g}"
+                )
 
     y_range = spec.get("y_range")
     if y_range is not None:

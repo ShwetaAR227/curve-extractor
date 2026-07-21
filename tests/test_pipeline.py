@@ -292,6 +292,81 @@ def test_curve_type_without_plausibility_spec_is_unchecked(monkeypatch):
     assert result["status"] == "ok"
 
 
+# ------------------------- rdson_vs_tj plausibility entry (owner-approved
+# frozen-file addition, 2026-07-14): x_range spec support + the rdson entry.
+# The x-axis of an rdson chart is junction temperature; anything outside
+# roughly -75..200 degC is a calibration failure, not physics.
+
+def test_plausibility_specs_pin_owner_approved_content():
+    # Data pin (same idiom as the FAMILY_MERGE_MAP test): the capacitance
+    # entry is unchanged and rdson_vs_tj carries the approved x_range.
+    from src.extraction.pipeline import PLAUSIBILITY_SPECS
+
+    assert PLAUSIBILITY_SPECS["capacitance_vs_vds"] == {"y_range": (0.1, 1_000_000.0)}
+    assert PLAUSIBILITY_SPECS["rdson_vs_tj"] == {"x_range": (-75.0, 200.0)}
+
+
+def _one_rdson_detection():
+    return [Detection(score=0.9, mask=band_mask(140))]
+
+
+def test_rdson_x_values_out_of_plausible_temperature_range_downgrades(monkeypatch):
+    # Calibration maps columns 60..340 to ~510..3400 "degC" — physically
+    # impossible junction temperatures must downgrade, exact same pattern as
+    # the capacitance y_range gate.
+    import src.extraction.pipeline as pipeline_mod
+
+    def fake_derive_calibration(ocr_lines, w, h):
+        return {"x_slope": 0.1, "x_intercept": 9.0, "y_slope": -1.0,
+                "y_intercept": 400.0, "x_log": False, "y_log": False}
+
+    monkeypatch.setattr(pipeline_mod, "derive_calibration", fake_derive_calibration)
+    result = process_detections(
+        "DEV1", "rdson_vs_tj", "fig.png", IMG_W, IMG_H,
+        good_ocr_lines_no_units(), _one_rdson_detection(), expected_curve_count=1,
+    )
+    assert result["status"] == "needs_review"
+    assert "implausible_calibration" in result["review_reason"]
+    assert "x values" in result["review_reason"]
+
+
+def test_rdson_x_range_violation_keeps_curves_and_calibration(monkeypatch):
+    import src.extraction.pipeline as pipeline_mod
+
+    def fake_derive_calibration(ocr_lines, w, h):
+        return {"x_slope": 0.1, "x_intercept": 9.0, "y_slope": -1.0,
+                "y_intercept": 400.0, "x_log": False, "y_log": False}
+
+    monkeypatch.setattr(pipeline_mod, "derive_calibration", fake_derive_calibration)
+    result = process_detections(
+        "DEV1", "rdson_vs_tj", "fig.png", IMG_W, IMG_H,
+        good_ocr_lines_no_units(), _one_rdson_detection(), expected_curve_count=1,
+    )
+    assert result["status"] == "needs_review"
+    assert result["calibration"] is not None
+    assert result["curves"][0]["curve_name"] == "rdson"
+    assert result["curves"][0]["points"]
+
+
+def test_rdson_in_range_temperatures_pass_the_plausibility_gate(monkeypatch):
+    # Control: sane temperatures (-50..90 degC) sail through the x_range
+    # gate. The core still ends at units_undetected (its unit detector is
+    # capacitance-only; rdson units are filled in by run_classical_pipeline)
+    # — asserting THAT reason proves plausibility itself passed.
+    import src.extraction.pipeline as pipeline_mod
+
+    def fake_derive_calibration(ocr_lines, w, h):
+        return {"x_slope": 2.0, "x_intercept": 160.0, "y_slope": -1.0,
+                "y_intercept": 400.0, "x_log": False, "y_log": False}
+
+    monkeypatch.setattr(pipeline_mod, "derive_calibration", fake_derive_calibration)
+    result = process_detections(
+        "DEV1", "rdson_vs_tj", "fig.png", IMG_W, IMG_H,
+        good_ocr_lines_no_units(), _one_rdson_detection(), expected_curve_count=1,
+    )
+    assert result["review_reason"] == "units_undetected"
+
+
 # ------------------------------------------------------------ units detection (T18)
 
 def test_units_detected_and_populated_on_ok_result():

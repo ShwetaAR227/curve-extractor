@@ -309,3 +309,71 @@ class TestRunClassicalPipeline:
         bad_lines = good_ocr_lines() + [{"text": "100"}]  # no bounding_box
         with pytest.raises((KeyError, ValueError)):
             run_standard(standard_chart(), ocr_lines=bad_lines)
+
+
+# ---------------------- rdson unit-aware y-value plausibility (owner-approved
+# 2026-07-14). The y-range depends on the detected unit (normalized vs mOhm vs
+# Ohm), and units are only known after detect_rdson_units runs in
+# run_classical_pipeline — so the check lives there, not in the frozen core's
+# unit-blind PLAUSIBILITY_SPECS (which carries rdson's x_range instead).
+
+def rdson_ocr_lines(y_values_top_to_bottom, unit_label):
+    """OCR lines matching the drawn chart geometry with custom y-tick values
+    (given top row first) and a custom y-axis unit/label string."""
+    lines = [
+        ocr_line(str(val), col - 15, 265, col + 15, 285) for val, col in X_TICKS
+    ]
+    y_rows = [row for _, row in Y_TICKS]  # 40, 90, 140, 190, 240 (top->bottom)
+    lines += [
+        ocr_line(str(val), 15, row - 8, 50, row + 8)
+        for val, row in zip(y_values_top_to_bottom, y_rows)
+    ]
+    lines.append(ocr_line(unit_label, 2, 100, 26, 190))
+    return lines
+
+
+class TestRdsonValueRangeCheck:
+    def test_normalized_values_out_of_range_downgrade_to_needs_review(self):
+        # y ticks read 0..80 but the axis is labeled "(Normalized)" — traced
+        # values land ~16..68, far outside the plausible 0.3..5 normalized
+        # band: a units/calibration inconsistency, never silently "ok".
+        lines = rdson_ocr_lines([80, 60, 40, 20, 0], "(Normalized)")
+        result = run_standard(standard_chart(), ocr_lines=lines)
+        validate_result(result)
+        assert result["status"] == "needs_review"
+        assert "implausible" in result["review_reason"]
+        assert "normalized" in result["review_reason"]
+
+    def test_normalized_values_in_range_stay_ok(self):
+        # Same chart, y ticks 0..4 — traced values ~0.8..3.4, inside 0.3..5.
+        lines = rdson_ocr_lines([4, 3, 2, 1, 0], "(Normalized)")
+        result = run_standard(standard_chart(), ocr_lines=lines)
+        assert result["status"] == "ok"
+        assert result["units"] == "normalized"
+
+    def test_mohm_values_out_of_range_downgrade(self):
+        # An mOhm axis reading up to ~136,000 mOhm (136 Ohm) is outside any
+        # real MOSFET rdson chart — calibration failure, downgraded.
+        lines = rdson_ocr_lines([160000, 120000, 80000, 40000, 0], "RDS(on) [mΩ]")
+        result = run_standard(standard_chart(), ocr_lines=lines)
+        validate_result(result)
+        assert result["status"] == "needs_review"
+        assert "implausible" in result["review_reason"]
+
+    def test_mohm_values_in_range_stay_ok_unchanged(self):
+        # Explicit regression pin: the canonical 0..80 mOhm fixture keeps
+        # passing exactly as before this gate existed.
+        result = run_standard(standard_chart())
+        assert result["status"] == "ok"
+        assert result["units"] == "mOhm"
+
+    def test_downgraded_result_keeps_curves_calibration_and_units(self):
+        # Same "never an empty shell" rule as the other gates: the reviewer
+        # sees the traced curve, the suspect calibration AND the unit that
+        # triggered the range choice.
+        lines = rdson_ocr_lines([80, 60, 40, 20, 0], "(Normalized)")
+        result = run_standard(standard_chart(), ocr_lines=lines)
+        assert result["status"] == "needs_review"
+        assert result["calibration"] is not None
+        assert result["units"] == "normalized"
+        assert result["curves"][0]["points"]
