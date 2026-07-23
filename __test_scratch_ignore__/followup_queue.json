@@ -1,0 +1,14 @@
+[
+  {
+    "device": "DEV_BAD",
+    "curve_type": "capacitance_vs_vds",
+    "status": "failed_extraction",
+    "reason": "extraction error: extraction boom"
+  },
+  {
+    "device": "DEV_GOOD",
+    "curve_type": "capacitance_vs_vds",
+    "status": "pending_review",
+    "reason": "awaiting reviewer decision"
+  }
+]

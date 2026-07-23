@@ -1,0 +1,15 @@
+{
+  "curve_type": "capacitance_vs_vds",
+  "processed": 2,
+  "counts": {
+    "finalized": 0,
+    "pending_review": 1,
+    "rejected": 0,
+    "needs_review": 0,
+    "failed_classification": 0,
+    "failed_extraction": 1
+  },
+  "finalized_devices": [],
+  "queue_path": "__test_scratch_ignore__\\followup_queue.json",
+  "generated_at": "2026-07-23T09:53:17.789397+00:00"
+}
