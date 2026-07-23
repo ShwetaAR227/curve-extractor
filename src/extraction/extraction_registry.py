@@ -8,12 +8,20 @@ a registry entry, never a new if/elif branch in the adapter
 (:mod:`src.orchestrator.live_stages`).
 
 Two extraction methods exist today:
-- ``"classical"`` — routes to
-  :func:`src.extraction.classical.run_classical_pipeline` (OpenCV, no
-  GPU). ``checkpoint``/``config`` are ``None`` (nothing to load).
+- ``"classical"`` — ``checkpoint``/``config`` are ``None`` (nothing to
+  load). ``classical_pipeline`` carries the ACTUAL function object for
+  this curve type (e.g. :func:`src.extraction.classical.run_classical_pipeline`
+  for rdson_vs_tj, :func:`src.extraction.classical_vgsth.run_classical_pipeline`
+  for vgsth_vs_tj) — the adapter (:mod:`src.orchestrator.live_stages`)
+  calls ``spec.classical_pipeline(...)`` directly, a genuine per-curve-type
+  data lookup, not a single hardcoded import shared by every classical
+  entry (fixed 2026-07-22; previously every ``"classical"`` entry
+  unconditionally called rdson_vs_tj's own wrapper regardless of curve
+  type — a real bug, since fixed, see PROGRESS.md).
 - ``"model"`` — routes to :func:`src.extraction.pipeline.run_pipeline`
   (LineFormer/mmdet). ``checkpoint``/``config`` name the trained weights
-  and its config file.
+  and its config file. ``classical_pipeline`` is ``None`` for every model
+  entry — nothing classical to point at.
 
 A third sentinel value, ``"none"``, marks a curve type that is registered
 for classification-adjacent bookkeeping but deliberately has NO extractor
@@ -30,14 +38,20 @@ machine-specific paths (CLAUDE.md §3 — the legacy repo's ``D:\\...``-path
 lesson) — resolving them against wherever the trained weights actually
 live on a given box is the caller's job.
 
-``if_vs_vsd``, ``zth_vs_time``, and ``vgsth_vs_tj`` have NO entry — the
-real current gap (none of the three has a trained model or a classical
-detector yet); ``get_extraction_spec`` raises ``KeyError`` for them, same
-as :func:`src.classification.curve_registry.get_spec` does for its own
-unregistered types.
+``zth_vs_time`` has NO entry — the real current gap (no trained model or
+classical detector yet); ``get_extraction_spec`` raises ``KeyError`` for
+it, same as :func:`src.classification.curve_registry.get_spec` does for
+its own unregistered types. ``vgsth_vs_tj`` (as of 2026-07-22) has a real
+``"classical"`` entry, genuinely routed to its own wrapper. ``if_vs_vsd``
+(as of 2026-07-22, follow-up session) has a real ``"model"`` entry,
+genuinely routed to its own ``model_pipeline`` override
+(:func:`src.extraction.model_if_vsd.run_model_pipeline`) — see
+``model_pipeline`` below.
 """
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, Optional
+
+from src.extraction import classical, classical_vgsth, model_if_vsd
 
 
 @dataclass(frozen=True)
@@ -49,7 +63,25 @@ class ExtractionSpec:
     checkpoint: Optional[str]
     config: Optional[str]
     score_thr: float
-    expected_curve_count: Any  # int (e.g. 3) or a tuple of allowed counts (e.g. (1, 2))
+    # int (e.g. 3), a tuple of allowed counts (e.g. (1, 2)), or None when the
+    # curve type has no fixed count at all (e.g. vgsth_vs_tj, determined
+    # dynamically per-chart inside its own classical wrapper) — this field
+    # is only ever read by the "model" dispatch path (run_pipeline), never
+    # by "classical", so a classical entry's value here is informational.
+    expected_curve_count: Any
+    # The actual classical-extraction function object for this curve type
+    # (e.g. classical.run_classical_pipeline), or None for "model"/"none"
+    # entries. The adapter calls this directly — a genuine per-curve-type
+    # data lookup, never a hardcoded single import.
+    classical_pipeline: Optional[Callable] = None
+    # The "model"-dispatch analogue of classical_pipeline: the actual
+    # override function object for a "model" entry that needs its own
+    # expected-vs-detected safety net instead of the generic run_pipeline
+    # call (currently only if_vs_vsd, via model_if_vsd.run_model_pipeline)
+    # — None for every plain "model" entry (capacitance_vs_vds,
+    # id_vs_vgs), which have no such override and keep routing straight
+    # to run_pipeline exactly as before.
+    model_pipeline: Optional[Callable] = None
 
 
 _REGISTRY: Dict[str, ExtractionSpec] = {
@@ -88,6 +120,49 @@ _REGISTRY: Dict[str, ExtractionSpec] = {
         # both valid — see src/extraction/classical.py's own
         # EXPECTED_CURVE_COUNT/TWO_CURVE_COUNT handling.
         expected_curve_count=(1, 2),
+        classical_pipeline=classical.run_classical_pipeline,
+    ),
+    "vgsth_vs_tj": ExtractionSpec(
+        curve_type="vgsth_vs_tj",
+        method="classical",
+        checkpoint=None,
+        config=None,
+        # score_thr is unused by run_classical_pipeline (no such parameter)
+        # — kept only for a uniform dataclass shape across every entry.
+        score_thr=0.5,
+        # Unlike rdson_vs_tj's fixed (1, 2), vgsth's curve count is NOT a
+        # fixed set — count_expected_curves(ocr_lines) inside
+        # src/extraction/classical_vgsth.py determines it dynamically per
+        # chart (band scheme: 1-3; current-value scheme: unbounded). No
+        # fixed value would be truthful here.
+        expected_curve_count=None,
+        classical_pipeline=classical_vgsth.run_classical_pipeline,
+    ),
+    "if_vs_vsd": ExtractionSpec(
+        curve_type="if_vs_vsd",
+        method="model",
+        checkpoint="body_diode_run1/best_segm_mAP_50_iter_2200.pth",
+        config="src/training/configs/lineformer_body_diode_run1.py",
+        score_thr=0.5,
+        # Real charts show 2 curves (two temperatures, the common case) or
+        # 4 (temp + a compound percentile label, seen once) -- but unlike
+        # capacitance_vs_vds/id_vs_vgs (plain "model" entries whose fixed
+        # int here IS read, by run_pipeline -> process_detections's own
+        # count gate), if_vs_vsd's model_pipeline override
+        # (model_if_vsd.run_model_pipeline) NEVER reads this field at all
+        # -- confirmed directly (grep for the bare `expected_curve_count`
+        # identifier in model_if_vsd.py: it appears only as that
+        # function's own parameter declaration; every actual
+        # process_detections(...) call there passes the locally computed
+        # detected count, never this parameter). Its REAL expected count
+        # always comes from naming.if_vs_vsd.count_expected_curves(ocr_lines),
+        # derived dynamically per chart from the labels themselves. A
+        # fixed tuple here would misleadingly look like an enforced rule
+        # when nothing checks it -- same reasoning as vgsth_vs_tj's own
+        # expected_curve_count=None below.
+        expected_curve_count=None,
+        classical_pipeline=None,
+        model_pipeline=model_if_vsd.run_model_pipeline,
     ),
     "vgs_vs_qg": ExtractionSpec(
         curve_type="vgs_vs_qg",

@@ -118,3 +118,20 @@ The legacy repo is **reference material only** — read it, never trust it, neve
 - [ ] logging present
 - [ ] `PROGRESS.md` updated
 - [ ] owner reviewed
+
+## 10. Communication rule — reports must use simple, plain language
+
+The project owner needs all reports written in very simple, everyday
+language — no technical jargon, no complex sentence structure. This
+applies to: error explanations, bug reports, test failure summaries,
+design tradeoffs, anything reported back after a task.
+
+- Explain WHAT happened and WHY it matters, in plain words a
+  non-programmer could follow — not just technical terms.
+- If something needs real detail, it's fine for the explanation to be
+  longer — just keep the words and sentences simple, not the ideas.
+- Avoid assuming familiarity with terms like "regression," "fixture,"
+  "idempotent," etc. without a plain explanation alongside them.
+- Technical precision in the actual code/tests is still required —
+  this rule is about how findings are DESCRIBED back to the owner,
+  not about lowering engineering standards.

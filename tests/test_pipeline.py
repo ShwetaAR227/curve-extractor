@@ -299,11 +299,13 @@ def test_curve_type_without_plausibility_spec_is_unchecked(monkeypatch):
 
 def test_plausibility_specs_pin_owner_approved_content():
     # Data pin (same idiom as the FAMILY_MERGE_MAP test): the capacitance
-    # entry is unchanged and rdson_vs_tj carries the approved x_range.
+    # entry is unchanged, rdson_vs_tj carries the approved x_range, and
+    # vgsth_vs_tj (2026-07-21) reuses that exact same x_range verbatim.
     from src.extraction.pipeline import PLAUSIBILITY_SPECS
 
     assert PLAUSIBILITY_SPECS["capacitance_vs_vds"] == {"y_range": (0.1, 1_000_000.0)}
     assert PLAUSIBILITY_SPECS["rdson_vs_tj"] == {"x_range": (-75.0, 200.0)}
+    assert PLAUSIBILITY_SPECS["vgsth_vs_tj"] == {"x_range": (-75.0, 200.0)}
 
 
 def _one_rdson_detection():
@@ -363,6 +365,76 @@ def test_rdson_in_range_temperatures_pass_the_plausibility_gate(monkeypatch):
     result = process_detections(
         "DEV1", "rdson_vs_tj", "fig.png", IMG_W, IMG_H,
         good_ocr_lines_no_units(), _one_rdson_detection(), expected_curve_count=1,
+    )
+    assert result["review_reason"] == "units_undetected"
+
+
+# ------------------------- vgsth_vs_tj plausibility entry (owner-approved
+# frozen-file addition, 2026-07-21): reuses rdson_vs_tj's exact x_range —
+# same axis (junction temperature), same real-corpus bound, not re-derived.
+# No y_range: real vgsth_vs_tj charts with negative y-values exist in the
+# sample corpus and there isn't yet enough data to set a safe bound.
+#
+# process_detections calls get_naming_fn(curve_type) internally — these
+# tests exercise the frozen core DIRECTLY (not via classical_vgsth.py's
+# wrapper, which doesn't exist yet), so curve names below come from the
+# vgsth_vs_tj registry PLACEHOLDER ("curve_0", ...), not real names. That's
+# expected and fine here: every result below is needs_review, exactly the
+# case the placeholder's own docstring says it may legitimately surface in.
+
+def _one_vgsth_detection():
+    return [Detection(score=0.9, mask=band_mask(140))]
+
+
+def test_vgsth_x_values_out_of_plausible_temperature_range_downgrades(monkeypatch):
+    # Same fake calibration as the rdson test: maps columns 60..340 to
+    # ~510..3400 "degC" — physically impossible junction temperatures.
+    import src.extraction.pipeline as pipeline_mod
+
+    def fake_derive_calibration(ocr_lines, w, h):
+        return {"x_slope": 0.1, "x_intercept": 9.0, "y_slope": -1.0,
+                "y_intercept": 400.0, "x_log": False, "y_log": False}
+
+    monkeypatch.setattr(pipeline_mod, "derive_calibration", fake_derive_calibration)
+    result = process_detections(
+        "DEV1", "vgsth_vs_tj", "fig.png", IMG_W, IMG_H,
+        good_ocr_lines_no_units(), _one_vgsth_detection(), expected_curve_count=1,
+    )
+    assert result["status"] == "needs_review"
+    assert "implausible_calibration" in result["review_reason"]
+    assert "x values" in result["review_reason"]
+
+
+def test_vgsth_x_range_violation_keeps_curves_and_calibration(monkeypatch):
+    import src.extraction.pipeline as pipeline_mod
+
+    def fake_derive_calibration(ocr_lines, w, h):
+        return {"x_slope": 0.1, "x_intercept": 9.0, "y_slope": -1.0,
+                "y_intercept": 400.0, "x_log": False, "y_log": False}
+
+    monkeypatch.setattr(pipeline_mod, "derive_calibration", fake_derive_calibration)
+    result = process_detections(
+        "DEV1", "vgsth_vs_tj", "fig.png", IMG_W, IMG_H,
+        good_ocr_lines_no_units(), _one_vgsth_detection(), expected_curve_count=1,
+    )
+    assert result["status"] == "needs_review"
+    assert result["calibration"] is not None
+    assert result["curves"][0]["points"]
+
+
+def test_vgsth_in_range_temperatures_pass_the_plausibility_gate(monkeypatch):
+    # Control: sane temperatures (-50..90 degC) sail through the x_range
+    # gate — same "ends at units_undetected" proof-of-passage as rdson's.
+    import src.extraction.pipeline as pipeline_mod
+
+    def fake_derive_calibration(ocr_lines, w, h):
+        return {"x_slope": 2.0, "x_intercept": 160.0, "y_slope": -1.0,
+                "y_intercept": 400.0, "x_log": False, "y_log": False}
+
+    monkeypatch.setattr(pipeline_mod, "derive_calibration", fake_derive_calibration)
+    result = process_detections(
+        "DEV1", "vgsth_vs_tj", "fig.png", IMG_W, IMG_H,
+        good_ocr_lines_no_units(), _one_vgsth_detection(), expected_curve_count=1,
     )
     assert result["review_reason"] == "units_undetected"
 

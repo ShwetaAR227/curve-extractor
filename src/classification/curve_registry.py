@@ -94,6 +94,110 @@ _REGISTRY: Dict[str, CurveTypeSpec] = {
             ("gate charge", 3.0),
         ],
     ),
+    "vgsth_vs_tj": CurveTypeSpec(
+        name="vgsth_vs_tj",
+        # Wording confirmed against the one real corpus example directly
+        # available in this codebase — BSC010N04LSATMA1 page 9 (Infineon
+        # "Diagram" template; the SAME device/page already used in
+        # test_curve_registry_rdson.py's own end-to-end fixture, where
+        # this exact figure appears as rdson_vs_tj's "must NOT match"
+        # distractor — see tests/test_curve_registry_vgsth.py, which
+        # imports that same fixture rather than re-typing it): y-axis
+        # "VGS(th) [V]", x-axis "Tj [ºC]" (the SAME mangled-Tj pattern as
+        # rdson_vs_tj — same chart family, same Stage-3 OCR pipeline; x
+        # keywords below are reused verbatim from rdson_vs_tj's own T25
+        # battle-tested list, not re-derived), body text carrying
+        # current-value labels like "250 HA" (OCR-mangled "250 uA" — a
+        # Stage-5 naming concern, not a classification signal).
+        #
+        # Captions are UNRELIABLE for this template (the SAME known
+        # Stage-3 off-by-one bug that shifts rdson_vs_tj's own caption
+        # onto the wrong figure ALSO affects this one — confirmed
+        # directly on this exact page: the true vgsth figure here carries
+        # a WRONG "Typ. capacitances" caption, shifted from elsewhere).
+        # Because of that, deliberately NO "capacitance" negative phrase
+        # here (unlike every other entry in this registry) — it would
+        # fire on vgsth's own mis-shifted caption on this exact real
+        # example and defeat the match; the axis keywords alone already
+        # keep a genuine capacitance chart (y=Capacitance, x=VDS) at zero
+        # score, so the negative phrase would be a redundant, actively
+        # harmful safety net for this specific template family — same
+        # caption-unreliability lesson rdson_vs_tj's own entry already
+        # learned, applied here too.
+        #
+        # TRIED AND REVERTED (documented so it isn't re-added by accident):
+        # "gate threshold voltage" (spelled out) — the standard
+        # unabbreviated JEDEC-style term for the same "VGS(th)" concept —
+        # was initially added as a plausible caption_keyword/positive_phrase
+        # for an unconfirmed IR/AUIRF-style verbose template. Caught by
+        # test_end_to_end_page9_lineup_matches_vgsth_true_chart: on the
+        # SAME real page-9 lineup, THAT exact phrase is the caption
+        # wrongly shifted onto rdson_vs_tj's own true chart (not vgsth's) —
+        # so it scored rdson's chart at 7.5 against THIS spec, beating the
+        # real vgsth chart's own 7.0. Removed; only the one corpus-
+        # confirmed signal ("vgs(th)") remains. If a verbose caption
+        # template is ever confirmed for real, re-add it then, verified
+        # against that real example first.
+        caption_keywords=[
+            "vgs(th)",
+        ],
+        axis_keywords={
+            "y": ["vgs(th)"],
+            "x": ["junction temperature", "tj [", "tj[", "t, [", "t [c"],
+        },
+        positive_phrases=[
+            ("vgs(th)", 2.0),
+        ],
+        negative_phrases=[
+            ("transfer characteristic", 3.0),
+            ("gate charge", 3.0),
+            ("on-state resistance", 3.0),
+            ("on-resistance", 3.0),
+            ("drain current", 3.0),
+            ("safe operating area", 3.0),
+        ],
+    ),
+    "if_vs_vsd": CurveTypeSpec(
+        name="if_vs_vsd",
+        # Wording as specified by the owner (2026-07-22, real captions
+        # reviewed outside this session) -- kept to exactly the confirmed
+        # phrases, no invented/unverified additions (CLAUDE.md's "confirmed
+        # against real OCR, not guessed" standard). Unlike rdson_vs_tj's
+        # 50-device survey or even vgsth_vs_tj's one embedded real
+        # fixture, no real OCR text is directly available in this session
+        # to build an end-to-end fixture from -- FLAGGED for the owner to
+        # sanity-check against an actual figure's OCR output once one is
+        # available (see tests/test_curve_registry_if_vsd.py's own
+        # docstring for the same caveat).
+        caption_keywords=[
+            "forward characteristics",
+            "reverse diode",
+        ],
+        axis_keywords={
+            "y": ["i_f", "i_sd", "if,", "isd,"],
+            # "vsd" (source-to-drain) is the REVERSE letter order of
+            # capacitance_vs_vds's own "vds" (drain-to-source) token --
+            # genuinely different physical quantities on real body-diode
+            # charts, not a typo; kept as two distinct literal strings on
+            # purpose (checked directly, not assumed, in
+            # test_x_axis_keyword_is_vsd_not_vds_no_accidental_reversal).
+            "x": ["v_sd", "vsd,"],
+        },
+        positive_phrases=[
+            ("forward characteristics", 2.0),
+            ("reverse diode", 1.5),
+        ],
+        negative_phrases=[
+            ("capacitance", 3.0),                  # capacitance_vs_vds
+            ("gate charge", 3.0),                    # vgs_vs_qg
+            ("transfer characteristic", 3.0),        # id_vs_vgs
+            ("threshold voltage", 2.0),               # vgsth_vs_tj / id_vs_vgs
+            ("vgs(th)", 2.0),                          # vgsth_vs_tj
+            ("on-resistance", 3.0),                     # rdson_vs_tj / vgsth
+            ("normalized on-resistance", 3.0),           # rdson_vs_tj
+            ("safe operating area", 3.0),                 # SOA (out of scope, common distractor)
+        ],
+    ),
     "id_vs_vgs": CurveTypeSpec(
         name="id_vs_vgs",
         caption_keywords=[

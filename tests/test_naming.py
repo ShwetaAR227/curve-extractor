@@ -86,3 +86,105 @@ def test_get_naming_fn_error_message_lists_registered_types():
 
 def test_list_registered_naming_types_contains_capacitance():
     assert "capacitance_vs_vds" in list_registered_naming_types()
+
+
+# --------------------------------------------------------- vgsth_vs_tj
+# placeholder naming (owner-approved frozen-file addition, 2026-07-21):
+# exists ONLY so process_detections's unconditional get_naming_fn(curve_type)
+# lookup doesn't KeyError for vgsth_vs_tj -- its real naming is entirely
+# label-driven (name_curves_by_labels needs ocr_lines, which this
+# registry's plain NamingFn signature can't carry), so there's no
+# meaningful position-only naming to register the way rdson_vs_tj has.
+# classical_vgsth.py's wrapper is required to override this on every
+# "ok"-status path; it may only surface as-is inside a needs_review result.
+
+def test_get_naming_fn_returns_a_callable_for_vgsth_vs_tj():
+    fn = get_naming_fn("vgsth_vs_tj")
+    assert callable(fn)
+
+
+def test_vgsth_placeholder_names_follow_curve_n_pattern_aligned_to_input_order():
+    fn = get_naming_fn("vgsth_vs_tj")
+    names = fn([[(0.0, 0.0)], [(1.0, 1.0)], [(2.0, 2.0)]])
+    assert names == ["curve_0", "curve_1", "curve_2"]
+
+
+def test_vgsth_placeholder_never_raises_on_zero_curves():
+    fn = get_naming_fn("vgsth_vs_tj")
+    assert fn([]) == []
+
+
+def test_vgsth_placeholder_never_raises_on_a_curve_with_no_points():
+    # Unlike every real naming function in this registry, the placeholder
+    # doesn't inspect point content at all -- it can't raise here.
+    fn = get_naming_fn("vgsth_vs_tj")
+    assert fn([[], [(0.0, 0.0)]]) == ["curve_0", "curve_1"]
+
+
+def test_vgsth_placeholder_docstring_flags_itself_as_non_authoritative():
+    # Documentation IS part of the contract for a function this dangerous
+    # to trust by accident -- lock in that the warning stays present.
+    fn = get_naming_fn("vgsth_vs_tj")
+    assert fn.__doc__ is not None
+    assert "placeholder" in fn.__doc__.lower()
+    assert "override" in fn.__doc__.lower()
+
+
+def test_list_registered_naming_types_now_includes_vgsth_vs_tj():
+    assert "vgsth_vs_tj" in list_registered_naming_types()
+
+
+# --------------------------------------------------------- if_vs_vsd
+# placeholder naming (owner-approved frozen-file addition, 2026-07-22
+# follow-up session): same disposable, never-trusted, generic-curve_N-names
+# pattern already built for vgsth_vs_tj -- if_vs_vsd's real naming is
+# entirely label-driven (name_curves_by_labels needs ocr_lines, which this
+# registry's plain NamingFn signature can't carry). model_if_vsd.py's
+# wrapper is required to override this on every "ok"-status path; it may
+# only surface as-is inside a needs_review result.
+
+def test_get_naming_fn_returns_a_callable_for_if_vs_vsd():
+    fn = get_naming_fn("if_vs_vsd")
+    assert callable(fn)
+
+
+def test_if_vsd_placeholder_names_follow_curve_n_pattern_aligned_to_input_order():
+    fn = get_naming_fn("if_vs_vsd")
+    names = fn([[(0.0, 0.0)], [(1.0, 1.0)], [(2.0, 2.0)]])
+    assert names == ["curve_0", "curve_1", "curve_2"]
+
+
+def test_if_vsd_placeholder_never_raises_on_zero_curves():
+    fn = get_naming_fn("if_vs_vsd")
+    assert fn([]) == []
+
+
+def test_if_vsd_placeholder_never_raises_on_a_curve_with_no_points():
+    fn = get_naming_fn("if_vs_vsd")
+    assert fn([[], [(0.0, 0.0)]]) == ["curve_0", "curve_1"]
+
+
+def test_if_vsd_placeholder_docstring_flags_itself_as_non_authoritative():
+    fn = get_naming_fn("if_vs_vsd")
+    assert fn.__doc__ is not None
+    assert "placeholder" in fn.__doc__.lower()
+    assert "override" in fn.__doc__.lower()
+
+
+def test_if_vsd_placeholder_is_a_distinct_function_from_vgsth_placeholder():
+    # Two independent throwaway placeholders, not one shared object
+    # accidentally reused across curve types.
+    assert get_naming_fn("if_vs_vsd") is not get_naming_fn("vgsth_vs_tj")
+
+
+def test_list_registered_naming_types_now_includes_if_vs_vsd():
+    assert "if_vs_vsd" in list_registered_naming_types()
+
+
+def test_if_vs_vsd_has_no_expected_names_entry_names_not_fixed():
+    # Mirrors vgsth_vs_tj: curve names aren't a fixed set (temperature-
+    # driven), so there's nothing truthful to register in
+    # _EXPECTED_NAMES/get_expected_names for this curve type either.
+    from src.extraction.naming import get_expected_names
+    with pytest.raises(KeyError):
+        get_expected_names("if_vs_vsd")

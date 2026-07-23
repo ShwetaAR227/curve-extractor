@@ -64,6 +64,16 @@ PLAUSIBILITY_SPECS: Dict[str, Dict[str, Any]] = {
     "rdson_vs_tj": {
         "x_range": (-75.0, 200.0),  # degC
     },
+    # vgsth_vs_tj (owner-approved frozen-file addition, 2026-07-21): same
+    # x-axis (junction temperature) as rdson_vs_tj, and the same real-corpus
+    # bound already confirmed to cover every chart reviewed — reused
+    # verbatim, not re-derived. Deliberately NO y_range yet: real
+    # vgsth_vs_tj charts with negative y-values exist in the sample corpus
+    # and there isn't yet enough data to set a safe bound anywhere (unlike
+    # rdson_vs_tj, this curve type has no y-range gate at all right now).
+    "vgsth_vs_tj": {
+        "x_range": (-75.0, 200.0),  # degC
+    },
 }
 
 

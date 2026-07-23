@@ -94,6 +94,28 @@ def build_adapter(monkeypatch, curve_type="capacitance_vs_vds", figures_by_page=
     passes ``mock_cv2_imread=False`` and supplies a real (but empty)
     ``tmp_path`` as ``images_root`` instead, so ``cv2.imread`` genuinely
     returns ``None`` for a file that doesn't exist.
+
+    The classical path is now a per-curve-type registry lookup
+    (``spec.classical_pipeline``), not a single ``live_stages_mod``-level
+    name — so mocking it means replacing WHATEVER registry entry is
+    currently active for ``curve_type`` (real or already faked by the
+    caller, e.g. via its own ``monkeypatch.setitem`` before calling this)
+    with an identical copy carrying ``classical_pipeline=run_classical_mock``,
+    via ``dataclasses.replace`` (preserves every other field). Only done
+    when that entry's ``method == "classical"`` — model/none entries are
+    left untouched, exactly as before.
+
+    Symmetric handling for ``model_pipeline`` (owner-approved routing
+    addition, 2026-07-22 follow-up session): when the currently-active
+    entry's ``method == "model"`` AND it already carries a real
+    ``model_pipeline`` override (currently only if_vs_vsd's real registry
+    entry, via ``model_if_vsd.run_model_pipeline``), that override is ALSO
+    replaced with a mock via the same ``dataclasses.replace`` technique —
+    so a test can exercise if_vs_vsd's dispatch without hitting the real
+    (GPU-only) function. Plain model entries whose ``model_pipeline`` is
+    ``None`` (capacitance_vs_vds, id_vs_vgs) are left completely
+    untouched — they keep routing to the generic, separately-mocked
+    ``run_pipeline`` exactly as before this addition.
     """
     figures_by_page = figures_by_page if figures_by_page is not None else {3: [make_figure()]}
     load_figures_mock = MagicMock(return_value=figures_by_page)
@@ -109,11 +131,31 @@ def build_adapter(monkeypatch, curve_type="capacitance_vs_vds", figures_by_page=
     monkeypatch.setattr(live_stages_mod, "classify_device", classify_device_mock)
 
     run_classical_mock = MagicMock(return_value=extraction_result or ok_stage5_result(curve_type))
-    monkeypatch.setattr(live_stages_mod, "run_classical_pipeline", run_classical_mock)
+    import dataclasses
+
+    import src.extraction.extraction_registry as registry_mod
+    current_spec = registry_mod._REGISTRY.get(curve_type)
+    if current_spec is not None and current_spec.method == "classical":
+        monkeypatch.setitem(
+            registry_mod._REGISTRY, curve_type,
+            dataclasses.replace(current_spec, classical_pipeline=run_classical_mock),
+        )
     run_model_mock = MagicMock(return_value=extraction_result or ok_stage5_result(curve_type))
     monkeypatch.setattr(live_stages_mod, "run_pipeline", run_model_mock)
     load_model_mock = MagicMock(return_value=object())
     monkeypatch.setattr(live_stages_mod, "load_model", load_model_mock)
+
+    model_pipeline_mock = MagicMock(return_value=extraction_result or ok_stage5_result(curve_type))
+    # Re-fetch: the classical branch above may have just replaced the
+    # registry entry for this curve_type (dataclasses.replace returns a
+    # NEW object) -- current_spec must reflect that before this check.
+    current_spec = registry_mod._REGISTRY.get(curve_type)
+    if (current_spec is not None and current_spec.method == "model"
+            and current_spec.model_pipeline is not None):
+        monkeypatch.setitem(
+            registry_mod._REGISTRY, curve_type,
+            dataclasses.replace(current_spec, model_pipeline=model_pipeline_mock),
+        )
 
     if mock_cv2_imread:
         import numpy as np
@@ -127,7 +169,7 @@ def build_adapter(monkeypatch, curve_type="capacitance_vs_vds", figures_by_page=
     return adapter, {
         "load_figures": load_figures_mock, "classify_device": classify_device_mock,
         "run_classical_pipeline": run_classical_mock, "run_pipeline": run_model_mock,
-        "load_model": load_model_mock,
+        "load_model": load_model_mock, "model_pipeline": model_pipeline_mock,
     }
 
 
@@ -321,25 +363,6 @@ class TestExtractionRouting:
             mocks["run_pipeline"].assert_called_once()
             mocks["run_classical_pipeline"].assert_not_called()
 
-    def test_a_future_classical_entry_routes_the_same_way_as_rdson(self, monkeypatch):
-        # E.14: vgsth_vs_tj (once registered) must reuse the SAME routing
-        # code as rdson — proven by monkeypatching a fake classical entry in,
-        # not by any vgsth_vs_tj-specific adapter code.
-        import src.extraction.extraction_registry as registry_mod
-
-        fake_spec = ExtractionSpec(curve_type="vgsth_vs_tj", method="classical", checkpoint=None,
-                                   config=None, score_thr=0.5, expected_curve_count=1)
-        monkeypatch.setitem(registry_mod._REGISTRY, "vgsth_vs_tj", fake_spec)
-        figure = make_figure()
-        matched = make_classification(ClassificationStatus.MATCHED, figure=figure, target_curve_type="vgsth_vs_tj")
-        adapter, mocks = build_adapter(
-            monkeypatch, curve_type="vgsth_vs_tj", figures_by_page={3: [figure]},
-            classify_result=(matched, {figure.figure_id}),
-        )
-        adapter.run_extraction("DEV1", matched)
-        mocks["run_classical_pipeline"].assert_called_once()
-        mocks["run_pipeline"].assert_not_called()
-
     def test_routing_is_data_driven_not_hardcoded_if_elif(self, monkeypatch):
         # E.16: prove it by inventing two brand-new curve types with opposite
         # methods and confirming both route correctly with ZERO adapter code
@@ -380,6 +403,297 @@ class TestExtractionRouting:
             adapter.run_extraction("DEV1", matched)
         mocks["run_classical_pipeline"].assert_not_called()
         mocks["run_pipeline"].assert_not_called()
+
+
+# --------------------- E'. classical-dispatch routing fix (owner-approved, 2026-07-22)
+#
+# Was: live_stages.py hardcoded a SINGLE top-level
+# `from src.extraction.classical import run_classical_pipeline` and called
+# it for every method="classical" curve type regardless of which one —
+# meaning vgsth_vs_tj (registered as "classical" in the prior session)
+# would have silently called RDSON's wrapper if ever exercised end-to-end.
+# test_a_future_classical_entry_routes_the_same_way_as_rdson (this file,
+# written before classical_vgsth.py existed) actually encoded that bug as
+# an intentional assumption — retired below, replaced by
+# test_vgsth_and_rdson_route_to_independent_classical_functions, which
+# inverts it.
+#
+# Now: ExtractionSpec carries the actual function object
+# (spec.classical_pipeline); live_stages.py's classical branch calls it
+# directly, no if/elif, no hardcoded import. These tests inject FAKE
+# ExtractionSpec entries (classical_pipeline=a MagicMock) via
+# monkeypatch.setitem — the same technique test_routing_is_data_driven_
+# not_hardcoded_if_elif already uses — since the real rdson_vs_tj/
+# vgsth_vs_tj entries point at HEAVY real functions (their own detection/
+# naming/pipeline machinery, already covered by test_classical.py/
+# test_classical_vgsth.py) that don't need re-exercising here; this file's
+# job is only the adapter's OWN dispatch/routing logic.
+
+def _classical_spec(curve_type, mock_fn, **overrides):
+    fields = dict(curve_type=curve_type, method="classical", checkpoint=None,
+                 config=None, score_thr=0.5, expected_curve_count=None,
+                 classical_pipeline=mock_fn)
+    fields.update(overrides)
+    return ExtractionSpec(**fields)
+
+
+class TestClassicalDispatchRoutingFix:
+    def test_rdson_extraction_calls_its_own_classical_pipeline_by_identity(self, monkeypatch):
+        # build_adapter wires classical_pipeline onto rdson_vs_tj's REAL
+        # registry entry (via dataclasses.replace, preserving every other
+        # field) -- fetching the spec fresh and checking IDENTITY against
+        # the mock that then actually gets called is the genuine proof,
+        # not just "a mock was called".
+        from src.extraction.extraction_registry import get_extraction_spec
+
+        figure = make_figure()
+        matched = make_classification(ClassificationStatus.MATCHED, figure=figure,
+                                      target_curve_type="rdson_vs_tj")
+        adapter, mocks = build_adapter(
+            monkeypatch, curve_type="rdson_vs_tj", figures_by_page={3: [figure]},
+            classify_result=(matched, {figure.figure_id}),
+        )
+        assert get_extraction_spec("rdson_vs_tj").classical_pipeline is mocks["run_classical_pipeline"]
+        adapter.run_extraction("DEV1", matched)
+        mocks["run_classical_pipeline"].assert_called_once()
+
+    def test_vgsth_and_rdson_route_to_independent_classical_functions(self, monkeypatch):
+        # E.15 replacement for test_a_future_classical_entry_routes_the_
+        # same_way_as_rdson: inverts the old (now-incorrect) assumption.
+        # Two SEPARATE build_adapter calls (one per curve type) each wire
+        # their OWN registry entry's classical_pipeline independently --
+        # both processed here, proving genuine independence, not just
+        # "each works alone in isolation".
+        rdson_figure = make_figure()
+        rdson_matched = make_classification(ClassificationStatus.MATCHED, figure=rdson_figure,
+                                            target_curve_type="rdson_vs_tj")
+        rdson_adapter, rdson_mocks = build_adapter(
+            monkeypatch, curve_type="rdson_vs_tj", figures_by_page={3: [rdson_figure]},
+            classify_result=(rdson_matched, {rdson_figure.figure_id}),
+        )
+        rdson_adapter.run_extraction("DEV1", rdson_matched)
+        assert rdson_mocks["run_classical_pipeline"].call_count == 1
+
+        vgsth_figure = make_figure()
+        vgsth_matched = make_classification(ClassificationStatus.MATCHED, figure=vgsth_figure,
+                                            target_curve_type="vgsth_vs_tj")
+        vgsth_adapter, vgsth_mocks = build_adapter(
+            monkeypatch, curve_type="vgsth_vs_tj", figures_by_page={3: [vgsth_figure]},
+            classify_result=(vgsth_matched, {vgsth_figure.figure_id}),
+        )
+        vgsth_adapter.run_extraction("DEV2", vgsth_matched)
+
+        assert vgsth_mocks["run_classical_pipeline"].call_count == 1
+        assert rdson_mocks["run_classical_pipeline"].call_count == 1, \
+            "rdson's mock must be untouched by vgsth's run"
+        assert rdson_mocks["run_classical_pipeline"] is not vgsth_mocks["run_classical_pipeline"]
+
+    def test_no_hardcoded_classical_module_reference_remains_in_dispatch(self):
+        # Confirms the old if/elif/hardcoded-import is actually gone, not
+        # just unused — the name must not exist in live_stages.py's own
+        # module namespace at all.
+        assert not hasattr(live_stages_mod, "run_classical_pipeline")
+
+    def test_model_dispatch_unaffected_even_though_classical_pipeline_is_none(self, monkeypatch):
+        from src.extraction.extraction_registry import get_extraction_spec
+
+        assert get_extraction_spec("capacitance_vs_vds").classical_pipeline is None
+        figure = make_figure()
+        matched = make_classification(ClassificationStatus.MATCHED, figure=figure,
+                                      target_curve_type="capacitance_vs_vds")
+        adapter, mocks = build_adapter(
+            monkeypatch, curve_type="capacitance_vs_vds", figures_by_page={3: [figure]},
+            classify_result=(matched, {figure.figure_id}),
+        )
+        result = adapter.run_extraction("DEV1", matched)
+        mocks["run_pipeline"].assert_called_once()
+        mocks["run_classical_pipeline"].assert_not_called()
+        assert result["status"] == "ok"
+
+    def test_classical_method_with_none_pipeline_raises_clear_specific_error(self, monkeypatch):
+        # A registry mistake (method="classical" but classical_pipeline
+        # left None) must raise a CLEAR, SPECIFIC error -- never silently
+        # fall through to the wrong function. build_adapter runs FIRST
+        # (wires the other mocks); the broken spec is injected AFTER, so
+        # it's the one active when run_extraction is actually called.
+        import src.extraction.extraction_registry as registry_mod
+
+        figure = make_figure()
+        matched = make_classification(ClassificationStatus.MATCHED, figure=figure,
+                                      target_curve_type="rdson_vs_tj")
+        adapter, _ = build_adapter(
+            monkeypatch, curve_type="rdson_vs_tj", figures_by_page={3: [figure]},
+            classify_result=(matched, {figure.figure_id}),
+        )
+        monkeypatch.setitem(registry_mod._REGISTRY, "rdson_vs_tj",
+                            _classical_spec("rdson_vs_tj", None))
+        with pytest.raises((ValueError, TypeError)) as exc_info:
+            adapter.run_extraction("DEV1", matched)
+        assert "classical_pipeline" in str(exc_info.value)
+
+    def test_classical_pipeline_called_with_expected_arguments(self, monkeypatch):
+        # No argument drift from the extra indirection -- exactly the same
+        # kwargs the old hardcoded call site already used.
+        figure = make_figure()
+        matched = make_classification(ClassificationStatus.MATCHED, figure=figure,
+                                      target_curve_type="rdson_vs_tj")
+        adapter, mocks = build_adapter(
+            monkeypatch, curve_type="rdson_vs_tj", figures_by_page={3: [figure]},
+            classify_result=(matched, {figure.figure_id}),
+        )
+        adapter.run_extraction("DEV1", matched)
+        mock_fn = mocks["run_classical_pipeline"]
+        assert mock_fn.call_count == 1
+        _, kwargs = mock_fn.call_args
+        assert kwargs["device"] == "DEV1"
+        assert kwargs["curve_type"] == "rdson_vs_tj"
+        assert kwargs["source_image"] == figure.image_path
+        assert "image" in kwargs
+        assert "ocr_lines" in kwargs
+
+    def test_classical_modules_have_no_extraction_registry_reference(self):
+        # Explicit static-import check (not assumed), per instruction.
+        # Full transitive-closure investigation (documented in this
+        # session's report): traced EVERY import of classical.py and
+        # classical_vgsth.py down to leaves (curve_detection, naming/
+        # rdson_vs_tj, naming/vgsth_vs_tj, naming/__init__,
+        # extraction.pipeline, schema, skeletonize, extraction.dedup,
+        # extraction.inference, calibration.ticks, training.eval_lineformer,
+        # training.predict_to_cvat, dataset_tools.collect_images) --
+        # NONE import extraction_registry, live_stages, or
+        # orchestrator.pipeline at any depth. `grep -rln extraction_registry
+        # src/` finds only live_stages.py itself as a current importer. No
+        # cycle exists or would be created by extraction_registry.py
+        # importing classical.py/classical_vgsth.py at module level. This
+        # test is the runtime companion check: neither module has a name
+        # bound that was imported FROM extraction_registry.
+        import src.extraction.classical as classical_mod
+        import src.extraction.classical_vgsth as classical_vgsth_mod
+
+        for mod in (classical_mod, classical_vgsth_mod):
+            for name, value in vars(mod).items():
+                module_of_value = getattr(value, "__module__", None)
+                assert module_of_value != "src.extraction.extraction_registry", (
+                    f"{mod.__name__}.{name} was imported from extraction_registry"
+                )
+
+
+# --------------------- E''. model-dispatch routing addition (owner-approved,
+# 2026-07-22 follow-up session)
+#
+# if_vs_vsd is registered as method="model" but, unlike capacitance_vs_vds/
+# id_vs_vgs, needs its own expected-vs-detected safety net
+# (model_if_vsd.run_model_pipeline) instead of the generic run_pipeline
+# call -- the model-dispatch analogue of the classical_pipeline routing
+# fix above. ExtractionSpec.model_pipeline carries the real override
+# function object; live_stages.py's model branch calls it directly when
+# present, falling through to run_pipeline exactly as before when it's
+# None (every other model-routed curve type today).
+
+class TestModelDispatchRoutingAddition:
+    def test_if_vs_vsd_routes_through_its_own_model_pipeline_not_run_pipeline(self, monkeypatch):
+        from src.extraction.extraction_registry import get_extraction_spec
+
+        figure = make_figure()
+        matched = make_classification(ClassificationStatus.MATCHED, figure=figure,
+                                      target_curve_type="if_vs_vsd")
+        adapter, mocks = build_adapter(
+            monkeypatch, curve_type="if_vs_vsd", figures_by_page={3: [figure]},
+            classify_result=(matched, {figure.figure_id}),
+        )
+        assert get_extraction_spec("if_vs_vsd").model_pipeline is mocks["model_pipeline"]
+        result = adapter.run_extraction("DEV1", matched)
+        mocks["model_pipeline"].assert_called_once()
+        mocks["run_pipeline"].assert_not_called()
+        assert result["status"] == "ok"
+
+    def test_model_load_still_happens_before_dispatch_to_model_pipeline(self, monkeypatch):
+        figure = make_figure()
+        matched = make_classification(ClassificationStatus.MATCHED, figure=figure,
+                                      target_curve_type="if_vs_vsd")
+        adapter, mocks = build_adapter(
+            monkeypatch, curve_type="if_vs_vsd", figures_by_page={3: [figure]},
+            classify_result=(matched, {figure.figure_id}),
+        )
+        adapter.run_extraction("DEV1", matched)
+        mocks["load_model"].assert_called_once()
+
+    def test_plain_model_entries_unaffected_still_use_generic_run_pipeline(self, monkeypatch):
+        # capacitance_vs_vds/id_vs_vgs's model_pipeline is None -- must
+        # keep routing to run_pipeline exactly as before this addition.
+        from src.extraction.extraction_registry import get_extraction_spec
+
+        for curve_type in ("capacitance_vs_vds", "id_vs_vgs"):
+            assert get_extraction_spec(curve_type).model_pipeline is None
+            figure = make_figure()
+            matched = make_classification(ClassificationStatus.MATCHED, figure=figure,
+                                          target_curve_type=curve_type)
+            adapter, mocks = build_adapter(
+                monkeypatch, curve_type=curve_type, figures_by_page={3: [figure]},
+                classify_result=(matched, {figure.figure_id}),
+            )
+            adapter.run_extraction("DEV1", matched)
+            mocks["run_pipeline"].assert_called_once()
+            mocks["model_pipeline"].assert_not_called()
+
+    def test_model_pipeline_called_with_expected_arguments(self, monkeypatch):
+        # Same kwargs run_pipeline itself would receive -- no argument
+        # drift from the extra indirection.
+        figure = make_figure(ocr_lines=[OcrLine(text="VSD (V)", bbox=(10, 20, 30, 40))])
+        matched = make_classification(ClassificationStatus.MATCHED, figure=figure,
+                                      target_curve_type="if_vs_vsd")
+        adapter, mocks = build_adapter(
+            monkeypatch, curve_type="if_vs_vsd", figures_by_page={3: [figure]},
+            classify_result=(matched, {figure.figure_id}),
+        )
+        adapter.run_extraction("DEV1", matched)
+        mock_fn = mocks["model_pipeline"]
+        assert mock_fn.call_count == 1
+        _, kwargs = mock_fn.call_args
+        assert kwargs["device"] == "DEV1"
+        assert kwargs["curve_type"] == "if_vs_vsd"
+        assert kwargs["image_path"] == "D:/fake_images/figures/fig_p3_000.png"
+        assert kwargs["ocr_lines"][0]["text"] == "VSD (V)"
+        assert kwargs["img_w"] == figure.figure_width
+        assert kwargs["img_h"] == figure.figure_height
+        assert "model" in kwargs
+        assert "score_thr" in kwargs
+        assert "expected_curve_count" in kwargs
+
+    def test_routing_is_data_driven_fake_model_pipeline_entry(self, monkeypatch):
+        # Proof the model_pipeline dispatch decision is a genuine data
+        # lookup: a brand-new fake curve type with its own model_pipeline
+        # override routes to it, with ZERO adapter code referencing its
+        # name -- mirrors test_routing_is_data_driven_not_hardcoded_if_elif
+        # above, one level deeper (which function the "model" branch itself
+        # calls, not just classical-vs-model).
+        import src.extraction.extraction_registry as registry_mod
+        from src.extraction.extraction_registry import ExtractionSpec
+
+        monkeypatch.setitem(registry_mod._REGISTRY, "fake_model_override_type", ExtractionSpec(
+            curve_type="fake_model_override_type", method="model", checkpoint="ckpt.pth",
+            config="cfg.py", score_thr=0.5, expected_curve_count=1,
+            model_pipeline=MagicMock(),
+        ))
+        figure = make_figure()
+        matched = make_classification(ClassificationStatus.MATCHED, figure=figure,
+                                      target_curve_type="fake_model_override_type")
+        adapter, mocks = build_adapter(
+            monkeypatch, curve_type="fake_model_override_type", figures_by_page={3: [figure]},
+            classify_result=(matched, {figure.figure_id}),
+        )
+        adapter.run_extraction("DEV1", matched)
+        mocks["model_pipeline"].assert_called_once()
+        mocks["run_pipeline"].assert_not_called()
+
+    def test_no_hardcoded_if_vs_vsd_reference_in_dispatch(self):
+        # Confirms the routing is genuinely data-driven, not a disguised
+        # if/elif keyed on the curve_type string.
+        import inspect
+
+        source = inspect.getsource(live_stages_mod.LiveStages.run_extraction)
+        assert "if_vs_vsd" not in source
+        assert "model_if_vsd" not in source
 
 
 # --------------------------------------------- F. model-based extraction specifics
@@ -624,12 +938,13 @@ class TestErrorIsolationBatchSafety:
         monkeypatch.setattr(live_stages_mod, "classify_device", MagicMock(
             return_value=(make_classification(ClassificationStatus.MATCHED, figure=good_figure), set())))
         monkeypatch.setattr(live_stages_mod, "run_pipeline", MagicMock(return_value=ok_stage5_result()))
-        monkeypatch.setattr(live_stages_mod, "run_classical_pipeline", MagicMock(return_value=ok_stage5_result()))
         monkeypatch.setattr(live_stages_mod, "load_model", MagicMock(return_value=object()))
 
         adapter = LiveStages("capacitance_vs_vds", stage3_root="D:/fake", images_root="D:/fake_images")
         # DEV_GOOD must still classify successfully even if DEV_MALFORMED was
-        # processed first and its malformed OCR data caused an error.
+        # processed first and its malformed OCR data caused an error. Only
+        # run_classification is exercised below (never run_extraction), so
+        # no classical_pipeline mocking is needed here at all.
         try:
             adapter.run_classification("DEV_MALFORMED")
         except Exception:
@@ -758,3 +1073,136 @@ class TestClaimTracker:
         tracker.update("DEV1", {"fig1.png"})
         tracker.update("DEV1", {"fig2.png"})
         assert tracker.get("DEV1") == {"fig1.png", "fig2.png"}
+
+
+# --------------------------------------------------------- K. device discovery
+#
+# discover_devices() lists the devices available under stage3_root for the
+# CLI to feed into run_batch(). Unlike precomputed mode's CLI, which excludes
+# a fixed set of known non-device stems (a name blocklist), a blocklist is
+# NOT safe against the real Stage-3 output root: data/ accumulates non-device
+# folders constantly (training image batches, COCO splits, overlays, raw
+# downloads, ...), so a fixed list would silently miss new ones as they
+# appear. Discovery is self-verifying instead: a subfolder counts as a
+# device only if it directly contains full_extraction.json. No real Stage-3
+# output exists on this machine yet (that OCR run hasn't happened), so this
+# is tested against constructed tmp_path fixtures only.
+
+def _make_device_dir(root, name, with_extraction=True):
+    device_dir = root / name
+    device_dir.mkdir(parents=True, exist_ok=True)
+    if with_extraction:
+        (device_dir / "full_extraction.json").write_text("{}", encoding="utf-8")
+    return device_dir
+
+
+class TestDeviceDiscovery:
+    def test_finds_folder_with_full_extraction_json(self, tmp_path):
+        _make_device_dir(tmp_path, "DEV1")
+        adapter = LiveStages("capacitance_vs_vds", images_root="D:/fake_images",
+                             stage3_root=tmp_path)
+        assert adapter.discover_devices() == ["DEV1"]
+
+    def test_skips_folder_without_full_extraction_json(self, tmp_path):
+        _make_device_dir(tmp_path, "DEV1")
+        _make_device_dir(tmp_path, "not_a_device", with_extraction=False)
+        adapter = LiveStages("capacitance_vs_vds", images_root="D:/fake_images",
+                             stage3_root=tmp_path)
+        assert adapter.discover_devices() == ["DEV1"]
+
+    def test_realistic_data_dir_shape(self, tmp_path):
+        # Real-world mix: device folders alongside non-device artifact
+        # folders that a hardcoded blocklist would eventually miss as new
+        # ones appear.
+        for real in ("BSP324H6327XTSA1", "AUIRF1010EZS", "R6010YND3TL1"):
+            _make_device_dir(tmp_path, real)
+        for decoy in ("training_batch_003", "coco_splits", "overlays",
+                      "raw_downloads", "quarantined_gallery_assets"):
+            _make_device_dir(tmp_path, decoy, with_extraction=False)
+        adapter = LiveStages("capacitance_vs_vds", images_root="D:/fake_images",
+                             stage3_root=tmp_path)
+        assert adapter.discover_devices() == [
+            "AUIRF1010EZS", "BSP324H6327XTSA1", "R6010YND3TL1",
+        ]
+
+    def test_returns_sorted_list(self, tmp_path):
+        for name in ("ZDEV", "ADEV", "MDEV"):
+            _make_device_dir(tmp_path, name)
+        adapter = LiveStages("capacitance_vs_vds", images_root="D:/fake_images",
+                             stage3_root=tmp_path)
+        assert adapter.discover_devices() == ["ADEV", "MDEV", "ZDEV"]
+
+    def test_empty_root_returns_empty_list(self, tmp_path):
+        adapter = LiveStages("capacitance_vs_vds", images_root="D:/fake_images",
+                             stage3_root=tmp_path)
+        assert adapter.discover_devices() == []
+
+    def test_all_decoys_returns_empty_list(self, tmp_path):
+        _make_device_dir(tmp_path, "coco_splits", with_extraction=False)
+        _make_device_dir(tmp_path, "overlays", with_extraction=False)
+        adapter = LiveStages("capacitance_vs_vds", images_root="D:/fake_images",
+                             stage3_root=tmp_path)
+        assert adapter.discover_devices() == []
+
+    def test_ignores_loose_files_at_root(self, tmp_path):
+        _make_device_dir(tmp_path, "DEV1")
+        (tmp_path / "full_extraction.json").write_text("{}", encoding="utf-8")
+        (tmp_path / "notes.txt").write_text("stray file", encoding="utf-8")
+        adapter = LiveStages("capacitance_vs_vds", images_root="D:/fake_images",
+                             stage3_root=tmp_path)
+        assert adapter.discover_devices() == ["DEV1"]
+
+    def test_ignores_nested_json_two_levels_down(self, tmp_path):
+        # Only direct children of stage3_root are candidate device folders;
+        # a full_extraction.json buried inside a subfolder's subfolder must
+        # not promote that grandparent folder to "device".
+        nested = tmp_path / "some_batch" / "DEV1"
+        nested.mkdir(parents=True)
+        (nested / "full_extraction.json").write_text("{}", encoding="utf-8")
+        adapter = LiveStages("capacitance_vs_vds", images_root="D:/fake_images",
+                             stage3_root=tmp_path)
+        assert adapter.discover_devices() == []
+
+    def test_full_extraction_json_must_be_a_file(self, tmp_path):
+        # A directory that happens to be named full_extraction.json is not
+        # the OCR output file and must not count.
+        device_dir = tmp_path / "WEIRD"
+        device_dir.mkdir()
+        (device_dir / "full_extraction.json").mkdir()
+        adapter = LiveStages("capacitance_vs_vds", images_root="D:/fake_images",
+                             stage3_root=tmp_path)
+        assert adapter.discover_devices() == []
+
+    def test_device_folder_may_hold_other_files_too(self, tmp_path):
+        device_dir = _make_device_dir(tmp_path, "DEV1")
+        (device_dir / "figures").mkdir()
+        (device_dir / "raw_ocr.json").write_text("{}", encoding="utf-8")
+        adapter = LiveStages("capacitance_vs_vds", images_root="D:/fake_images",
+                             stage3_root=tmp_path)
+        assert adapter.discover_devices() == ["DEV1"]
+
+    def test_nonexistent_root_raises_not_silently_empty(self, tmp_path):
+        missing = tmp_path / "does_not_exist"
+        adapter = LiveStages("capacitance_vs_vds", images_root="D:/fake_images",
+                             stage3_root=missing)
+        with pytest.raises(FileNotFoundError):
+            adapter.discover_devices()
+
+    def test_reflects_filesystem_state_at_call_time(self, tmp_path):
+        # discover_devices() is not cached — re-running after a new device
+        # folder lands must pick it up (Stage-3 output grows over time).
+        adapter = LiveStages("capacitance_vs_vds", images_root="D:/fake_images",
+                             stage3_root=tmp_path)
+        assert adapter.discover_devices() == []
+        _make_device_dir(tmp_path, "DEV1")
+        assert adapter.discover_devices() == ["DEV1"]
+
+    def test_accepts_string_stage3_root_not_just_path(self, tmp_path):
+        # __init__ does not normalize stage3_root into a Path (it's stored
+        # and passed straight through to load_figures_by_page elsewhere,
+        # same Union[str, PathLike] contract) — discover_devices() must
+        # handle a plain string root itself, not assume Path already.
+        _make_device_dir(tmp_path, "DEV1")
+        adapter = LiveStages("capacitance_vs_vds", images_root="D:/fake_images",
+                             stage3_root=str(tmp_path))
+        assert adapter.discover_devices() == ["DEV1"]

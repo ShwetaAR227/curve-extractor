@@ -21,6 +21,7 @@ import re
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from src.common.log import get_logger
+from src.extraction.curve_detection import nearest_curve_index
 
 logger = get_logger(__name__)
 
@@ -84,19 +85,6 @@ def _normalize_label(text: str) -> str:
     return re.sub(r"\s+", "", text.strip().lower()).rstrip(".:,;-")
 
 
-def _nearest_curve_index(
-    curves: Sequence[Sequence[Point]], cx: float, cy: float
-) -> int:
-    """Index of the curve with the closest point to pixel ``(cx, cy)``."""
-    best_index, best_d2 = 0, float("inf")
-    for i, points in enumerate(curves):
-        for row, col in points:
-            d2 = (row - cy) ** 2 + (col - cx) ** 2
-            if d2 < best_d2:
-                best_index, best_d2 = i, d2
-    return best_index
-
-
 def name_curves_by_labels(
     curves: Sequence[Sequence[Point]], ocr_lines: Sequence[OcrLine]
 ) -> Optional[List[str]]:
@@ -135,7 +123,7 @@ def name_curves_by_labels(
         bbox = line["bounding_box"]
         cx = (bbox["x1"] + bbox["x2"]) / 2
         cy = (bbox["y1"] + bbox["y2"]) / 2
-        index = _nearest_curve_index(curves, cx, cy)
+        index = nearest_curve_index(curves, cx, cy)
         if assigned.get(index, name) != name:
             logger.info(
                 "rdson label naming: conflicting labels anchored to curve %d "

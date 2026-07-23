@@ -22,11 +22,21 @@ Statuses (mutually exclusive, every device gets exactly one):
 auto-finalization of validated ok results can be enabled later without a
 rebuild — flipping it is an owner decision.
 
-CLI (precomputed-Stage-5 mode — reads a directory of Stage-5 result JSONs,
-as produced by the extraction runs; live end-to-end wiring lands with the
-stage 1-3 migration/GPU-box integration):
-    python -m src.orchestrator.pipeline <stage5_dir> --out <output_dir>
-        [--review-state <review_state.json>] [--auto-approve]
+CLI — two modes, selected via ``--mode`` (default ``live``):
+    live (default): real Stage 4->5 wiring (``LiveStages``) over a Stage-3
+    OCR output root. Device discovery is self-verifying
+    (``LiveStages.discover_devices()``), never a re-derived stage3_root or
+    a re-implemented folder listing.
+        python -m src.orchestrator.pipeline --images-root <images_dir> \\
+            --out <output_dir> [--stage3-root <stage3_dir>] \\
+            [--curve-type <type>] [--review-state <review_state.json>] \\
+            [--auto-approve]
+
+    precomputed: reads a directory of already-produced Stage-5 result
+    JSONs (``PrecomputedStage5``), unchanged from before ``--mode`` existed.
+        python -m src.orchestrator.pipeline <stage5_dir> --mode precomputed \\
+            --out <output_dir> [--review-state <review_state.json>] \\
+            [--auto-approve]
 """
 import argparse
 import json
@@ -36,6 +46,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence
 
 from src.common.log import get_logger
+from src.orchestrator.live_stages import LiveStages
 from src.orchestrator.queue import build_queue, write_queue
 from src.orchestrator.validation import validate_final
 from src.review.review_state import decision_key, load_state
@@ -244,8 +255,22 @@ def run_batch(
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
     parser = argparse.ArgumentParser(
-        description="Stage-7 orchestrator over precomputed Stage-5 outputs.")
-    parser.add_argument("stage5_dir", type=Path)
+        description="Stage-7 orchestrator: live (real Stage 4->5 wiring, "
+                     "default) or precomputed (reads pre-made Stage-5 "
+                     "result JSONs).")
+    parser.add_argument("stage5_dir", type=Path, nargs="?", default=None,
+                        help="Directory of precomputed Stage-5 result JSONs "
+                             "(required for --mode precomputed).")
+    parser.add_argument("--mode", choices=("live", "precomputed"), default="live",
+                        help="live (default): real Stage 4->5 wiring over a "
+                             "Stage-3 OCR output root. precomputed: read "
+                             "pre-made Stage-5 JSONs from stage5_dir.")
+    parser.add_argument("--stage3-root", type=Path, default=None,
+                        help="Stage-3 OCR output root for live mode "
+                             "(default: LINEFORMER_STAGE3_ROOT env var).")
+    parser.add_argument("--images-root", type=Path, default=None,
+                        help="Root directory the figure PNGs live under "
+                             "(required for --mode live).")
     parser.add_argument("--out", type=Path, required=True)
     parser.add_argument("--review-state", type=Path, default=None,
                         help="Stage-6 review_state.json (default: none loaded)")
@@ -255,14 +280,27 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                              "approval (default: manual approval required)")
     args = parser.parse_args(argv)
 
+    if args.mode == "live" and args.images_root is None:
+        parser.error("--images-root is required for --mode live")
+    if args.mode == "precomputed" and args.stage5_dir is None:
+        parser.error("stage5_dir is required for --mode precomputed")
+
     review_state = load_state(args.review_state) if args.review_state else {}
-    stages = PrecomputedStage5(args.stage5_dir)
-    devices = sorted(
-        f.stem for f in Path(args.stage5_dir).glob("*.json")
-        if f.stem not in ("summary", "dryrun_report", "batch_summary")
-    )
-    logger.info("orchestrator CLI: %d device(s) from %s, review state: %s",
-                len(devices), args.stage5_dir, args.review_state or "(none)")
+
+    if args.mode == "live":
+        stages = LiveStages(args.curve_type, images_root=args.images_root,
+                            stage3_root=args.stage3_root)
+        devices = stages.discover_devices()
+        logger.info("orchestrator CLI (live): %d device(s) from %s, review state: %s",
+                    len(devices), stages.stage3_root, args.review_state or "(none)")
+    else:
+        stages = PrecomputedStage5(args.stage5_dir)
+        devices = sorted(
+            f.stem for f in Path(args.stage5_dir).glob("*.json")
+            if f.stem not in ("summary", "dryrun_report", "batch_summary")
+        )
+        logger.info("orchestrator CLI (precomputed): %d device(s) from %s, review state: %s",
+                    len(devices), args.stage5_dir, args.review_state or "(none)")
 
     summary = run_batch(devices, args.curve_type, stages, review_state, args.out,
                         require_manual_approval=not args.auto_approve)

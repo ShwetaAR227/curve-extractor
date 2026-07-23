@@ -9,9 +9,11 @@ import json
 
 import pytest
 
+import src.orchestrator.pipeline as pipeline_mod
 from src.orchestrator.pipeline import (
     STATUSES,
     DeviceResult,
+    main,
     process_device,
     run_batch,
 )
@@ -277,3 +279,148 @@ def test_run_batch_one_bad_device_does_not_stop_the_rest(tmp_path):
     summary = run_batch(devices, "capacitance_vs_vds", stages, state, tmp_path)
     assert summary["counts"]["failed_extraction"] == 1
     assert summary["counts"]["finalized"] == 1
+
+
+# ---------------------------------------------------- CLI: --mode live/precomputed
+#
+# main() picks between LiveStages (real Stage 4->5 wiring, default) and
+# PrecomputedStage5 (reads pre-made Stage-5 JSONs) per --mode. Live-mode
+# device discovery must go through stages.discover_devices() -- never a
+# re-derived stage3_root or a re-implemented folder listing (that logic
+# lives once, on LiveStages itself). LiveStages is faked here: exercising
+# main()'s wiring/routing is this file's job; classify/extract correctness
+# is live_stages.py's own suite's job.
+
+def make_fake_live_stages_class(devices, calls, extraction_results=None):
+    extraction_results = extraction_results or {}
+
+    class FakeLiveStages:
+        def __init__(self, curve_type, images_root=None, stage3_root=None, claim_tracker=None):
+            calls.append({"curve_type": curve_type, "images_root": images_root,
+                          "stage3_root": stage3_root, "claim_tracker": claim_tracker})
+            self.curve_type = curve_type
+            self.images_root = images_root
+            self.stage3_root = stage3_root
+            self._devices = devices
+
+        def discover_devices(self):
+            return self._devices
+
+        def run_classification(self, device):
+            return FakeClassification("matched")
+
+        def run_extraction(self, device, classification):
+            return extraction_results.get(device, ok_stage5(device=device))
+
+    return FakeLiveStages
+
+
+class TestCliModeSelection:
+    def test_default_mode_is_live(self, tmp_path, monkeypatch):
+        calls = []
+        monkeypatch.setattr(pipeline_mod, "LiveStages", make_fake_live_stages_class([], calls))
+        rc = main(["--images-root", str(tmp_path), "--out", str(tmp_path / "out")])
+        assert rc == 0
+        assert len(calls) == 1  # LiveStages was constructed with no --mode given
+
+    def test_mode_live_requires_images_root(self, tmp_path):
+        with pytest.raises(SystemExit):
+            main(["--mode", "live", "--out", str(tmp_path / "out")])
+
+    def test_mode_precomputed_requires_stage5_dir(self, tmp_path):
+        with pytest.raises(SystemExit):
+            main(["--mode", "precomputed", "--out", str(tmp_path / "out")])
+
+    def test_invalid_mode_value_rejected_by_argparse(self, tmp_path):
+        with pytest.raises(SystemExit):
+            main(["--mode", "bogus", "--images-root", str(tmp_path),
+                  "--out", str(tmp_path / "out")])
+
+    def test_mode_live_constructs_live_stages_with_correct_args(self, tmp_path, monkeypatch):
+        calls = []
+        monkeypatch.setattr(pipeline_mod, "LiveStages", make_fake_live_stages_class([], calls))
+        images_root, stage3_root = tmp_path / "images", tmp_path / "stage3"
+        main(["--mode", "live", "--images-root", str(images_root),
+              "--stage3-root", str(stage3_root), "--curve-type", "rdson_vs_tj",
+              "--out", str(tmp_path / "out")])
+        assert len(calls) == 1
+        assert calls[0]["curve_type"] == "rdson_vs_tj"
+        assert calls[0]["images_root"] == images_root
+        assert calls[0]["stage3_root"] == stage3_root
+
+    def test_mode_live_stage3_root_optional_passes_none_through(self, tmp_path, monkeypatch):
+        # main() does not itself validate/derive stage3_root -- LiveStages
+        # already falls back to LINEFORMER_STAGE3_ROOT (or raises) on its own.
+        calls = []
+        monkeypatch.setattr(pipeline_mod, "LiveStages", make_fake_live_stages_class([], calls))
+        main(["--mode", "live", "--images-root", str(tmp_path), "--out", str(tmp_path / "out")])
+        assert calls[0]["stage3_root"] is None
+
+    def test_mode_live_uses_discover_devices_for_device_list(self, tmp_path, monkeypatch):
+        calls = []
+        monkeypatch.setattr(pipeline_mod, "LiveStages",
+                            make_fake_live_stages_class(["DEV_A", "DEV_B"], calls))
+        out = tmp_path / "out"
+        rc = main(["--mode", "live", "--images-root", str(tmp_path), "--out", str(out),
+                   "--auto-approve"])
+        assert rc == 0
+        written = json.loads((out / "batch_summary.json").read_text())
+        assert written["processed"] == 2
+
+    def test_mode_live_end_to_end_finalizes_via_fake_stages(self, tmp_path, monkeypatch):
+        calls = []
+        monkeypatch.setattr(pipeline_mod, "LiveStages", make_fake_live_stages_class(["DEV1"], calls))
+        out = tmp_path / "out"
+        rc = main(["--mode", "live", "--images-root", str(tmp_path), "--out", str(out),
+                   "--auto-approve"])
+        assert rc == 0
+        record = json.loads((out / "final" / "DEV1" / "capacitance_vs_vds.json").read_text())
+        assert record["device"] == "DEV1"
+
+    def test_mode_live_default_does_not_touch_precomputed_stage5(self, tmp_path, monkeypatch):
+        # Confirms the routing is a real branch, not "both run": patch
+        # PrecomputedStage5 to blow up if constructed while in live mode.
+        calls = []
+        monkeypatch.setattr(pipeline_mod, "LiveStages", make_fake_live_stages_class([], calls))
+
+        def boom(*a, **k):
+            raise AssertionError("PrecomputedStage5 must not be constructed in live mode")
+        monkeypatch.setattr(pipeline_mod, "PrecomputedStage5", boom)
+        rc = main(["--images-root", str(tmp_path), "--out", str(tmp_path / "out")])
+        assert rc == 0
+
+    def test_mode_precomputed_lists_devices_same_blocklist_as_before(self, tmp_path):
+        stage5_dir = tmp_path / "stage5"
+        stage5_dir.mkdir()
+        (stage5_dir / "DEV1.json").write_text(json.dumps(ok_stage5(device="DEV1")))
+        (stage5_dir / "summary.json").write_text("{}")
+        (stage5_dir / "dryrun_report.json").write_text("{}")
+        (stage5_dir / "batch_summary.json").write_text("{}")
+        out = tmp_path / "out"
+        rc = main([str(stage5_dir), "--mode", "precomputed", "--out", str(out),
+                   "--auto-approve"])
+        assert rc == 0
+        written = json.loads((out / "batch_summary.json").read_text())
+        assert written["processed"] == 1  # the 3 non-device stems excluded
+
+    def test_mode_precomputed_backward_compatible_full_run(self, tmp_path):
+        stage5_dir = tmp_path / "stage5"
+        stage5_dir.mkdir()
+        (stage5_dir / "DEV1.json").write_text(json.dumps(ok_stage5(device="DEV1")))
+        out = tmp_path / "out"
+        rc = main([str(stage5_dir), "--mode", "precomputed", "--out", str(out),
+                   "--auto-approve"])
+        assert rc == 0
+        record = json.loads((out / "final" / "DEV1" / "capacitance_vs_vds.json").read_text())
+        assert record["device"] == "DEV1"
+
+    def test_positional_stage5_dir_without_mode_flag_still_defaults_to_live(self, tmp_path, monkeypatch):
+        # A bare positional alone does not switch mode -- --mode defaults to
+        # live regardless, so LiveStages still gets constructed.
+        calls = []
+        monkeypatch.setattr(pipeline_mod, "LiveStages", make_fake_live_stages_class([], calls))
+        stage5_dir = tmp_path / "stage5"
+        stage5_dir.mkdir()
+        rc = main([str(stage5_dir), "--images-root", str(tmp_path), "--out", str(tmp_path / "out")])
+        assert rc == 0
+        assert len(calls) == 1

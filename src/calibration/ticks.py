@@ -18,6 +18,18 @@ Behavioral caveats carried over unchanged from the legacy review (not bugs,
 documented limitations of the ported algorithm):
 1. Tick zoning (bottom 30% / left 30% / tight-corner 15%) assumes a
    bottom x-axis and left y-axis — right-hand or dual axes will mis-bucket.
+   PARTIALLY ADDRESSED (2026-07-23, owner-approved additive design): the
+   opposite side (top 30% for x, right 30% for y) is now ALSO collected
+   and independently fit, via :func:`parse_numeric_ticks_dual_side` /
+   :func:`fit_axis_dual_side` — see their own docstrings for the
+   selection rule. ``parse_numeric_ticks`` and ``fit_axis`` themselves are
+   completely unchanged (byte-identical); the mirrored top/right pass is
+   new, separate code, not a refactor of either. The tight-corner (15%)
+   origin-label disambiguation is deliberately NOT mirrored to the
+   opposite side — no real chart reviewed needs it there, and there is no
+   analogous "meaningful corner" at top-right the way bottom-left (the
+   plot origin) has one; out of scope for this task along with plot-box
+   self-detection and gridline-snapping (also not added).
 2. ``inlier_threshold=15.0`` px is absolute, not resolution-scaled.
 3. RANSAC is O(n^3) over tick count (fine for realistic tick counts).
 4. Log auto-detection wants >=2 positive-valued decades to be reliable.
@@ -25,6 +37,16 @@ documented limitations of the ported algorithm):
    rectangle.
 6. Compound-token even-spacing assumes uniformly spaced values in one OCR
    line — wrong for log-decade tick rows OCR'd as a single token.
+7. KNOWN, DELIBERATELY-UNFIXED GAP (2026-07-23): :func:`detect_y_axis_units`
+   only scans the LEFT y-zone (``cx / img_w < 0.30``), even though
+   :func:`derive_calibration` can now select a RIGHT-side y-axis fit. If a
+   right-side y-axis wins, unit detection still only looks left and will
+   return ``None`` (undetected/ambiguous) rather than checking the right
+   zone too — the same "units_undetected" outcome a real chart with no
+   left-zone unit text already produces today, just for a different
+   reason. Not fixed here: no real chart observed so far has a winning
+   right-side y-axis at all, so there is no concrete case to fix against
+   yet. Revisit if/when one is found in the corpus.
 """
 import re
 from itertools import combinations
@@ -305,6 +327,137 @@ def parse_numeric_ticks(
     return x_ticks, y_ticks
 
 
+def _parse_opposite_side_ticks(
+    ocr_lines: Sequence[OcrLine], img_w: float, img_h: float
+) -> Tuple[List[Tick], List[Tick]]:
+    """Mirror of :func:`parse_numeric_ticks`'s per-line classification,
+    zoned to the OPPOSITE edge (top 30% for x, right 30% for y) instead of
+    bottom/left.
+
+    A deliberately separate implementation, not a refactor of
+    ``parse_numeric_ticks`` (which stays byte-identical — see module
+    docstring caveat #1) — this necessarily duplicates its zoning/parsing
+    structure with the zone predicates flipped, reusing every existing
+    parsing/repair primitive (:data:`NUMERIC_RE`, :func:`_exponent_value`,
+    :func:`_repair_exponent_ticks`, :func:`_drop_stray_zero_on_log_axis`)
+    unchanged rather than reimplementing any of them.
+
+    UNLIKE ``parse_numeric_ticks``, there is no tight-corner special case
+    here (see module docstring caveat #1) — a candidate is simply top-zone
+    x, or right-zone y, with top-zone checked first (same elif priority
+    order as the original, structurally mirrored).
+    """
+    x_ticks: List[Tick] = []
+    y_ticks: List[Tick] = []
+    x_has_exponent = False
+    y_has_exponent = False
+    x_exp_origin: List[bool] = []
+    y_exp_origin: List[bool] = []
+
+    for line in ocr_lines:
+        text = line.get("text", "").strip().replace("−", "-")
+        text = re.sub(r"-\s+(\d)", r"-\1", text)
+        text = text.replace(",", "")
+        bbox = line["bounding_box"]
+        cx = (bbox["x1"] + bbox["x2"]) / 2
+        cy = (bbox["y1"] + bbox["y2"]) / 2
+        in_x_zone = cy / img_h < 0.30   # top (mirrored from bottom's > 0.70)
+        in_y_zone = cx / img_w > 0.70   # right (mirrored from left's < 0.30)
+
+        def _place(val: float, px_x: float, px_y: float) -> None:
+            if in_x_zone:
+                x_ticks.append((val, px_x))
+                x_exp_origin.append(False)
+            elif in_y_zone:
+                y_ticks.append((val, px_y))
+                y_exp_origin.append(False)
+
+        exponent = _exponent_value(text)
+        if exponent is not None:
+            if in_y_zone:
+                y_ticks.append((exponent, cy))
+                y_exp_origin.append(True)
+                y_has_exponent = True
+            elif in_x_zone:
+                x_ticks.append((exponent, cx))
+                x_exp_origin.append(True)
+                x_has_exponent = True
+            continue
+
+        text_clean = text.rstrip(" -")
+        if NUMERIC_RE.match(text_clean):
+            try:
+                val = float(text_clean)
+            except ValueError:
+                continue
+            if abs(val) <= MAX_TICK_MAGNITUDE or (
+                val == int(val) and len(str(int(abs(val)))) <= 7
+            ):
+                _place(val, cx, cy)
+            continue
+
+        parts = text.split()
+        if len(parts) >= 2:
+            nums: List[float] = []
+            for part in parts:
+                part_clean = part.rstrip("-").strip()
+                if not NUMERIC_RE.match(part_clean):
+                    nums = []
+                    break
+                value = float(part_clean)
+                if abs(value) > MAX_TICK_MAGNITUDE:
+                    nums = []
+                    break
+                nums.append(value)
+            if len(nums) >= 2:
+                n = len(nums)
+                x1, x2 = bbox["x1"], bbox["x2"]
+                y1, y2 = bbox["y1"], bbox["y2"]
+                for i, val in enumerate(nums):
+                    frac = i / (n - 1)
+                    if in_x_zone:
+                        x_ticks.append((val, x1 + frac * (x2 - x1)))
+                        x_exp_origin.append(False)
+                    elif in_y_zone:
+                        y_ticks.append((val, y1 + frac * (y2 - y1)))
+                        y_exp_origin.append(False)
+
+    x_ticks = _repair_exponent_ticks(x_ticks, x_has_exponent, x_exp_origin)
+    y_ticks = _repair_exponent_ticks(y_ticks, y_has_exponent, y_exp_origin)
+    x_ticks = _drop_stray_zero_on_log_axis(x_ticks)
+    y_ticks = _drop_stray_zero_on_log_axis(y_ticks)
+    return x_ticks, y_ticks
+
+
+def parse_numeric_ticks_dual_side(
+    ocr_lines: Sequence[OcrLine], img_w: float, img_h: float
+) -> Tuple[List[Tick], List[Tick], List[Tick], List[Tick]]:
+    """Zone a figure's OCR lines into BOTH default and opposite-edge tick
+    candidates for each axis (owner-approved additive design, 2026-07-23).
+
+    ``parse_numeric_ticks`` itself is untouched and still the sole source
+    of truth for the default (bottom x / left y) candidates — called here
+    directly, not reimplemented — so ``x_bottom``/``y_left`` below are
+    always byte-identical to what ``parse_numeric_ticks`` alone would
+    return for the same input. ``x_top``/``y_right`` are new: the same
+    per-line parsing/exponent-repair/stray-zero-drop pipeline, mirrored to
+    the top 30% / right 30% zones (see :func:`_parse_opposite_side_ticks`).
+
+    Args:
+        ocr_lines: Azure-style OCR lines for the figure crop.
+        img_w: Figure crop width in pixels.
+        img_h: Figure crop height in pixels.
+
+    Returns:
+        ``(x_bottom, x_top, y_left, y_right)`` — each a list of
+        ``(value, pixel_center)`` pairs, same shape as
+        ``parse_numeric_ticks``'s own return values.
+    """
+    x_bottom, y_left = parse_numeric_ticks(ocr_lines, img_w, img_h)
+    x_top, y_right = _parse_opposite_side_ticks(ocr_lines, img_w, img_h)
+    return x_bottom, x_top, y_left, y_right
+
+
 def _log_roundness(value: float) -> float:
     if value > 0:
         frac = abs(np.log10(value)) % 1
@@ -406,6 +559,58 @@ def fit_axis(
     return float(slope), float(intercept), used, is_log
 
 
+def fit_axis_dual_side(
+    default_ticks: Sequence[Tick],
+    opposite_ticks: Sequence[Tick],
+    min_n: int = 2,
+    inlier_threshold: float = 15.0,
+) -> Optional[Tuple[float, float, List[Tick], bool]]:
+    """Fit whichever of ``default_ticks`` (bottom/left) or
+    ``opposite_ticks`` (top/right) yields more RANSAC inliers (owner-
+    approved additive design, 2026-07-23).
+
+    ``fit_axis`` itself is untouched — called independently on each side,
+    unchanged (same RANSAC, same exponent-log auto-detection, same
+    everything). Selection rule: if only one side produces a usable fit,
+    that one is returned (the normal case for every real chart reviewed so
+    far, and byte-identical to calling ``fit_axis`` alone). If both sides
+    produce a usable fit, the one with MORE inlier ticks (``len(used)``)
+    wins — fit-quality-based, not raw-tick-count-based, so a stray label
+    column with many raw candidates but a poor linear fit still loses to a
+    real axis with fewer but well-fit ticks. An exact tie favors
+    ``default_ticks`` (preserves today's bottom/left-only default).
+
+    Args:
+        default_ticks: Bottom (x) or left (y) candidate ticks.
+        opposite_ticks: Top (x) or right (y) candidate ticks.
+        min_n: Passed through to each ``fit_axis`` call.
+        inlier_threshold: Passed through to each ``fit_axis`` call.
+
+    Returns:
+        The winning side's ``fit_axis`` result (same 4-tuple shape), or
+        ``None`` if neither side produced a usable fit.
+    """
+    default_fit = fit_axis(default_ticks, min_n=min_n, inlier_threshold=inlier_threshold)
+    opposite_fit = fit_axis(opposite_ticks, min_n=min_n, inlier_threshold=inlier_threshold)
+
+    if opposite_fit is None:
+        return default_fit
+    if default_fit is None:
+        logger.info(
+            "fit_axis_dual_side: only the non-default (opposite) side produced "
+            "a usable fit (%d inlier(s)) -- using it", len(opposite_fit[2]),
+        )
+        return opposite_fit
+
+    if len(opposite_fit[2]) > len(default_fit[2]):
+        logger.info(
+            "fit_axis_dual_side: non-default (opposite) side won -- %d "
+            "inlier(s) vs default's %d", len(opposite_fit[2]), len(default_fit[2]),
+        )
+        return opposite_fit
+    return default_fit
+
+
 # Unit detection (T18): scans the y-axis label zone for a capacitance-unit
 # token. Only explicit prefixed forms are matched (pF/nF/uF) — a bare "F" is
 # deliberately NOT matched on its own, since real axis annotations use
@@ -426,6 +631,13 @@ def detect_y_axis_units(
     Only scans the y-axis label zone (same ``cx / img_w < 0.30`` gate as
     :func:`parse_numeric_ticks`'s y-zone), so a stray unit-looking token
     elsewhere in the figure (caption, formula annotation) is never picked up.
+
+    KNOWN, DELIBERATELY-UNFIXED GAP (see module docstring caveat #7): this
+    function never scans the RIGHT y-zone, even though
+    :func:`derive_calibration` can now pick a right-side y-axis fit via
+    :func:`fit_axis_dual_side`. A winning right-side y-axis with unit text
+    only on the right still comes back ``None`` (undetected) here — not
+    fixed in this task, no real chart observed needs it yet.
 
     Args:
         ocr_lines: The figure's OCR lines.
@@ -519,6 +731,16 @@ def derive_calibration(
 ) -> Optional[Dict[str, Any]]:
     """Parse ticks and fit both axes for one figure crop.
 
+    Dual-side aware (owner-approved additive design, 2026-07-23): each
+    axis is fit independently on its default (bottom x / left y) AND
+    opposite (top x / right y) candidates via
+    :func:`parse_numeric_ticks_dual_side` / :func:`fit_axis_dual_side`,
+    with the more-inliers side winning (ties favor default) — see those
+    functions' own docstrings for the full selection rule. Signature and
+    return shape are UNCHANGED; for any chart with ticks only on the
+    default side (every real chart in the regression suite as of
+    2026-07-23), the result is byte-identical to before this change.
+
     Args:
         ocr_lines: The figure's OCR lines (same shape as :func:`parse_numeric_ticks`).
         img_w: Figure crop width in pixels.
@@ -529,13 +751,15 @@ def derive_calibration(
         "x_intercept", "y_slope", "y_intercept", "x_log", "y_log"}``, or
         ``None`` if either axis failed to fit (logged with the reason).
     """
-    x_ticks, y_ticks = parse_numeric_ticks(ocr_lines, img_w, img_h)
-    x_fit = fit_axis(x_ticks)
-    y_fit = fit_axis(y_ticks)
+    x_bottom, x_top, y_left, y_right = parse_numeric_ticks_dual_side(ocr_lines, img_w, img_h)
+    x_fit = fit_axis_dual_side(x_bottom, x_top)
+    y_fit = fit_axis_dual_side(y_left, y_right)
     if not x_fit or not y_fit:
         logger.info(
-            "derive_calibration: failed (x_ticks=%d, y_ticks=%d, x_fit=%s, y_fit=%s)",
-            len(x_ticks), len(y_ticks), x_fit is not None, y_fit is not None,
+            "derive_calibration: failed (x_bottom=%d, x_top=%d, y_left=%d, "
+            "y_right=%d, x_fit=%s, y_fit=%s)",
+            len(x_bottom), len(x_top), len(y_left), len(y_right),
+            x_fit is not None, y_fit is not None,
         )
         return None
 

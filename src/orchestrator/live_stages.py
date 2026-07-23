@@ -9,11 +9,16 @@ unmodified — work unchanged regardless of which adapter is injected.
 Every stage this module touches is REUSED, never reimplemented:
 ``classify_device`` (Stage 4, :mod:`src.classification.classify`),
 ``load_figures_by_page`` (Stage-3 -> Stage-4 input,
-:mod:`src.classification.stage3_loader`), ``run_classical_pipeline``
-(Stage 5, classical/OpenCV path, :mod:`src.extraction.classical`),
-``run_pipeline`` (Stage 5, model/LineFormer path,
-:mod:`src.extraction.pipeline`), ``load_model`` (:mod:`src.extraction.inference`).
-The classical-vs-model routing decision is a data lookup
+:mod:`src.classification.stage3_loader`), ``run_pipeline`` (Stage 5,
+model/LineFormer path, :mod:`src.extraction.pipeline`), ``load_model``
+(:mod:`src.extraction.inference`). The classical path is NOT one fixed
+function — ``spec.classical_pipeline`` (the actual function object,
+e.g. :func:`src.extraction.classical.run_classical_pipeline` for
+rdson_vs_tj, :func:`src.extraction.classical_vgsth.run_classical_pipeline`
+for vgsth_vs_tj) is called directly, a genuine per-curve-type data lookup
+(fixed 2026-07-22 — previously a single hardcoded import was called for
+every ``method="classical"`` entry regardless of curve type, a real bug).
+The classical-vs-model routing decision itself is also a data lookup
 (:func:`src.extraction.extraction_registry.get_extraction_spec`), never an
 if/elif chain per curve type.
 
@@ -26,6 +31,7 @@ does dict access instead (``{"text": str, "bounding_box": {"x1","y1","x2",
 identically before EITHER extraction path, never duplicated per route.
 """
 import os
+from pathlib import Path
 from typing import Any, Dict, List, Optional, Set, Union
 
 import cv2
@@ -34,7 +40,6 @@ from src.classification.classify import ClassificationResult, ClassificationStat
 from src.classification.scoring import OcrLine
 from src.classification.stage3_loader import load_figures_by_page
 from src.common.log import get_logger
-from src.extraction.classical import run_classical_pipeline
 from src.extraction.extraction_registry import get_extraction_spec
 from src.extraction.inference import load_model
 from src.extraction.pipeline import run_pipeline
@@ -141,6 +146,26 @@ class LiveStages:
             "shared" if claim_tracker is not None else "private",
         )
 
+    def discover_devices(self) -> List[str]:
+        """List device names directly under ``stage3_root``.
+
+        Discovery is self-verifying rather than name-based: the real
+        Stage-3 output root accumulates non-device folders over time
+        (training image batches, COCO splits, overlays, raw downloads,
+        ...), so a fixed blocklist of known non-device names (as
+        precomputed mode's CLI uses for its own root) would silently miss
+        new ones. A subfolder counts as a device iff
+        ``<subfolder>/full_extraction.json`` exists and is a file.
+
+        Raises:
+            FileNotFoundError: ``stage3_root`` itself does not exist (a
+                missing root is a config error, not "zero devices").
+        """
+        return sorted(
+            d.name for d in Path(self.stage3_root).iterdir()
+            if d.is_dir() and (d / "full_extraction.json").is_file()
+        )
+
     def run_classification(self, device: str) -> ClassificationResult:
         """Classify ``device`` against this adapter's target curve type.
 
@@ -206,6 +231,13 @@ class LiveStages:
         image_full_path = os.path.join(str(self.images_root), figure.image_path)
 
         if spec.method == "classical":
+            if spec.classical_pipeline is None:
+                raise ValueError(
+                    f"curve_type '{self.curve_type}' is registered with "
+                    "method='classical' but has no classical_pipeline "
+                    "configured — a registry mistake; refusing to guess "
+                    "which function to call."
+                )
             image = cv2.imread(image_full_path)
             if image is None:
                 raise FileNotFoundError(
@@ -215,7 +247,7 @@ class LiveStages:
                 "LiveStages.run_extraction(%s, %s): routing to classical path (%s)",
                 device, self.curve_type, image_full_path,
             )
-            result = run_classical_pipeline(
+            result = spec.classical_pipeline(
                 device=device, curve_type=self.curve_type, source_image=figure.image_path,
                 image=image, ocr_lines=ocr_lines,
             )
@@ -227,16 +259,29 @@ class LiveStages:
                     spec.checkpoint, spec.config,
                 )
                 self._model = load_model(spec.checkpoint, spec.config)
-            logger.info(
-                "LiveStages.run_extraction(%s, %s): routing to model path (%s)",
-                device, self.curve_type, image_full_path,
-            )
-            result = run_pipeline(
-                device=device, curve_type=self.curve_type, image_path=image_full_path,
-                ocr_lines=ocr_lines, img_w=figure.figure_width, img_h=figure.figure_height,
-                model=self._model, score_thr=spec.score_thr,
-                expected_curve_count=spec.expected_curve_count,
-            )
+            if spec.model_pipeline is not None:
+                logger.info(
+                    "LiveStages.run_extraction(%s, %s): routing to model path "
+                    "via its own model_pipeline override (%s)",
+                    device, self.curve_type, image_full_path,
+                )
+                result = spec.model_pipeline(
+                    device=device, curve_type=self.curve_type, image_path=image_full_path,
+                    ocr_lines=ocr_lines, img_w=figure.figure_width, img_h=figure.figure_height,
+                    model=self._model, score_thr=spec.score_thr,
+                    expected_curve_count=spec.expected_curve_count,
+                )
+            else:
+                logger.info(
+                    "LiveStages.run_extraction(%s, %s): routing to model path (%s)",
+                    device, self.curve_type, image_full_path,
+                )
+                result = run_pipeline(
+                    device=device, curve_type=self.curve_type, image_path=image_full_path,
+                    ocr_lines=ocr_lines, img_w=figure.figure_width, img_h=figure.figure_height,
+                    model=self._model, score_thr=spec.score_thr,
+                    expected_curve_count=spec.expected_curve_count,
+                )
         else:
             raise ValueError(
                 f"Unroutable extraction method {spec.method!r} for curve_type "

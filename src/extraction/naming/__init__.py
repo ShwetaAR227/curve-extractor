@@ -19,9 +19,67 @@ from src.extraction.naming.rdson_vs_tj import (
 Point = Tuple[float, float]
 NamingFn = Callable[[Sequence[Sequence[Point]]], List[str]]
 
+
+def _vgsth_vs_tj_placeholder_names(curves: Sequence[Sequence[Point]]) -> List[str]:
+    """PLACEHOLDER naming for vgsth_vs_tj — NOT real naming authority.
+
+    Exists ONLY so ``process_detections``'s unconditional
+    ``get_naming_fn(curve_type)`` lookup doesn't raise ``KeyError`` for
+    vgsth_vs_tj (owner-approved frozen-file addition, 2026-07-21). vgsth's
+    real naming is entirely label-driven
+    (:func:`src.extraction.naming.vgsth_vs_tj.name_curves_by_labels`,
+    which needs ``ocr_lines`` — this registry's plain position-only
+    ``NamingFn`` signature can't carry that), so unlike rdson_vs_tj there
+    is no meaningful position-only naming to register here instead.
+    Returns generic, obviously-placeholder names ("curve_0", "curve_1",
+    ...) aligned to input order for however many curves it's given; never
+    raises, regardless of curve count or point content.
+
+    THIS MUST NEVER BE TRUSTED AS FINAL OUTPUT.
+    :mod:`src.extraction.classical_vgsth`'s wrapper is REQUIRED to
+    override this on every "ok"-status path (single curve -> "vgsth";
+    multi-curve matched count -> ``name_curves_by_labels``'s real answer)
+    before returning. These placeholder names may only legitimately
+    surface as-is inside a quarantined (``needs_review``) result, where a
+    human is already expected to inspect the overlay rather than trust
+    the curve name.
+    """
+    return [f"curve_{i}" for i in range(len(curves))]
+
+
+def _if_vs_vsd_placeholder_names(curves: Sequence[Sequence[Point]]) -> List[str]:
+    """PLACEHOLDER naming for if_vs_vsd — NOT real naming authority.
+
+    Exists ONLY so ``process_detections``'s unconditional
+    ``get_naming_fn(curve_type)`` lookup doesn't raise ``KeyError`` for
+    if_vs_vsd (owner-approved frozen-file addition, 2026-07-22 follow-up
+    session) — same disposable pattern as vgsth_vs_tj's own placeholder
+    above. if_vs_vsd's real naming is entirely label-driven
+    (:func:`src.extraction.naming.if_vs_vsd.name_curves_by_labels`, which
+    needs ``ocr_lines`` — this registry's plain position-only ``NamingFn``
+    signature can't carry that), so there is no meaningful position-only
+    naming to register here instead. Returns generic, obviously-placeholder
+    names ("curve_0", "curve_1", ...) aligned to input order for however
+    many curves it's given; never raises, regardless of curve count or
+    point content.
+
+    THIS MUST NEVER BE TRUSTED AS FINAL OUTPUT.
+    :mod:`src.extraction.model_if_vsd`'s wrapper is REQUIRED to override
+    this on every "ok"-status path (single curve -> "if"; multi-curve
+    matched count -> ``name_curves_by_labels``'s real answer) before
+    returning. These placeholder names may only legitimately surface as-is
+    inside a quarantined (``needs_review``) result, where a human is
+    already expected to inspect the overlay rather than trust the curve
+    name.
+    """
+    return [f"curve_{i}" for i in range(len(curves))]
+
+
 _NAMING_REGISTRY: Dict[str, NamingFn] = {
     "capacitance_vs_vds": _capacitance_vs_vds,
     "rdson_vs_tj": _rdson_vs_tj,
+    "vgsth_vs_tj": _vgsth_vs_tj_placeholder_names,
+    "if_vs_vsd": _if_vs_vsd_placeholder_names,
 }
 
 # The canonical curve-name set each naming function can produce — sourced

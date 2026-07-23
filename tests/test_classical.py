@@ -2,19 +2,20 @@
 
 Classical (non-AI) extraction front-end for rdson_vs_tj: a single solid-
 colored curve line isolated with plain image processing — no LineFormer, no
-GPU. The module under test does not exist yet; this file defines its
-contract:
+GPU. This file covers what's genuinely rdson_vs_tj-specific:
 
-- ``detect_curve_classical(image)`` -> ``List[Detection]`` — the SAME
-  ``src.extraction.inference.Detection`` objects the AI path produces
-  (score + boolean HxW mask), so everything downstream (dedup,
-  skeletonize, naming, calibration, schema) is the existing frozen
-  Stage-5 code, reused not reimplemented.
 - ``run_classical_pipeline(device, curve_type, source_image, image,
   ocr_lines)`` -> the exact Stage-5 result dict Stage 6 already consumes
   (validated by ``src.extraction.schema.validate_result``), with
   ``expected_curve_count=1`` semantics: anything other than exactly one
   credible curve is ``needs_review`` (quarantine), never guessed.
+
+(``detect_curve_classical`` itself — generic, zero rdson-specific logic —
+moved to :mod:`src.extraction.curve_detection`; its own tests moved to
+``tests/test_curve_detection.py`` (2026-07-21, owner-approved refactor).
+The fixtures below (``standard_chart``, ``blank_chart``, etc.) stay HERE
+since other test files (``test_monochrome.py``, ``test_rdson_two_curve.py``,
+``test_curve_detection.py``) already import them from this module.)
 
 Owner-specified scenarios covered (2026-07-13):
   1. clean solid curve line
@@ -35,7 +36,7 @@ network — CLAUDE.md §2).
 import numpy as np
 import pytest
 
-from src.extraction.classical import detect_curve_classical, run_classical_pipeline
+from src.extraction.classical import run_classical_pipeline
 from src.extraction.schema import validate_result
 
 # ---------------------------------------------------------------- fixtures
@@ -124,107 +125,6 @@ def run_standard(img, ocr_lines=None):
         image=img,
         ocr_lines=good_ocr_lines() if ocr_lines is None else ocr_lines,
     )
-
-
-# ------------------------------------------------- detect_curve_classical
-
-class TestDetectCurveClassical:
-    def test_clean_curve_yields_single_detection_with_valid_score_and_mask(self):
-        # Scenario 1: clean solid curve line.
-        img = standard_chart()
-        detections = detect_curve_classical(img)
-        assert len(detections) == 1
-        det = detections[0]
-        assert det.mask.dtype == np.bool_
-        assert det.mask.shape == (IMG_H, IMG_W)
-        assert 0.0 < det.score <= 1.0
-        # The mask must actually cover the drawn curve, end to end.
-        for col in (60, 150, 250, 349):
-            assert det.mask[:, col].any(), f"curve pixel at col {col} not in mask"
-
-    def test_gridline_crossing_keeps_one_detection_and_excludes_gridline_pixels(self):
-        # Scenario 2: the curve crosses gray gridlines; the gridlines are
-        # background, not curve — they must be neither absorbed nor allowed
-        # to split the detection in two.
-        img = standard_chart()
-        detections = detect_curve_classical(img)
-        assert len(detections) == 1
-        det = detections[0]
-        # Gridline-only pixels far from the curve stay out of the mask:
-        # top horizontal gridline (row 40) where the curve is near row 182,
-        assert not det.mask[40, 100:110].any()
-        # and a vertical gridline (col 118) well below the curve (row ~174).
-        assert not det.mask[225:239, 118].any()
-
-    def test_curve_near_axis_edge_does_not_absorb_axis_pixels(self):
-        # Scenario 3: a low, flat curve hugging the x-axis (2 px above it).
-        img = blank_chart()
-        draw_axes(img)
-        img[236:238, 60:350] = CURVE_BGR
-        detections = detect_curve_classical(img)
-        assert len(detections) == 1
-        det = detections[0]
-        # The black axis lines must not leak into the curve mask.
-        black = img.sum(axis=2) < 100
-        assert not (det.mask & black).any()
-        assert not det.mask[X_AXIS_ROWS[0]:X_AXIS_ROWS[1], :].any()
-
-    def test_small_gaps_still_one_detection_spanning_full_extent(self):
-        # Scenario 4: small breaks (compression/anti-aliasing dropouts) in a
-        # solid curve are bridged — one curve, not three fragments.
-        img = standard_chart(gaps=((150, 153), (220, 223), (280, 283)))
-        detections = detect_curve_classical(img)
-        assert len(detections) == 1
-        det = detections[0]
-        assert det.mask[:, 65].any()    # before the first gap
-        assert det.mask[:, 345].any()   # after the last gap
-
-    def test_legend_swatch_and_text_blob_are_not_detected_as_curves(self):
-        # Scenario 5: a short legend swatch (same color as the curve) and a
-        # dark text blob must not become detections or join the curve mask.
-        img = standard_chart()
-        img[50:53, 280:292] = CURVE_BGR   # legend swatch: 12 px, way too short
-        img[48:58, 296:330] = 60          # dark "Tj = 25degC"-style text blob
-        detections = detect_curve_classical(img)
-        assert len(detections) == 1
-        assert not detections[0].mask[45:62, 275:335].any()
-
-    def test_faint_low_contrast_curve_is_still_detected(self):
-        # Scenario 6: washed-out scan/print colors still count as a curve.
-        img = blank_chart()
-        draw_axes(img)
-        draw_gridlines(img)
-        draw_curve(img, color=FAINT_BGR)
-        detections = detect_curve_classical(img)
-        assert len(detections) == 1
-        assert detections[0].mask[:, 200].any()
-
-    def test_curve_touching_image_border_is_detected_without_crash(self):
-        # Scenario 7: the crop sometimes clips the plot; a curve running to
-        # the image edge must not crash border-sensitive morphology.
-        img = blank_chart()
-        for col in range(0, IMG_W):
-            row = 5 + int(round((250 - 5) * (1 - col / (IMG_W - 1))))
-            img[row:min(row + 3, IMG_H), col] = CURVE_BGR
-        detections = detect_curve_classical(img)
-        assert len(detections) == 1
-        assert detections[0].mask[:, 0].any()
-        assert detections[0].mask[:, IMG_W - 1].any()
-
-    def test_blank_image_returns_no_detections_without_crash(self):
-        # Scenario 8 (detector half): nothing to find -> empty list, no throw.
-        assert detect_curve_classical(blank_chart()) == []
-
-    def test_two_distinct_curves_are_both_returned_never_silently_picked(self):
-        # Never-guess rule: if the chart actually has two long curves (e.g.
-        # two Vgs conditions), BOTH come back — the pipeline's count gate
-        # quarantines the figure; the detector must not pick a winner.
-        img = standard_chart()
-        for col in range(60, 350):  # second, blue curve well below the first
-            row = curve_row(col) + 60
-            img[row:row + 3, col] = (220, 40, 40)
-        detections = detect_curve_classical(img)
-        assert len(detections) == 2
 
 
 # ---------------------------------------------- run_classical_pipeline

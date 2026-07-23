@@ -2467,3 +2467,872 @@ merge (everything else the merge touched is already staged).
   module, no registry entry, no pipeline changes, no dedup-IoU
   verification of the fragmentation theory. No file touched outside this
   PROGRESS.md entry.
+
+### 2026-07-21 — Session: T30 — Stage-7 live-mode device discovery (TDD)
+- **Goal:** the orchestrator CLI (`src/orchestrator/pipeline.py`) has only
+  ever run in "precomputed mode" (`PrecomputedStage5`, reads a directory of
+  already-produced Stage-5 result JSONs). Live mode — discovering devices
+  directly from real Stage-3 OCR output — is new groundwork toward the
+  eventual stage 1-3 migration; this session scoped narrowly to just device
+  discovery, not the classify->extract wiring (still correctly deferred,
+  per the module's own docstring, until stages 1-3 land).
+- **Design decision (owner-confirmed):** precomputed mode's CLI excludes
+  known non-device stems by a fixed name blocklist
+  (`{"summary", "dryrun_report", "batch_summary"}`) — confirmed **not
+  safe** for the real Stage-3 output root, since `data/` accumulates
+  non-device folders constantly (training image batches, COCO splits,
+  overlays, raw downloads, ...) and a blocklist would silently miss new
+  ones as they appear. **Fix: self-verifying discovery** — a subfolder
+  counts as a device iff it directly contains `full_extraction.json` (and
+  it must be a file, not e.g. a same-named directory), never a name-based
+  exclude list.
+- **Implementation:** new `LiveStages` class in `src/orchestrator/pipeline.py`
+  (same file as `PrecomputedStage5`, the designed extension point already
+  noted in its docstring). `__init__(stage3_root)` stores
+  `self.stage3_root = Path(stage3_root)` once; `discover_devices()` reads
+  off `self.stage3_root` rather than re-deriving it, so there is a single
+  source of truth for the root path once `run_classification`/
+  `run_extraction` are added later. `run_classification`/`run_extraction`
+  are deliberately NOT implemented yet — out of scope until real Stage-3
+  output exists.
+- **Tests first (TDD red->green confirmed):** 13 new cases in
+  `tests/test_orchestrator.py` (red = `ImportError: cannot import name
+  'LiveStages'`, verified before implementation) — folder-with-json found,
+  folder-without-json skipped, sorted output, empty root, all-decoys root,
+  loose files at root ignored, nested json two levels down NOT promoted
+  (only direct children are candidates), `full_extraction.json` as a
+  directory doesn't count, extra files in a device folder don't disqualify
+  it, missing `stage3_root` raises `FileNotFoundError` (a config error,
+  not silently "zero devices"), not cached (re-scans live), plus a
+  realistic-shape test mixing real device folders with the exact kind of
+  decoy folder names called out above. Suite **741 passing** (was 728),
+  no regressions.
+- **No real Stage-3 output exists on this machine yet** (that OCR run
+  hasn't happened — separate task, noted already in T29). Tested only
+  against constructed `tmp_path` fixtures, as instructed, until real data
+  is available.
+- **Not done / open for owner:** CLI wiring (a `--live`/mode-select flag
+  in `main()`) and the actual `run_classification`/`run_extraction`
+  methods on `LiveStages` are both still future work, gated on the stage
+  1-3 migration per the existing module docstring — this session only
+  covers device discovery.
+
+### 2026-07-21 — Session: T30 correction — merged into the real `LiveStages`, duplicate removed
+- **T30 above was written against a stale local checkout** (this box had
+  fallen behind `origin/main`) — the real `LiveStages` already existed at
+  `src/orchestrator/live_stages.py` (owner's separate T29 work: `classify`
+  -> `extract` wiring, `ClaimTracker`, `NoExtractorAvailable`, 44 tests,
+  committed to origin before this session started). T30's `LiveStages`
+  inside `pipeline.py` was an unintentional duplicate class, discovered
+  only after a `git pull` merge (own merge commit: three-way merge of
+  `origin/main`'s T29 with this box's T28/local commits, one unrelated
+  add/add conflict in `lineformer_zth_multicurve_run1.py` resolved in
+  favor of this box's version — confirmed via `run_manifest.json` +
+  training log + existing checkpoint dir that it's the version that
+  actually produced the completed run; origin's version was never
+  executed here).
+- **Fix:** `discover_devices()` (the self-verifying "does this subfolder
+  contain `full_extraction.json`" check, unchanged logic from T30) moved
+  onto the real `LiveStages` in `live_stages.py` as an added method — one
+  behavior difference from T30's version: reads `Path(self.stage3_root)`
+  at call time rather than normalizing to `Path` in `__init__`, matching
+  the real class's existing contract (`stage3_root` stays whatever
+  type — `str` or `PathLike` — the caller passed, same as
+  `load_figures_by_page`'s own `Union[str, Path]` signature). The
+  duplicate `LiveStages` class deleted from `pipeline.py` entirely —
+  `pipeline.py` is now byte-identical to its pre-T30 state (`git diff`
+  against the merge commit is empty), `main()`/CLI untouched.
+- **Tests migrated, not discarded:** all 13 of T30's device-discovery
+  tests carried over into `tests/test_live_stages.py` (new
+  `TestDeviceDiscovery` class, section K), adapted to the real
+  constructor (`LiveStages(curve_type, images_root=..., stage3_root=...)`
+  instead of T30's single-arg one) — confirmed red first
+  (`AttributeError: 'LiveStages' object has no attribute
+  'discover_devices'`) before implementing. One test swapped for a
+  better-fitting equivalent: T30's "stores stage3_root as Path" (asserted
+  `__init__` normalizes the type) doesn't hold for the real class, which
+  passes `stage3_root` through unchanged — replaced with
+  `test_accepts_string_stage3_root_not_just_path`, which tests the same
+  real concern (a plain string root works) against the real class's
+  actual contract instead. The stale duplicate tests removed from
+  `tests/test_orchestrator.py` (13 cases + its own `_make_device_dir`
+  helper + the `LiveStages` import), which is now also back to its
+  pre-T30 state.
+- **Suite: 822 passing** (44 pre-existing `live_stages` tests + 13
+  migrated = 57 there; net unchanged elsewhere). `grep -rn "class
+  LiveStages"` across the repo returns exactly one hit
+  (`src/orchestrator/live_stages.py`).
+- **Still not done** (unchanged from T30, now correctly scoped to the
+  real module): CLI mode-select wiring in `pipeline.py`'s `main()` — it
+  still only knows `PrecomputedStage5`; swapping in `LiveStages` (which
+  already has `run_classification`/`run_extraction` wired, per the real
+  T29) plus `discover_devices()` for the device list is a separate
+  follow-up task, not done here.
+
+### 2026-07-21 — Session: T30 follow-up — `--mode live`/`precomputed` CLI switch
+- Implements the CLI wiring flagged as not-done above. `main()` now takes
+  `--mode {live,precomputed}` (default `live`), `--stage3-root` and
+  `--images-root` (both `type=Path`, default `None`), and `stage5_dir`
+  changed to optional (`nargs="?", default=None`) since it's only
+  meaningful for `--mode precomputed` now.
+- **Manual post-parse validation, only where the adapters themselves don't
+  already validate:** `--images-root` required for live mode (`LiveStages.
+  __init__` stores it unchecked — no default, but a `None` value passes
+  through silently since there's no type validation on it), `stage5_dir`
+  required for precomputed mode. **Deliberately NOT validated in `main()`:**
+  `--stage3-root` — `LiveStages.__init__` already falls back to the
+  `LINEFORMER_STAGE3_ROOT` env var (or raises `RuntimeError`) on its own;
+  duplicating that check in `main()` would be the exact kind of two-places-
+  same-logic drift risk CLAUDE.md's zero-duplication rule exists to avoid.
+- **Live-mode device discovery goes through `stages.discover_devices()`**
+  (the self-verifying `full_extraction.json`-per-folder check, now on the
+  real `LiveStages` per the T30 correction above) — `main()` does not
+  re-derive `stage3_root` or re-implement folder listing for live mode.
+  Precomputed mode's own device listing (glob + the
+  `{"summary","dryrun_report","batch_summary"}` stem exclusion) is
+  completely unchanged.
+- **12 new tests, TDD red→green confirmed** in `tests/test_orchestrator.py`
+  (new `TestCliModeSelection` class) — red was two distinct, correct
+  failure modes: `SystemExit: unrecognized arguments: --mode` for every
+  test using the new flags (confirmed `--mode` didn't exist yet), and
+  `AttributeError: module 'pipeline' has no attribute 'LiveStages'` for
+  every test monkeypatching it (confirmed `LiveStages` wasn't imported
+  into `pipeline.py` yet) — 9 of 12 failed red, the other 3
+  (`SystemExit`-expecting validation tests) incidentally passed red too
+  since an unrecognized `--mode` flag also raises `SystemExit`, just not
+  for the intended reason; all 3 still exercise the real validation path
+  now that it exists. `LiveStages` itself is faked in these tests (records
+  constructor args, returns canned devices/results) — this file's job is
+  `main()`'s routing/wiring, not classify/extract correctness (that's
+  `live_stages.py`'s own 57-test suite). Coverage: default-mode-is-live,
+  both required-arg errors, invalid `--mode` value rejected, correct args
+  passed to `LiveStages` (`curve_type` positional + `images_root`/
+  `stage3_root` keywords), `stage3_root=None` passed through unvalidated,
+  `discover_devices()` drives the batch device count, a full live-mode
+  finalize-via-fake-stages run, a spy confirming `PrecomputedStage5` is
+  never constructed in live mode (routing is a real branch, not "run
+  both"), precomputed mode's blocklist behavior unchanged, a precomputed
+  backward-compatibility full run, and a positional-`stage5_dir`-without-
+  `--mode` case (confirms the positional alone doesn't switch mode away
+  from the `live` default).
+- **Suite: 834 passing** (was 822), no regressions. `grep -rn "class
+  LiveStages"` still exactly one hit (`pipeline.py` now only imports it).
+- **Not done / not pushed** — owner review pending before push, per
+  instruction.
+
+### 2026-07-21 — Session: extract generic curve detection into `curve_detection.py`
+- **Pure refactor (owner-approved), zero behavior change for rdson_vs_tj.**
+  Moved `detect_curve_classical`, `detect_curve_monochrome`,
+  `_inpaint_ocr_boxes`, `_remove_straight_lines`, `_median_col_thickness`
+  out of `src/extraction/classical.py` into a new
+  `src/extraction/curve_detection.py` — verified none of them took
+  `curve_type` or contained any rdson-specific logic (image/ocr_lines in,
+  `Detection` list out, only). `classical.py` now imports them and keeps
+  only what's genuinely rdson-specific: `run_classical_pipeline`,
+  `detect_rdson_units`, `RDSON_Y_PLAUSIBLE_RANGES`, the unit regex table,
+  plus `EXPECTED_CURVE_COUNT`/`TWO_CURVE_COUNT`/
+  `MONO_MAX_MEDIAN_COL_THICKNESS_PX` (rdson-specific gating constants used
+  inside `run_classical_pipeline`, not among the moved generic ones).
+- **Design change while moving:** the 10 tuning constants these functions
+  used as module-level globals (`CHROMA_MIN_SPREAD`, `MIN_CURVE_AREA_PX`,
+  `MIN_COL_SPAN_FRAC`, `GAP_CLOSE_KERNEL`, `MONO_INK_MAX_GRAY`,
+  `MONO_GRID_MIN_SPAN_FRAC`, `MONO_BRIDGE_KERNEL`, `MONO_MAX_FILL_DENSITY`,
+  `MONO_DENSITY_EXEMPT_SPAN_FRAC`, `MONO_INPAINT_RADIUS` — all corpus-
+  tuned against rdson_vs_tj's real chart corpus, T24/T25/T27) are now
+  KEYWORD-ONLY parameters on the moved functions, defaulting to the exact
+  same values. `run_classical_pipeline`'s call sites pass zero overrides,
+  so rdson_vs_tj's behavior is unchanged; a future classical-path curve
+  type can override any of them (untested whether rdson's corpus-tuned
+  values transfer — that's exactly why this parameterization exists)
+  without duplicating these functions.
+- **TDD, red confirmed properly despite writing the module first:** wrote
+  `tests/test_curve_detection.py` (tests moved verbatim from
+  `test_classical.py::TestDetectCurveClassical` and
+  `test_monochrome.py::TestDetectCurveMonochrome`, adjusted for the new
+  keyword-only signatures) before removing the functions from
+  `classical.py`; since the new module already existed when the test file
+  was written, red was confirmed by temporarily moving
+  `curve_detection.py` aside and re-running — `ModuleNotFoundError`,
+  confirmed for the right reason — then restoring it and confirming green
+  before proceeding to remove the functions from `classical.py`.
+- **3 NEW tests** (`TestParameterOverridesActuallyApply`, not migrated
+  from anywhere) prove the actual point of the refactor — that overriding
+  a tunable changes the outcome, not just that it exists in the
+  signature: raising `chroma_min_spread` makes a faint curve invisible,
+  lowering `min_curve_area_px` admits a previously-dropped swatch,
+  raising `ink_max_gray` detects a lighter-gray "black" curve the default
+  threshold misses.
+- **Fixture ownership, minimally disrupted:** `test_curve_detection.py`
+  imports its chart-drawing fixtures from `test_classical.py` (geometry:
+  `blank_chart`, `draw_axes`, `standard_chart`, etc.) and `test_monochrome.py`
+  (mono-specific: `mono_chart`, `draw_mono_curve`, `draw_hline`,
+  `draw_vline`, `BLACK`) rather than relocating fixture definitions —
+  same cross-file-import convention this codebase already uses
+  (`test_monochrome.py`/`test_rdson_two_curve.py` already import from
+  `test_classical.py`). `test_classical.py` and `test_monochrome.py` keep
+  everything except the moved test classes and now-unused import names
+  (`detect_curve_classical` dropped from `test_classical.py`'s import;
+  `detect_curve_monochrome`, `IMG_H`, `IMG_W`, `ocr_line` dropped from
+  `test_monochrome.py`'s — confirmed genuinely unused, not just moved,
+  via grep before removing).
+- **rdson_vs_tj behavior provably unchanged:** `test_classical.py`
+  (12 tests, was 21 — the 9 moved out), `test_monochrome.py` (9 tests,
+  was 26 — the 17 moved out), `test_rdson_two_curve.py` (23 tests,
+  UNTOUCHED — never called the moved functions directly, only
+  `run_classical_pipeline`/naming functions) — every one of these,
+  same assertions, same fixtures, same pixel-level expected values,
+  **all still pass**. `test_curve_detection.py`: 29 tests (9 + 17 moved
+  + 3 new). Accounting: 70 pre-existing rdson-related tests, ALL
+  preserved (26 relocated, 44 untouched in place), plus 3 new = 73.
+- **Bug caught before it shipped:** removing `numpy`'s import from
+  `classical.py` (no longer directly used, moved functions took it with
+  them) would have broken `run_classical_pipeline`'s own signature
+  (`image: np.ndarray` type hint, evaluated at def-time) — caught by a
+  syntax/import check before running tests, `numpy` re-added since
+  `classical.py` still needs it for that one type hint.
+- **Full suite: 837 passing** (was 834), no regressions anywhere
+  (confirmed `live_stages.py`'s `from src.extraction.classical import
+  run_classical_pipeline` — its only import from this module — still
+  resolves correctly).
+- **Not pushed** — owner review pending, per instruction; this session
+  also came with an explicit "do not touch any existing file without
+  asking first" instruction — the files touched (`classical.py`,
+  `test_classical.py`, `test_monochrome.py`) were exactly and only the
+  ones the task itself required editing (removing moved code / adjusting
+  imports for the move), nothing beyond that scope.
+
+### 2026-07-21 — Session: T31 — vgsth_vs_tj naming module + shared `nearest_curve_index` (TDD)
+- **Red phase (owner-approved, strict "no implementation" turn):** two new
+  test files, touching zero existing files —
+  `tests/test_vgsth_naming.py` (30 tests) and
+  `tests/test_nearest_curve_index.py` (3 tests). Confirmed red for the
+  right reason (`ModuleNotFoundError: ...vgsth_vs_tj`,
+  `ImportError: cannot import name 'nearest_curve_index'`), rest of suite
+  unaffected (837 passing via `--continue-on-collection-errors`). A
+  separate, explicit regression-baseline check (not new test code, since
+  it would require touching `rdson_vs_tj.py`, out of scope for red phase):
+  ran `tests/test_rdson_two_curve.py` as-is — 23/23 passing, confirmed
+  zero diff via `git status` — the baseline the future `_nearest_curve_index`
+  rewiring must reproduce.
+- **Owner review caught a real spec ambiguity before it shipped:**
+  scenarios B.7 and C.13 both described "two current-value labels that
+  normalize to the identical value" with opposite expected outcomes
+  (count=1 vs None). First draft resolved this with a two-tier rule
+  ("harmless when it's the whole label set, ambiguous otherwise") flagged
+  explicitly in the test file for owner review. **Owner rejected the
+  leniency**: revised to a single unconditional rule — any duplicate
+  normalized value (band OR current-value scheme) always -> `None`, no
+  exceptions. B.7's test revised to expect `None`; the B.9 micro-sign-glyph
+  test (same leniency-dependent shape, not explicitly called out by the
+  owner but caught during the revision to avoid a self-contradicting
+  suite) revised too. Docstring rewritten with the unconditional rule plus
+  a new "KNOWN, DELIBERATELY OUT-OF-SCOPE LIMITATION" note: a duplicate
+  could legitimately be OCR re-detecting one physical label twice rather
+  than two colliding curves, but telling those apart needs label-position
+  reasoning this module doesn't attempt — always quarantines rather than
+  guessing which case it is. Re-confirmed red for the same two reasons
+  after the revision, zero other files touched.
+- **Implementation, one piece at a time, full suite after each (owner
+  instruction), zero regressions at every step:**
+  1. `nearest_curve_index(curves, cx, cy) -> int` added to
+     `curve_detection.py` — the exact algorithm moved from
+     rdson_vs_tj.py's private `_nearest_curve_index` (same squared-distance
+     comparison, same implicit tie-break: strict `<` means the first
+     curve/point encountered at the minimum distance wins, never
+     overwritten by a later exact tie — now made an explicit, documented
+     contract instead of an implementation accident). New `Point = Tuple[
+     float, float]` type alias added alongside the module's existing
+     `OcrLine`. **rdson_vs_tj.py deliberately NOT touched** — still has
+     its own private copy; rewiring it to import the shared version is an
+     explicit separate follow-up (touches an existing file). 3 tests green,
+     suite 840 passing (was 837).
+  2. `src/extraction/naming/vgsth_vs_tj.py` — `count_expected_curves`
+     (band-scheme role classification + current-value regex parsing
+     `I_?D\s*=\s*([\d.]+)\s*(u|µ|μ|m)?A`, normalizing to µA; both u/µ/μ
+     glyphs and A/mA/µA magnitudes recognized; unconditional
+     duplicate-value-> `None` rule; mixed-scheme detection) and
+     `name_curves_by_labels` (1 curve always `["vgsth"]`; multi-curve
+     requires EVERY curve to get its own independently-resolved label —
+     no elimination-completion at any curve count, a deliberate departure
+     from rdson_vs_tj's 2-curve elimination trick; genuine nearest-curve
+     ties refused via a new `_resolve_curve_index` wrapper built ON TOP OF
+     the shared `nearest_curve_index` — reuses it for the actual nearest-
+     curve search, adds its own tie-detection pass since the shared
+     function's contract is "always answer deterministically," not "flag
+     ties," which naming needs but a low-level geometry helper
+     legitimately shouldn't provide). Both `Point`/`OcrLine` imported from
+     `curve_detection.py`, not redefined. **All 30 tests passed on the
+     first implementation run** (every hand-derived expectation against
+     the finalized rules matched, including the input-order-alignment,
+     tie, and quarantine cases). Suite **870 passing** (was 840).
+- **rdson regression check: 23/23 still passing**, `git diff --stat
+  src/extraction/naming/rdson_vs_tj.py` empty (confirmed untouched).
+  **Nothing else touched** — verified via `git status`/`git diff --stat`
+  that every other file in the working tree (the still-uncommitted T29/T30
+  work from earlier sessions) has byte-identical diffs to before this
+  session started.
+- **Not done (explicitly out of scope, per instruction):** rewiring
+  `rdson_vs_tj.py` to import the shared `nearest_curve_index` instead of
+  its own private copy — separate follow-up task. No registry entry for
+  `vgsth_vs_tj` added either (not asked for; `curve_registry.py`/
+  `extraction_registry.py` wiring follows the same pattern rdson_vs_tj
+  used, as its own later, separately-approved task, per T25's precedent).
+
+### 2026-07-22 — Session: T31 follow-up — vgsth_vs_tj `PLAUSIBILITY_SPECS` entry + naming-registry placeholder (TDD)
+- **Two owner-approved frozen-file pure additions**, resolving the two
+  gaps flagged in the prior session's `classical_vgsth.py` red-phase
+  report — same precedent as T28's rdson x_range addition. **Dependency
+  order mattered for a clean TDD sequence, discovered while writing
+  tests**: `process_detections` unconditionally calls
+  `get_naming_fn(curve_type)` before anything else, so the plausibility
+  tests (which call `process_detections` directly for `vgsth_vs_tj`)
+  can't even reach the plausibility gate — let alone go red for a
+  plausibility-specific reason — until the naming-registry entry exists.
+  Implemented in dependency order (registry first, then plausibility),
+  confirmed at each step.
+- **1. Naming-registry placeholder** (`src/extraction/naming/__init__.py`):
+  `_vgsth_vs_tj_placeholder_names(curves) -> List[str]` returns
+  `["curve_0", "curve_1", ...]` aligned to input order, never raises
+  (doesn't inspect point content at all, so empty curves/zero curves are
+  both safe). Registered in `_NAMING_REGISTRY["vgsth_vs_tj"]` only —
+  `_EXPECTED_NAMES` deliberately NOT touched (vgsth's curve count isn't
+  fixed, so a fixed expected-names list doesn't apply the way it does for
+  capacitance/rdson). Docstring states in caps that this must never be
+  trusted as final output and that `classical_vgsth.py`'s wrapper is
+  required to override it on every ok-status path — a dedicated test
+  (`test_vgsth_placeholder_docstring_flags_itself_as_non_authoritative`)
+  locks in that the warning language itself stays present, not just that
+  the function works. **6 new tests in `tests/test_naming.py`**, red
+  confirmed first (`KeyError: No naming function registered for
+  curve_type 'vgsth_vs_tj'`), green after implementing.
+- **2. `PLAUSIBILITY_SPECS["vgsth_vs_tj"]`** (`src/extraction/pipeline.py`):
+  `{"x_range": (-75.0, 200.0)}`, rdson_vs_tj's exact bound reused verbatim
+  (same axis — junction temperature — already confirmed to cover every
+  real chart reviewed). Deliberately no `y_range`: real vgsth charts with
+  negative y-values exist in the sample corpus and there isn't enough
+  data yet to set a safe bound anywhere for this curve type. **4 tests in
+  `tests/test_pipeline.py`** (1 existing data-pin test extended with a
+  third assertion — same idiom already used for capacitance/rdson, not a
+  new test — plus 3 new tests mirroring rdson's exact three-test pattern:
+  out-of-range downgrades with the specific `implausible_calibration`
+  reason, in-range keeps curves/calibration, in-range control passes
+  through to `units_undetected`). **Red confirmed in two stages**,
+  matching the dependency-order discovery above: before the registry fix,
+  3 of the 4 failed with the registry's `KeyError` (a real but non-
+  specific reason); after the registry fix, re-ran and got the correctly
+  *specific* red (`assert 'implausible_calibration' in 'units_undetected'`
+  — proving the plausibility gate itself, not just the naming lookup, was
+  the remaining gap) before implementing.
+- **New safety-net test** (`tests/test_classical_vgsth.py`, owner-
+  requested addition, not part of the original 31): confirms across all
+  6 of that file's existing `status == "ok"` scenarios (single curve/no
+  labels, single curve/I_D= label present, 3- and 2-curve band scheme,
+  2- and 4-curve current-value scheme) that no final `curve_name` ever
+  matches the placeholder pattern `curve_\d+` — each scenario's mocked
+  `process_detections` result is configured with the REAL placeholder's
+  exact naming pattern first, so the test genuinely proves the wrapper's
+  override replaces it, not just that the mock happened to use a
+  different string. Still red via the same pre-existing collection error
+  as the rest of that file (`classical_vgsth.py` itself remains
+  unimplemented — a separate future task, unaffected by this session).
+- **Confirmed pure additions**: `git diff` on both files shows only new
+  lines — every existing dict entry/line byte-identical to before.
+- **Full suite: 879 passing** (was 870: +6 naming, +3 pipeline; the pin
+  test's extension doesn't add a test, it extends an existing one).
+  Zero regressions.
+
+### 2026-07-22 — Session: T31 follow-up — `classical_vgsth.py` implemented (green)
+- **All prerequisites now in place** (naming-registry placeholder +
+  `PLAUSIBILITY_SPECS["vgsth_vs_tj"]`, prior session) — implemented
+  `src/extraction/classical_vgsth.py`'s `run_classical_pipeline` to make
+  the full red-phase suite pass. **All 32 tests in
+  `tests/test_classical_vgsth.py` passed on the first implementation
+  run** (31 original scenarios + the placeholder-leak safety-net test),
+  no fixture/design mismatches found — the multi-session TDD design work
+  (decision tree, exact reason-string wording, mock boundaries) held up
+  exactly as specified.
+- **How it works:** color-then-mono detection via
+  `curve_detection.py`'s shared functions (imported directly — identity-
+  checked by the delegation tests, never wrapped or copied), default
+  tunables throughout. `N = count_expected_curves(ocr_lines)` and
+  `D = len(detections)` are compared BEFORE anything else runs — the
+  actual crossing/merge safety net: `D == 0` quarantines regardless of N
+  ("no curves found"); `D < N` quarantines ("likely merged at a
+  crossing"); `D > N` quarantines ("stray component or missed label" —
+  each reason string embeds both numbers and is substring-distinct from
+  the others, checked directly by the test suite, not just by
+  inspection); `N is None and D > 1` quarantines ("no usable labels").
+  Only when the count is safely resolved (`D == N`, or `N is None` with
+  exactly 1 curve) does it call `name_curves_by_labels` — if THAT also
+  refuses (a genuine proximity tie), quarantines with a reason
+  distinguishable from every count-mismatch reason above, and critically
+  `process_detections` is never even called on that path (verified
+  directly: `process_detections` mock asserted not-called across every
+  quarantine branch). Only on success does `process_detections` (frozen
+  core) run, and its result's `curve_name` fields are unconditionally
+  overwritten with the real resolved names before returning — this is
+  what makes the naming-registry placeholder ("curve_0", "curve_1", ...)
+  safe to have registered at all.
+- **Quarantine results reuse `pipeline.py`'s own `_placeholder_curves`**
+  (imported, not reimplemented — same "unnamed_N" shape the frozen core's
+  own early-gate failures already use) so a reviewer always sees how many
+  components were found, never an empty shell; `calibration=None` since
+  it's never attempted before these gates run.
+- **Units**: no vgsth-specific table — the frozen core's own generic
+  y-axis detector (which already recognizes "V") runs inside
+  `process_detections`; `units_undetected` passes straight through
+  unmodified, confirmed by test.
+- **Safety-net test passes**: `TestPlaceholderNeverLeaksIntoTrustedResult`
+  — every one of the file's 6 `status == "ok"` scenarios configured with
+  the REAL placeholder's exact `curve_N` pattern as the mocked
+  `process_detections` return, and confirmed the final result never
+  carries that pattern — proving the override is unconditional on every
+  ok path, not just usually-triggered.
+- **Full suite: 911 passing** (was 879, +32), zero regressions. Only new
+  file: `src/extraction/classical_vgsth.py`; nothing else touched this
+  session (confirmed via `git status`).
+
+### 2026-07-22 — Session: T31 follow-up — quarantine-path calibration gap found and fixed
+- **Owner audit, before closing Stage 3**: checked all 5 of
+  `classical_vgsth.py`'s quarantine paths (no curves found / detected<N
+  crossing-merge / detected>N stray-missed-label / N-is-None+multi-curve
+  no-usable-labels / naming-tie) for whether calibration gets computed.
+  **Confirmed a real, uniform gap**: all 5 routed through the same
+  `_quarantine()` helper, which hardcoded `calibration=None` and used
+  `_placeholder_curves` (empty points) — `process_detections` was never
+  called on any of them. Calibration (tick parsing) doesn't depend on
+  curve naming succeeding, so there was no structural reason for this;
+  rule 27 (mirroring rdson's precedent) requires every quarantined result
+  to carry curves AND calibration.
+- **Fixed, TDD (tests first):** updated 10 existing test assertions across
+  6 test methods in `tests/test_classical_vgsth.py` — the ones asserting
+  `process_detections.assert_not_called()` (now `assert_called_once()`,
+  since it's now genuinely called) and one asserting
+  `calibration is None` (now `is not None`) — confirmed these went red
+  against the still-unfixed implementation first (10 failures, all for
+  the expected reason) before touching `classical_vgsth.py`.
+- **Fix**: `_quarantine()` now calls `process_detections(..., expected_curve_count=len(detections))`
+  — using the ACTUAL detected count (not the mismatched N), so
+  `process_detections`'s own internal count-gate is a trivial pass-through
+  and it proceeds all the way through calibration. Its status/review_reason
+  are always overridden by the wrapper's own verdict (it has no concept of
+  the label-count mismatch or naming-tie this wrapper cares about), but its
+  calibration/curves/units are kept as-is. Curve names are never
+  fabricated — they stay whatever the naming-registry placeholder produced
+  (`curve_0`, `curve_1`, ...), which is exactly the case that placeholder's
+  own docstring already says is legitimate: a quarantined result a human
+  is expected to inspect via the overlay, not trust the name of. Removed
+  the now-unused `_placeholder_curves` import.
+- **All 10 updated assertions pass**, plus the other 22 (including the
+  placeholder-leak safety-net test, unaffected since it only covers the
+  "ok" paths, which were never part of this gap). **Full suite: 911
+  passing** (same count — no new tests added, existing ones strengthened),
+  zero regressions.
+
+### 2026-07-22 — Session: T31 follow-up — rdson rewired to the shared `nearest_curve_index`
+- **Closes the T30-correction-era deferred item**: `rdson_vs_tj.py`'s
+  private `_nearest_curve_index` replaced with an import of
+  `curve_detection.py`'s shared `nearest_curve_index` (built in Stage 2,
+  intentionally left unwired at the time since it touched an existing
+  file). Pure refactor, no design changes.
+- **Tie-break equivalence confirmed before editing, not assumed**: read
+  both implementations side by side. Byte-for-byte identical core logic —
+  same `best_index, best_d2 = 0, float("inf")` init, same nested
+  `enumerate(curves)` / `for row, col in points` iteration order, same
+  strict `d2 < best_d2` comparison. Because the comparison is strict
+  (`<`, not `<=`), a later curve's EQUAL distance never overwrites an
+  earlier one — the lower curve index deterministically wins any exact
+  tie, in both versions identically. Signature match too:
+  `(curves, cx, cy) -> int`, same parameter names. No mismatch found —
+  confirmed genuinely equivalent, not just "probably fine."
+  (Unsurprising: the shared version was moved verbatim FROM this exact
+  function in Stage 2 — this session closes the loop rdson's own copy was
+  deliberately left open at the time.)
+- **Swap**: added `from src.extraction.curve_detection import
+  nearest_curve_index` to `rdson_vs_tj.py`, removed the private function
+  definition entirely (no leftover duplicate), updated the one call site
+  (`name_curves_by_labels`). `curve_detection.py`'s own module docstring
+  updated to drop the now-stale "rdson still has its own private copy"
+  note.
+- **Regression check: rdson's 23-test suite (`tests/test_rdson_two_curve.py`)
+  passes byte-for-byte identically** — same test file, zero edits, all 23
+  green post-swap (positional naming, label-anchored naming including the
+  4 real-device parametrized cases, and the end-to-end classical-pipeline
+  two-curve tests).
+- **Full suite: 911 passing**, unchanged — zero regressions anywhere.
+  `grep` confirms exactly one `nearest_curve_index` implementation exists
+  repo-wide (`curve_detection.py`); `rdson_vs_tj.py` now imports it,
+  confirmed via direct grep of its import line and call site.
+
+### 2026-07-22 — Session: T31 follow-up — vgsth_vs_tj registered in both Stage-4/5 registries (TDD)
+- **Flagged before proceeding, per instruction (§4 rigor)**: read
+  `src/orchestrator/live_stages.py` first and found its "classical"
+  dispatch is a single HARDCODED import
+  (`from src.extraction.classical import run_classical_pipeline`, rdson's
+  own wrapper) with no per-curve-type routing at all — confirmed there's
+  even a pre-existing test
+  (`tests/test_live_stages.py::test_a_future_classical_entry_routes_the_same_way_as_rdson`,
+  written before `classical_vgsth.py` existed) that explicitly encoded
+  this as intentional at the time ("vgsth_vs_tj... must reuse the SAME
+  routing code as rdson"). **Registering `vgsth_vs_tj` as `method=
+  "classical"` today does NOT make the live pipeline call
+  `classical_vgsth.py` — it would silently call rdson's wrapper instead
+  if exercised end-to-end.** This is now documented prominently in
+  `extraction_registry.py`'s own module docstring. Out of scope for this
+  task's literal ask (a registry data addition) and for the given test
+  instructions (which only test `get_extraction_spec` itself, not
+  `live_stages.py`'s dispatch) — did NOT touch `live_stages.py`. Wiring
+  real per-curve-type classical dispatch is a separate, necessary
+  follow-up before vgsth_vs_tj can actually extract for real, needing its
+  own explicit approval (touches an existing file).
+- **1. `src/extraction/extraction_registry.py`**: `vgsth_vs_tj` entry,
+  `method="classical"`, `checkpoint=None`, `config=None` (mirrors
+  rdson's exact shape). `expected_curve_count=None` (not `(1,2)`-style —
+  vgsth's count genuinely isn't a fixed set, determined dynamically by
+  `count_expected_curves` inside `classical_vgsth.py`; confirmed this
+  field isn't even read by the classical dispatch path at all, only by
+  `run_pipeline`'s model branch, so there's no functional risk either
+  way, just an honesty question about the field's documented value). The
+  dataclass's own field comment extended to note `None` as a legitimate
+  third shape. Replaced the now-obsolete
+  `test_vgsth_vs_tj_not_yet_registered_raises_keyerror` with 3 new tests.
+  **19 tests total in `tests/test_extraction_registry.py`, red confirmed
+  first** (`KeyError: ... Registered types: [...]`, no `vgsth_vs_tj`),
+  green after implementing.
+- **2. `src/classification/curve_registry.py`**: new `vgsth_vs_tj`
+  `CurveTypeSpec`. Real-corpus grounding: ONE confirmed real example
+  (BSC010N04LSATMA1 page 9, Infineon "Diagram" template) — the exact
+  figure already embedded in `test_curve_registry_rdson.py`'s own
+  end-to-end fixture as rdson's "must NOT match" distractor; imported
+  from there rather than re-typed so both files stay pinned to the same
+  real OCR text (`y="VGS(th) [V]"`, `x="Tj [ºC]"`, caption wrongly
+  shifted to `"Typ. capacitances"` by the same Stage-3 off-by-one bug
+  that shifts rdson's own caption). x-axis keywords reused VERBATIM from
+  rdson_vs_tj's own T25 battle-tested list (same physical quantity —
+  junction temperature — same OCR pipeline, same manglings, not
+  re-derived, pinned by its own test). Deliberately NO `"capacitance"`
+  negative phrase (unlike every other entry in this registry) — it would
+  fire on vgsth's own real mis-shifted caption and defeat the match; axis
+  keywords alone already keep a genuine capacitance chart at zero without
+  it — same caption-unreliability lesson rdson's own entry already
+  learned, applied here.
+- **Real judgment-call finding, caught by the tests themselves, not by
+  inspection**: an initial draft added `"gate threshold voltage"`
+  (spelled out, JEDEC-style) as a caption_keyword/positive_phrase, for a
+  hypothetical unconfirmed IR/AUIRF-style verbose template — analogous to
+  rdson_vs_tj having both an IR and Infineon template.
+  `test_end_to_end_page9_lineup_matches_vgsth_true_chart` (a 3-figure
+  `classify_page` test using the real page-9 lineup) caught it scoring
+  rdson_vs_tj's OWN true chart at 7.5 — HIGHER than the real vgsth
+  chart's 7.0 — because on this exact real page, `"gate threshold
+  voltage"` is precisely the caption text wrongly shifted onto rdson's
+  figure (not vgsth's). **Reverted**: only the one corpus-confirmed
+  signal (`"vgs(th)"`) remains across caption/axis/positive-phrase.
+  Documented in both the registry entry's own comment and the test file's
+  module docstring so it isn't re-added without re-verifying against a
+  real example first.
+- **Cross-type contamination explicitly checked, not assumed**: `"VGS(th)"`
+  contains `"vgs"` as a substring — id_vs_vgs's own x-axis keyword — a
+  genuine risk, not a trivial one. Confirmed safe: the real vgsth chart
+  scores negative-to-low against `capacitance_vs_vds`, `id_vs_vgs`, and
+  `rdson_vs_tj`'s specs, and (the harder direction) rdson's own two real
+  true charts and reference capacitance/id_vs_vgs charts all score well
+  below threshold against the new vgsth spec.
+- **14 new tests in `tests/test_curve_registry_vgsth.py`**, red confirmed
+  first (`KeyError`, unregistered) — 3 of the 14 (checking OTHER curve
+  types' EXISTING specs against the real vgsth chart) passed even in red,
+  independently confirming the cross-contamination risk was already
+  covered from the other curve types' side before this entry existed.
+  11 genuinely new-signal tests green after implementing (14 total, since
+  the caption-keyword revert didn't remove any test, just changed which
+  assertions in the already-written suite passed).
+- **Confirmed pure additions**: `git diff` — `extraction_registry.py` has
+  zero data-entry lines removed (only doc-comment rewording);
+  `curve_registry.py` is 100% pure insertion, ZERO lines removed at all.
+  `capacitance_vs_vds`/`id_vs_vgs`/`rdson_vs_tj` byte-identical in both
+  files, confirmed directly, not inferred. rdson's own 21-test suite
+  (`test_curve_registry_rdson.py`) re-run and unaffected.
+- **Full suite: 927 passing** (was 911, +16: +2 net in
+  `test_extraction_registry.py` [-1 obsolete, +3 new], +14 in the new
+  `test_curve_registry_vgsth.py`), zero regressions.
+
+### 2026-07-22 — Session: T31 follow-up — classical-dispatch routing fix (TDD, closes the live_stages.py gap flagged two sessions ago)
+- **Fixes the real bug flagged when vgsth_vs_tj was first registered in
+  `extraction_registry.py`**: `live_stages.py` hardcoded a single
+  top-level `from src.extraction.classical import run_classical_pipeline`
+  and called it for EVERY `method="classical"` curve type regardless of
+  which one — meaning vgsth_vs_tj would have silently run rdson_vs_tj's
+  wrapper if ever exercised end-to-end.
+- **Circular-import check done first, not assumed** (per instruction):
+  traced the full transitive closure of `classical.py`'s and
+  `classical_vgsth.py`'s imports down to leaves — confirmed neither
+  imports `extraction_registry`, `live_stages`, or `orchestrator.pipeline`
+  at any depth; `grep -rln extraction_registry src/` found only
+  `live_stages.py` as a current importer. No cycle exists or would be
+  created by `extraction_registry.py` importing `classical.py`/
+  `classical_vgsth.py` at module level. Confirmed safe before writing
+  any test.
+- **Red phase**: `ExtractionSpec` gained `classical_pipeline:
+  Optional[Callable] = None`. 6 new tests in `test_extraction_registry.py`
+  (5 red on `AttributeError`/`TypeError: unexpected keyword argument`,
+  1 — the "imports cleanly" guard — correctly green both before and
+  after). Retired `test_a_future_classical_entry_routes_the_same_way_as_
+  rdson` (had encoded the bug as an intentional assumption, written
+  before `classical_vgsth.py` existed), replaced with
+  `test_vgsth_and_rdson_route_to_independent_classical_functions` in a
+  new `TestClassicalDispatchRoutingFix` class (7 tests, 6 red, 1 —
+  "no extraction_registry reference in classical modules" — correctly
+  green both before and after). 939 collected, 11 failed for the
+  intended reason, 928 passed, zero unexpected breakage.
+- **Green phase, three steps, full suite after each:**
+  1. `ExtractionSpec.classical_pipeline` set to `classical.run_classical_pipeline`
+     for rdson_vs_tj, `classical_vgsth.run_classical_pipeline` for
+     vgsth_vs_tj, left `None` for model entries. **25/25 in
+     `test_extraction_registry.py` green**; full suite 934 passing (was
+     928) — exactly the 6 extraction-registry-level tests flipped, the 5
+     live_stages-level tests (which need live_stages.py itself) correctly
+     still red.
+  2. `live_stages.py`: removed the hardcoded import entirely; classical
+     dispatch now calls `spec.classical_pipeline(...)` directly, with an
+     explicit `ValueError` (mentioning "classical_pipeline" by name) if a
+     `method="classical"` entry has none configured — never a silent
+     fallthrough. Discovered immediately that `build_adapter`
+     (test_live_stages.py's shared fixture helper) still tried to
+     monkeypatch the now-gone `live_stages_mod.run_classical_pipeline`
+     attribute — fixed it to inject `classical_pipeline` onto WHATEVER
+     registry entry is active for the adapter's `curve_type` (real or
+     already-faked by the calling test) via `dataclasses.replace`
+     (preserves every other field), only when that entry's method is
+     "classical". This single shared-helper fix transparently propagated
+     to every test using `build_adapter`.
+  3. **The 3 named `TestExtractionRouting` tests
+     (`test_rdson_routes_to_classical_never_touches_model`,
+     `test_model_routed_curve_types_call_run_pipeline`,
+     `test_routing_is_data_driven_not_hardcoded_if_elif`) needed ZERO
+     body edits** — fixing `build_adapter` alone made all 3 pass again,
+     preserving their exact original intent under the new mechanism:
+     - `test_rdson_routes_to_classical_never_touches_model`: `mocks[
+       "run_classical_pipeline"]` is still the function actually invoked
+       for rdson_vs_tj — now wired via `spec.classical_pipeline` instead
+       of a hardcoded name, same observable behavior, same assertions.
+     - `test_model_routed_curve_types_call_run_pipeline`: capacitance_vs_vds/
+       id_vs_vgs are model-routed, so `build_adapter`'s classical-injection
+       is skipped for them (method != "classical") — the classical mock
+       stays un-wired-in and genuinely never gets called, exactly as before.
+     - `test_routing_is_data_driven_not_hardcoded_if_elif`: its own
+       `monkeypatch.setitem`-injected `fake_classical_type`/
+       `fake_model_type` entries are picked up by `build_adapter`'s
+       `_REGISTRY.get(curve_type)` lookup at call time — the fake
+       classical entry gets its `classical_pipeline` field replaced
+       (via `dataclasses.replace`, so its OTHER fields stay exactly as
+       that test set them) and correctly gets called; the fake model
+       entry is left alone — still proving the routing decision is a
+       genuine dict lookup, zero curve-type-specific adapter code, now
+       through the real mechanism instead of the old hardcoded one.
+     4 of my own new `TestClassicalDispatchRoutingFix` tests needed
+     adjusting once `build_adapter` itself was fixed (they'd pre-injected
+     their OWN mocks, which `build_adapter`'s now-correct logic
+     immediately overwrote) — simplified to use `build_adapter`'s own
+     mocks directly, consistent with the rest of this file's convention.
+  - **One genuine regression found outside the 15 planned scenarios**:
+    `TestErrorIsolationBatchSafety::test_malformed_ocr_input_for_one_
+    device_does_not_crash_others` also directly patched the now-gone
+    attribute. Confirmed it was vestigial — that test only exercises
+    `run_classification`, never `run_extraction` — so the line was dead
+    setup; removed it, zero coverage lost.
+- **Full suite: 939 passing** (was 927 pre-red-phase; net +12 tests
+  across both files). Confirmed directly (not just "tests pass"):
+  `grep` for `live_stages_mod.run_classical_pipeline` and the old
+  hardcoded import string across `src/`+`tests/` returns nothing except
+  the test that asserts its ABSENCE and a docstring comment describing
+  the historical bug. Live registry check: `get_extraction_spec(
+  "rdson_vs_tj").classical_pipeline is classical.run_classical_pipeline`
+  → True; `get_extraction_spec("vgsth_vs_tj").classical_pipeline is
+  classical_vgsth.run_classical_pipeline` → True; the two are NOT the
+  same object; capacitance's is `None`. vgsth_vs_tj now genuinely routes
+  to its own function when exercised — no longer a documented gap.
+
+### 2026-07-22 — Session: T32 — if_vs_vsd registered end-to-end (classification + extraction), TDD throughout
+- **Scope**: `if_vs_vsd` (body_diode) goes from completely unregistered
+  (raised `KeyError` in both `curve_registry.py` and
+  `extraction_registry.py`) to genuinely reachable end-to-end:
+  classification finds it, extraction routes to its OWN wrapper (not a
+  generic fallback). Owner-dictated task; confirmed the plan (including
+  the one real behavioral change, `live_stages.py`'s new
+  `model_pipeline` dispatch branch) before touching any existing file.
+- **`src/extraction/naming/if_vs_vsd.py`** (new): `count_expected_curves`
+  parses "25°C"/"175°C" (bare) and "TJ = 25°C" (prefixed) labels,
+  normalizing degree-sign/spacing variants; returns `None` on no labels,
+  any duplicate normalized value (same unconditional DUPLICATE-VALUE RULE
+  as vgsth_vs_tj), or a COMPOUND label (temperature + percentile, e.g.
+  "150°C, 98%" — owner rule: never parsed, always ambiguous).
+  `name_curves_by_labels`: 1 curve → `["if"]` always; multi-curve named
+  `if_25C`/`if_175C` etc., every curve independently resolved (no
+  elimination-completion) or `None`. **Core design point**: label
+  anchoring restricts each curve's candidate points to its own
+  LOW-V_SD-region subset (`LOW_VSD_REGION_FRAC = 0.25` of its own
+  pixel-column span) before nearest-point matching — never a whole-curve
+  average or whole-curve search — because every real if_vs_vsd chart
+  converges/crosses at high current, and a curve's high-V_SD points can
+  end up geometrically closer to a label anchored to a DIFFERENT curve's
+  low-V_SD segment than that curve's own low-V_SD points are. Proved with
+  a hand-computed, exact (no floating-point ambiguity) adversarial fixture
+  in `TestNameCurvesLowVsdRegionRestriction`: two curves crossing between
+  their own cols 60→348, where an UNRESTRICTED whole-curve nearest-point
+  search would pick the wrong curve (distance ≈2.8 vs ≈13.15) but the
+  RESTRICTED (low-region-only) search correctly picks the right one
+  (≈19.3 vs ≈22.2) — verified by hand before writing any implementation,
+  then confirmed by the passing test. 31 tests, all green first run.
+- **`src/extraction/model_if_vsd.py`** (new): the model-path analogue of
+  `classical_vgsth.py` — built on `run_inference` (the same model-inference
+  primitive `run_pipeline` itself calls) + the frozen `process_detections`,
+  never reimplementing either. Same D-vs-N quarantine ladder already
+  proven for vgsth_vs_tj (D==0 → "no curves found"; N given and D<N →
+  "crossing"; D>N → "stray/missed label"; N is None and D>1 → "no usable
+  labels"; matched but naming ties → "ambiguous naming"). Every quarantine
+  path still calls `process_detections(..., expected_curve_count=len(detections))`
+  first so calibration/curves/units are always real, never an empty shell
+  (the same gap caught and fixed for vgsth_vs_tj, not reintroduced here).
+  On any resolved path, curve names are unconditionally overridden with
+  `name_curves_by_labels`'s real answer. 25 tests, all green first run.
+- **`extraction_registry.py`**: added `model_pipeline: Optional[Callable] = None`
+  to `ExtractionSpec` (the "model"-dispatch analogue of `classical_pipeline`),
+  and the `if_vs_vsd` entry (`method="model"`, real checkpoint/config,
+  `expected_curve_count=(2, 4)` — informational only, like vgsth_vs_tj's
+  own `None`: the wrapper derives its real expected count dynamically via
+  `count_expected_curves`, never reads this static field). Retired
+  `test_if_vs_vsd_not_yet_registered_raises_keyerror` (now factually
+  wrong), replaced with 13 new tests. 37/37 green.
+- **`naming/__init__.py`**: added `_if_vs_vsd_placeholder_names`, byte-for-byte
+  the same disposable "curve_N" pattern already built for vgsth_vs_tj — no
+  `_EXPECTED_NAMES` entry (names aren't fixed, same as vgsth_vs_tj). 7 new
+  tests in `test_naming.py`, all green.
+- **`curve_registry.py`**: new `if_vs_vsd` entry using the owner-confirmed
+  phrase set ("forward characteristics"/"reverse diode" captions, I_F/I_SD
+  y-axis, V_SD x-axis). **Flagged honestly**: unlike rdson_vs_tj's
+  50-device survey or even vgsth_vs_tj's one real embedded fixture, no
+  real OCR text was available in this session to build an end-to-end
+  fixture from — the test fixture is synthetic-but-confirmed-phrasing,
+  flagged in both the registry comment and the test file's own docstring
+  for a sanity-check against a real figure once available. Explicit
+  cross-contamination check: `"vsd"` (this entry's x-axis token) vs
+  `"vds"` (capacitance_vs_vds's own) are the same three letters reversed —
+  confirmed as genuinely distinct literal strings, not assumed. 15/15
+  green first run, including both-direction checks against every other
+  registered curve type (capacitance, id_vs_vgs, rdson_vs_tj, vgsth_vs_tj,
+  plus a gate-charge reference figure).
+- **`live_stages.py`**: the one real behavioral change, confirmed with the
+  owner before editing. `run_extraction`'s `method == "model"` branch now
+  checks `spec.model_pipeline` after lazy-loading the model: if set, calls
+  it with the same kwargs `run_pipeline` would get; otherwise falls
+  through to `run_pipeline` exactly as before (byte-identical `else`
+  branch — confirmed via `git diff`, zero effect on capacitance_vs_vds/
+  id_vs_vgs, whose `model_pipeline` stays `None`). Mirrors the
+  `classical_pipeline` routing fix from the prior session, one dispatch
+  branch over. `build_adapter`'s test helper extended symmetrically
+  (injects a mock over whatever registry entry is active, only when
+  `method=="model"` and `model_pipeline` is already set — existing
+  capacitance/id_vs_vgs tests provably unaffected). 6 new tests
+  (`TestModelDispatchRoutingAddition`), including a data-driven-dispatch
+  proof (fake curve type, zero curve-type-specific adapter code) and a
+  static-source check that neither `"if_vs_vsd"` nor `"model_if_vsd"`
+  appears in `run_extraction`'s source. 69/69 green in `test_live_stages.py`.
+- **Full suite: 1036 passing** (was 939), zero regressions. Confirmed
+  directly: `git diff --stat` on all 4 touched existing files reviewed by
+  hand — `naming/__init__.py`/`curve_registry.py` are pure insertions,
+  zero lines removed; `extraction_registry.py`'s only removals are
+  docstring rewording (data entries untouched, confirmed byte-identical);
+  `live_stages.py`'s only removal is the old single-branch model call,
+  replaced by an `if/else` whose `else` body is byte-identical to it.
+  Placeholder-leak safety net holds (`TestPlaceholderNeverLeaksIntoTrustedResult`
+  in both `test_model_if_vsd.py` and `test_naming.py`); every quarantine
+  path in `model_if_vsd.py` carries real calibration (explicit assertions
+  across all quarantine test classes); if_vs_vsd is now genuinely
+  reachable end-to-end — classification matches it via its own registry
+  entry, extraction routes to `model_if_vsd.run_model_pipeline` by
+  identity (not `run_pipeline`), confirmed both via unit tests and a
+  direct `get_extraction_spec("if_vs_vsd").model_pipeline is
+  model_if_vsd.run_model_pipeline` check.
+
+- **Same-session correction, caught by owner review**: the
+  `expected_curve_count=(2, 4)` set above was vestigial —
+  `model_if_vsd.run_model_pipeline` accepts the parameter for
+  call-signature symmetry only and never reads it (confirmed by grep:
+  the bare `expected_curve_count` identifier appears only at its own
+  parameter declaration; every `process_detections(...)` call passes the
+  locally computed detected count instead). A static tuple sitting in the
+  registry when nothing checks it against looks like an enforced rule
+  when it isn't — same lesson already applied to vgsth_vs_tj's own
+  `expected_curve_count=None`. Changed to `None`, comment updated to
+  document the grep-confirmed fact directly rather than merely assert it.
+  Retired `test_if_vs_vsd_expected_curve_count_allows_two_or_four`
+  (tested the now-wrong tuple), replaced with
+  `test_if_vs_vsd_curve_count_is_not_a_fixed_set` (mirrors vgsth_vs_tj's
+  own `test_vgsth_vs_tj_curve_count_is_not_a_fixed_set` exactly). Full
+  suite re-run: still 1036 passing, zero regressions.
+
+### 2026-07-23 — Session: T33 — dual-side axis-tick calibration (TDD, resolves ticks.py's own caveat #1, additively)
+
+- **Scope**: `src/calibration/ticks.py`'s documented caveat #1 ("Tick
+  zoning... assumes a bottom x-axis and left y-axis — right-hand or dual
+  axes will mis-bucket") is now partially resolved: the opposite side (top
+  30% for x, right 30% for y) is collected and independently fit; whichever
+  side (default or opposite) produces more RANSAC inliers wins, ties favor
+  default. Design approved by owner beforehand; full docstring/history of
+  `ticks.py` read first (CLAUDE.md §2/§4), 22 scenarios (A1–H22) written
+  RED FIRST in a dedicated new file, confirmed failing for the right reason
+  (missing capability, not fixture bugs) before any implementation, per
+  explicit instruction — see the prior session turn's red-phase report.
+- **Non-negotiable bar met**: `parse_numeric_ticks` and `fit_axis` are
+  **byte-identical** to before this task — confirmed by extracting both
+  function bodies from `git show HEAD:...` and the current file and diffing
+  them directly (not just eyeballing `git diff`), zero difference either.
+  This is what makes the change genuinely additive rather than a rewrite of
+  two frozen, heavily-tested (58-test) functions.
+- **New code** (both new sibling functions, called only from
+  `derive_calibration`'s now-updated internals):
+  - `_parse_opposite_side_ticks` (private) + `parse_numeric_ticks_dual_side`
+    (public): mirrors `parse_numeric_ticks`'s per-line parsing/exponent-
+    repair/stray-zero-drop pipeline to the top/right zones. Deliberately a
+    SEPARATE implementation, not a refactor extracting shared logic out of
+    `parse_numeric_ticks` — the byte-identical requirement on the original
+    forces some structural duplication, documented explicitly in the new
+    function's own docstring so it doesn't read as an oversight. No
+    tight-corner mirroring for the opposite side (out of scope, no
+    analogous "meaningful corner" at top-right the way bottom-left has
+    one as the plot origin) — deliberately noted, not silently omitted.
+  - `fit_axis_dual_side`: runs the unchanged `fit_axis` on each side
+    independently, selects by inlier count (`len(used)`), ties favor
+    default, logs distinctly (`"non-default (opposite) side won"`) only
+    when a non-default side actually wins — confirmed silent otherwise
+    (H22).
+  - `derive_calibration`: internals only — signature/return shape
+    unchanged; now calls the two new functions instead of
+    `parse_numeric_ticks`/`fit_axis` directly.
+- **Docstring gap added as instructed**: `detect_y_axis_units` only scans
+  the left y-zone even though a right-side y-axis can now win — written
+  into both the module docstring (new caveat #7) and the function's own
+  docstring, explicitly flagged as NOT fixed in this task (no real chart
+  observed needs it yet).
+- **Red-to-green bugs found were all in the NEW test file, not the
+  implementation**: 4 of the 22 red tests initially failed post-
+  implementation because their own "expected value" was computed from the
+  raw, unshifted fixture tuples instead of the actual placed/offset OCR
+  coordinates (a uniform pixel shift changes intercept, not slope — the
+  tests were comparing intercepts against the wrong reference). Fixed by
+  deriving expected values from `parse_numeric_ticks_dual_side` on the
+  REAL constructed lines (mirroring how the A1 backward-compat test was
+  already correctly written) rather than the bare fixture. One test (F18)
+  also had a "grounding" assertion pinning PRE-implementation behavior
+  (`derive_calibration(...) is None`) that necessarily became false once
+  the fix landed — that's the fix working as intended, not a regression;
+  removed the now-obsolete assertion, kept the historical framing as a
+  comment.
+- **Full suite: 1061 passing** (was 1039 in red phase: 1036 + 3 pin tests
+  correctly green already; +22 flipped from red to green, 0 newly broken).
+  `test_ticks.py` alone: 58/58, unchanged. Every downstream consumer
+  (`test_classical.py`, `test_classical_vgsth.py`, `test_model_if_vsd.py`,
+  `test_pipeline.py`, `test_live_stages.py`, all three curve-registry real-
+  device suites, `test_orchestrator.py`): 264/264, zero edits needed to any
+  of them — confirms `derive_calibration`'s unchanged signature/shape was
+  the right backward-compat boundary to hold the line at.
