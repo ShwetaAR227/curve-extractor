@@ -1,0 +1,1047 @@
+{
+  "device": "2N7002H6327XTSA2",
+  "model": "ibm-granite/granite-vision-4.1-4b",
+  "pages_processed": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7
+  ],
+  "parameters": [
+    {
+      "symbol": "ID",
+      "description": "Continuous drain current",
+      "min": null,
+      "typ": 0.3,
+      "max": null,
+      "unit": "A",
+      "conditions": "TA=25 \u00b0C",
+      "_page": 1
+    },
+    {
+      "symbol": "ID",
+      "description": "Continuous drain current",
+      "min": null,
+      "typ": 0.24,
+      "max": null,
+      "unit": "A",
+      "conditions": "TA=70 \u00b0C",
+      "_page": 1
+    },
+    {
+      "symbol": "ID,pulse",
+      "description": "Pulsed drain current",
+      "min": null,
+      "typ": 1.2,
+      "max": null,
+      "unit": "A",
+      "conditions": "TA=25 \u00b0C",
+      "_page": 1
+    },
+    {
+      "symbol": "EAS",
+      "description": "Avalanche energy, single pulse",
+      "min": null,
+      "typ": 1.3,
+      "max": null,
+      "unit": "mJ",
+      "conditions": "ID=0.3 A, RS=25 \u03a9, VDS=48 V",
+      "_page": 1
+    },
+    {
+      "symbol": "dv/dt",
+      "description": "Reverse diode di/dt",
+      "min": null,
+      "typ": 6.0,
+      "max": null,
+      "unit": "kV/\u00b5s",
+      "conditions": "ID=0.3 A, VDS=48 V, di/dt=200 A/\u00b5s, Tj,max=150 \u00b0C",
+      "_page": 1
+    },
+    {
+      "symbol": "VGS",
+      "description": "Gate source voltage",
+      "min": null,
+      "typ": null,
+      "max": 20.0,
+      "unit": "V",
+      "conditions": null,
+      "_page": 1
+    },
+    {
+      "symbol": "ESD",
+      "description": "ESD class",
+      "min": null,
+      "typ": "class 0 (<250V)",
+      "max": null,
+      "unit": null,
+      "conditions": "JESD22-A114 (HBM)",
+      "_page": 1
+    },
+    {
+      "symbol": "Ptot",
+      "description": "Power dissipation",
+      "min": null,
+      "typ": 0.5,
+      "max": null,
+      "unit": "W",
+      "conditions": "TA=25 \u00b0C",
+      "_page": 1
+    },
+    {
+      "symbol": "Tj, Tstg",
+      "description": "Operating and storage temperature",
+      "min": -55.0,
+      "typ": null,
+      "max": 150.0,
+      "unit": "\u00b0C",
+      "conditions": null,
+      "_page": 1
+    },
+    {
+      "symbol": "V(BR)DSS",
+      "description": "Drain-source breakdown voltage",
+      "min": 60.0,
+      "typ": null,
+      "max": null,
+      "unit": "V",
+      "conditions": "VGS=0 V, ID=250 \u00b5A",
+      "_page": 2
+    },
+    {
+      "symbol": "VGS(th)",
+      "description": "Gate threshold voltage",
+      "min": 1.5,
+      "typ": 2.1,
+      "max": 2.5,
+      "unit": "V",
+      "conditions": "VDS=VGS, ID=250 \u00b5A",
+      "_page": 2
+    },
+    {
+      "symbol": "ID(off)",
+      "description": "Drain-source leakage current",
+      "min": null,
+      "typ": null,
+      "max": 0.1,
+      "unit": "\u00b5A",
+      "conditions": "VDS=60 V, VGS=0 V, Tj=25 \u00b0C",
+      "_page": 2
+    },
+    {
+      "symbol": "ID(off)",
+      "description": "Drain-source leakage current",
+      "min": null,
+      "typ": null,
+      "max": 5.0,
+      "unit": "\u00b5A",
+      "conditions": "VDS=60 V, VGS=0 V, Tj=150 \u00b0C",
+      "_page": 2
+    },
+    {
+      "symbol": "IGSS",
+      "description": "Gate-source leakage current",
+      "min": null,
+      "typ": 1.0,
+      "max": 10.0,
+      "unit": "nA",
+      "conditions": "VGS=20 V, VDS=0 V",
+      "_page": 2
+    },
+    {
+      "symbol": "RDS(on)",
+      "description": "Drain-source on-state resistance",
+      "min": 2.0,
+      "typ": null,
+      "max": 4.0,
+      "unit": "\u03a9",
+      "conditions": "VGS=4.5 V, ID=0.25 A",
+      "_page": 2
+    },
+    {
+      "symbol": "RDS(on)",
+      "description": "Drain-source on-state resistance",
+      "min": 1.6,
+      "typ": null,
+      "max": 3.0,
+      "unit": "\u03a9",
+      "conditions": "VGS=10 V, ID=0.5 A",
+      "_page": 2
+    },
+    {
+      "symbol": "gm",
+      "description": "Transconductance",
+      "min": 0.2,
+      "typ": 0.36,
+      "max": null,
+      "unit": "S",
+      "conditions": "VDS=2V, ID=0.24 A",
+      "_page": 2
+    },
+    {
+      "symbol": "C_ISS",
+      "description": "Input capacitance",
+      "min": null,
+      "typ": 13.0,
+      "max": 20.0,
+      "unit": "pF",
+      "conditions": null,
+      "_page": 3
+    },
+    {
+      "symbol": "C_OSS",
+      "description": "Output capacitance",
+      "min": null,
+      "typ": 4.1,
+      "max": 6.0,
+      "unit": "pF",
+      "conditions": "V_GS=0 V, V_DS=25 V, f=1 MHz",
+      "_page": 3
+    },
+    {
+      "symbol": "C_RSS",
+      "description": "Reverse transfer capacitance",
+      "min": null,
+      "typ": 2.0,
+      "max": 3.0,
+      "unit": "pF",
+      "conditions": null,
+      "_page": 3
+    },
+    {
+      "symbol": "t_d(on)",
+      "description": "Turn-on delay time",
+      "min": null,
+      "typ": 3.0,
+      "max": 4.5,
+      "unit": "ns",
+      "conditions": null,
+      "_page": 3
+    },
+    {
+      "symbol": "t_r",
+      "description": "Rise time",
+      "min": null,
+      "typ": 3.3,
+      "max": 5.0,
+      "unit": "ns",
+      "conditions": "V_DD=30 V, V_GS=10 V",
+      "_page": 3
+    },
+    {
+      "symbol": "t_d(off)",
+      "description": "Turn-off delay time",
+      "min": null,
+      "typ": 5.5,
+      "max": 9.0,
+      "unit": "ns",
+      "conditions": "I_D=0.5 A, R_G=6 \u03a9",
+      "_page": 3
+    },
+    {
+      "symbol": "t_f",
+      "description": "Fall time",
+      "min": null,
+      "typ": 3.1,
+      "max": 5.0,
+      "unit": "ns",
+      "conditions": null,
+      "_page": 3
+    },
+    {
+      "symbol": "Q_gs",
+      "description": "Gate to source charge",
+      "min": null,
+      "typ": 0.05,
+      "max": 0.1,
+      "unit": "nC",
+      "conditions": null,
+      "_page": 3
+    },
+    {
+      "symbol": "Q_gd",
+      "description": "Gate to drain charge",
+      "min": null,
+      "typ": 0.2,
+      "max": 0.4,
+      "unit": "nC",
+      "conditions": "V_DD=48 V, I_D=0.5 A, V_GS=0 to 10 V",
+      "_page": 3
+    },
+    {
+      "symbol": "Q_g",
+      "description": "Gate charge total",
+      "min": null,
+      "typ": 0.4,
+      "max": 0.6,
+      "unit": "nC",
+      "conditions": null,
+      "_page": 3
+    },
+    {
+      "symbol": "V_plateau",
+      "description": "Gate plateau voltage",
+      "min": null,
+      "typ": 4.0,
+      "max": null,
+      "unit": "V",
+      "conditions": null,
+      "_page": 3
+    },
+    {
+      "symbol": "I_S",
+      "description": "Diode continuous forward current",
+      "min": null,
+      "typ": null,
+      "max": 0.3,
+      "unit": "A",
+      "conditions": "T_A=25 \u00b0C",
+      "_page": 3
+    },
+    {
+      "symbol": "I_S,pulse",
+      "description": "Diode pulse current",
+      "min": null,
+      "typ": null,
+      "max": 1.2,
+      "unit": "A",
+      "conditions": null,
+      "_page": 3
+    },
+    {
+      "symbol": "V_SD",
+      "description": "Diode forward voltage",
+      "min": null,
+      "typ": 0.96,
+      "max": 1.2,
+      "unit": "V",
+      "conditions": "V_GS=0 V, I_D=0.5 A, T_j=25 \u00b0C",
+      "_page": 3
+    },
+    {
+      "symbol": "t_rr",
+      "description": "Reverse recovery time",
+      "min": null,
+      "typ": 8.5,
+      "max": 13.0,
+      "unit": "ns",
+      "conditions": "V_R=30 V, I_F=0.5 A, di_df/dt=100 A/\u03bcs",
+      "_page": 3
+    },
+    {
+      "symbol": "Q_r",
+      "description": "Reverse recovery charge",
+      "min": null,
+      "typ": 2.4,
+      "max": 4.0,
+      "unit": "nC",
+      "conditions": "di_df/dt=100 A/\u03bcs",
+      "_page": 3
+    },
+    {
+      "symbol": "Ptot",
+      "description": "Power dissipation",
+      "min": null,
+      "typ": null,
+      "max": null,
+      "unit": "W",
+      "conditions": "TA",
+      "_page": 4
+    },
+    {
+      "symbol": "Id",
+      "description": "Drain current",
+      "min": null,
+      "typ": null,
+      "max": null,
+      "unit": "A",
+      "conditions": "TA; VGS\u226510V",
+      "_page": 4
+    },
+    {
+      "symbol": "Id",
+      "description": "Safe operating area current",
+      "min": null,
+      "typ": null,
+      "max": null,
+      "unit": "A",
+      "conditions": "VDS; TA=25\u00b0C; D=0",
+      "_page": 4
+    },
+    {
+      "symbol": "ZthJA",
+      "description": "Max. transient thermal impedance",
+      "min": null,
+      "typ": null,
+      "max": null,
+      "unit": "K/W",
+      "conditions": "tp",
+      "_page": 4
+    },
+    {
+      "symbol": "RDS(on)",
+      "description": "Typical drain-source on-resistance",
+      "min": null,
+      "typ": null,
+      "max": null,
+      "unit": "mOhm",
+      "conditions": "ID=2.5A; Tj=25\u00b0C; VGS=VDS",
+      "_page": 5
+    },
+    {
+      "symbol": "ID",
+      "description": "Typical drain current",
+      "min": 0.0,
+      "typ": null,
+      "max": 4.0,
+      "unit": "A",
+      "conditions": "VDS=2.5V; Tj=25\u00b0C",
+      "_page": 5
+    },
+    {
+      "symbol": "VDS",
+      "description": "Typical drain-source voltage",
+      "min": 0.0,
+      "typ": null,
+      "max": 5.0,
+      "unit": "V",
+      "conditions": "ID=2.5A; Tj=25\u00b0C",
+      "_page": 5
+    },
+    {
+      "symbol": "VGS",
+      "description": "Gate-source voltage",
+      "min": 0.0,
+      "typ": null,
+      "max": 10.0,
+      "unit": "V",
+      "conditions": "ID=2.5A; Tj=25\u00b0C",
+      "_page": 5
+    },
+    {
+      "symbol": "gfs",
+      "description": "Typical transconductance",
+      "min": 0.0,
+      "typ": null,
+      "max": 0.5,
+      "unit": "S",
+      "conditions": "ID=2.5A; VDS=2.5V; Tj=25\u00b0C",
+      "_page": 5
+    },
+    {
+      "symbol": "RDS(on)",
+      "description": "Drain-source on-state resistance",
+      "min": null,
+      "typ": null,
+      "max": null,
+      "unit": "mOhm",
+      "conditions": "ID=0.3 A; VGS=10 V",
+      "_page": 6
+    },
+    {
+      "symbol": "VGS(th)",
+      "description": "Typ. gate threshold voltage",
+      "min": null,
+      "typ": null,
+      "max": null,
+      "unit": "V",
+      "conditions": "ID=250 \u00b5A; VDS=VGS; VGS=VDS",
+      "_page": 6
+    },
+    {
+      "symbol": "Ciss",
+      "description": "Input capacitance",
+      "min": null,
+      "typ": null,
+      "max": null,
+      "unit": "pF",
+      "conditions": "VDS=0 V; VGS=0 V; f=1 MHz; Tj=25\u00b0C",
+      "_page": 6
+    },
+    {
+      "symbol": "Coss",
+      "description": "Output capacitance",
+      "min": null,
+      "typ": null,
+      "max": null,
+      "unit": "pF",
+      "conditions": "VDS=0 V; VGS=0 V; f=1 MHz; Tj=25\u00b0C",
+      "_page": 6
+    },
+    {
+      "symbol": "Crss",
+      "description": "Reverse transfer capacitance",
+      "min": null,
+      "typ": null,
+      "max": null,
+      "unit": "pF",
+      "conditions": "VDS=0 V; VGS=0 V",
+      "_page": 6
+    },
+    {
+      "symbol": "Id",
+      "description": "Forward current",
+      "min": null,
+      "typ": null,
+      "max": null,
+      "unit": "A",
+      "conditions": "VSD=1 V",
+      "_page": 6
+    },
+    {
+      "symbol": "I_AV",
+      "description": "Avalanche current",
+      "min": null,
+      "typ": null,
+      "max": null,
+      "unit": "A",
+      "conditions": "Tj(start), R_GS=25\u03a9",
+      "_page": 7
+    },
+    {
+      "symbol": "V_GS",
+      "description": "Gate-to-source voltage",
+      "min": null,
+      "typ": null,
+      "max": null,
+      "unit": "V",
+      "conditions": "Q_gate, I_D=0.5 A pulsed",
+      "_page": 7
+    },
+    {
+      "symbol": "V_BR(DSS)",
+      "description": "Drain-source breakdown voltage",
+      "min": 50.0,
+      "typ": null,
+      "max": 70.0,
+      "unit": "V",
+      "conditions": "Tj, I_D=250 \u03bcA",
+      "_page": 7
+    }
+  ],
+  "stats": {
+    "suspicious_units": 0,
+    "suspicious_symbols": 0,
+    "missing_units": 1,
+    "total_rows": 51
+  },
+  "completed_at": "2026-05-23 01:41:40",
+  "raw_response": "see granite_pages.json",
+  "parsed": {
+    "parameters": [
+      {
+        "symbol": "ID",
+        "description": "Continuous drain current",
+        "min": null,
+        "typ": 0.3,
+        "max": null,
+        "unit": "A",
+        "conditions": "TA=25 \u00b0C",
+        "_page": 1
+      },
+      {
+        "symbol": "ID",
+        "description": "Continuous drain current",
+        "min": null,
+        "typ": 0.24,
+        "max": null,
+        "unit": "A",
+        "conditions": "TA=70 \u00b0C",
+        "_page": 1
+      },
+      {
+        "symbol": "ID,pulse",
+        "description": "Pulsed drain current",
+        "min": null,
+        "typ": 1.2,
+        "max": null,
+        "unit": "A",
+        "conditions": "TA=25 \u00b0C",
+        "_page": 1
+      },
+      {
+        "symbol": "EAS",
+        "description": "Avalanche energy, single pulse",
+        "min": null,
+        "typ": 1.3,
+        "max": null,
+        "unit": "mJ",
+        "conditions": "ID=0.3 A, RS=25 \u03a9, VDS=48 V",
+        "_page": 1
+      },
+      {
+        "symbol": "dv/dt",
+        "description": "Reverse diode di/dt",
+        "min": null,
+        "typ": 6.0,
+        "max": null,
+        "unit": "kV/\u00b5s",
+        "conditions": "ID=0.3 A, VDS=48 V, di/dt=200 A/\u00b5s, Tj,max=150 \u00b0C",
+        "_page": 1
+      },
+      {
+        "symbol": "VGS",
+        "description": "Gate source voltage",
+        "min": null,
+        "typ": null,
+        "max": 20.0,
+        "unit": "V",
+        "conditions": null,
+        "_page": 1
+      },
+      {
+        "symbol": "ESD",
+        "description": "ESD class",
+        "min": null,
+        "typ": "class 0 (<250V)",
+        "max": null,
+        "unit": null,
+        "conditions": "JESD22-A114 (HBM)",
+        "_page": 1
+      },
+      {
+        "symbol": "Ptot",
+        "description": "Power dissipation",
+        "min": null,
+        "typ": 0.5,
+        "max": null,
+        "unit": "W",
+        "conditions": "TA=25 \u00b0C",
+        "_page": 1
+      },
+      {
+        "symbol": "Tj, Tstg",
+        "description": "Operating and storage temperature",
+        "min": -55.0,
+        "typ": null,
+        "max": 150.0,
+        "unit": "\u00b0C",
+        "conditions": null,
+        "_page": 1
+      },
+      {
+        "symbol": "V(BR)DSS",
+        "description": "Drain-source breakdown voltage",
+        "min": 60.0,
+        "typ": null,
+        "max": null,
+        "unit": "V",
+        "conditions": "VGS=0 V, ID=250 \u00b5A",
+        "_page": 2
+      },
+      {
+        "symbol": "VGS(th)",
+        "description": "Gate threshold voltage",
+        "min": 1.5,
+        "typ": 2.1,
+        "max": 2.5,
+        "unit": "V",
+        "conditions": "VDS=VGS, ID=250 \u00b5A",
+        "_page": 2
+      },
+      {
+        "symbol": "ID(off)",
+        "description": "Drain-source leakage current",
+        "min": null,
+        "typ": null,
+        "max": 0.1,
+        "unit": "\u00b5A",
+        "conditions": "VDS=60 V, VGS=0 V, Tj=25 \u00b0C",
+        "_page": 2
+      },
+      {
+        "symbol": "ID(off)",
+        "description": "Drain-source leakage current",
+        "min": null,
+        "typ": null,
+        "max": 5.0,
+        "unit": "\u00b5A",
+        "conditions": "VDS=60 V, VGS=0 V, Tj=150 \u00b0C",
+        "_page": 2
+      },
+      {
+        "symbol": "IGSS",
+        "description": "Gate-source leakage current",
+        "min": null,
+        "typ": 1.0,
+        "max": 10.0,
+        "unit": "nA",
+        "conditions": "VGS=20 V, VDS=0 V",
+        "_page": 2
+      },
+      {
+        "symbol": "RDS(on)",
+        "description": "Drain-source on-state resistance",
+        "min": 2.0,
+        "typ": null,
+        "max": 4.0,
+        "unit": "\u03a9",
+        "conditions": "VGS=4.5 V, ID=0.25 A",
+        "_page": 2
+      },
+      {
+        "symbol": "RDS(on)",
+        "description": "Drain-source on-state resistance",
+        "min": 1.6,
+        "typ": null,
+        "max": 3.0,
+        "unit": "\u03a9",
+        "conditions": "VGS=10 V, ID=0.5 A",
+        "_page": 2
+      },
+      {
+        "symbol": "gm",
+        "description": "Transconductance",
+        "min": 0.2,
+        "typ": 0.36,
+        "max": null,
+        "unit": "S",
+        "conditions": "VDS=2V, ID=0.24 A",
+        "_page": 2
+      },
+      {
+        "symbol": "C_ISS",
+        "description": "Input capacitance",
+        "min": null,
+        "typ": 13.0,
+        "max": 20.0,
+        "unit": "pF",
+        "conditions": null,
+        "_page": 3
+      },
+      {
+        "symbol": "C_OSS",
+        "description": "Output capacitance",
+        "min": null,
+        "typ": 4.1,
+        "max": 6.0,
+        "unit": "pF",
+        "conditions": "V_GS=0 V, V_DS=25 V, f=1 MHz",
+        "_page": 3
+      },
+      {
+        "symbol": "C_RSS",
+        "description": "Reverse transfer capacitance",
+        "min": null,
+        "typ": 2.0,
+        "max": 3.0,
+        "unit": "pF",
+        "conditions": null,
+        "_page": 3
+      },
+      {
+        "symbol": "t_d(on)",
+        "description": "Turn-on delay time",
+        "min": null,
+        "typ": 3.0,
+        "max": 4.5,
+        "unit": "ns",
+        "conditions": null,
+        "_page": 3
+      },
+      {
+        "symbol": "t_r",
+        "description": "Rise time",
+        "min": null,
+        "typ": 3.3,
+        "max": 5.0,
+        "unit": "ns",
+        "conditions": "V_DD=30 V, V_GS=10 V",
+        "_page": 3
+      },
+      {
+        "symbol": "t_d(off)",
+        "description": "Turn-off delay time",
+        "min": null,
+        "typ": 5.5,
+        "max": 9.0,
+        "unit": "ns",
+        "conditions": "I_D=0.5 A, R_G=6 \u03a9",
+        "_page": 3
+      },
+      {
+        "symbol": "t_f",
+        "description": "Fall time",
+        "min": null,
+        "typ": 3.1,
+        "max": 5.0,
+        "unit": "ns",
+        "conditions": null,
+        "_page": 3
+      },
+      {
+        "symbol": "Q_gs",
+        "description": "Gate to source charge",
+        "min": null,
+        "typ": 0.05,
+        "max": 0.1,
+        "unit": "nC",
+        "conditions": null,
+        "_page": 3
+      },
+      {
+        "symbol": "Q_gd",
+        "description": "Gate to drain charge",
+        "min": null,
+        "typ": 0.2,
+        "max": 0.4,
+        "unit": "nC",
+        "conditions": "V_DD=48 V, I_D=0.5 A, V_GS=0 to 10 V",
+        "_page": 3
+      },
+      {
+        "symbol": "Q_g",
+        "description": "Gate charge total",
+        "min": null,
+        "typ": 0.4,
+        "max": 0.6,
+        "unit": "nC",
+        "conditions": null,
+        "_page": 3
+      },
+      {
+        "symbol": "V_plateau",
+        "description": "Gate plateau voltage",
+        "min": null,
+        "typ": 4.0,
+        "max": null,
+        "unit": "V",
+        "conditions": null,
+        "_page": 3
+      },
+      {
+        "symbol": "I_S",
+        "description": "Diode continuous forward current",
+        "min": null,
+        "typ": null,
+        "max": 0.3,
+        "unit": "A",
+        "conditions": "T_A=25 \u00b0C",
+        "_page": 3
+      },
+      {
+        "symbol": "I_S,pulse",
+        "description": "Diode pulse current",
+        "min": null,
+        "typ": null,
+        "max": 1.2,
+        "unit": "A",
+        "conditions": null,
+        "_page": 3
+      },
+      {
+        "symbol": "V_SD",
+        "description": "Diode forward voltage",
+        "min": null,
+        "typ": 0.96,
+        "max": 1.2,
+        "unit": "V",
+        "conditions": "V_GS=0 V, I_D=0.5 A, T_j=25 \u00b0C",
+        "_page": 3
+      },
+      {
+        "symbol": "t_rr",
+        "description": "Reverse recovery time",
+        "min": null,
+        "typ": 8.5,
+        "max": 13.0,
+        "unit": "ns",
+        "conditions": "V_R=30 V, I_F=0.5 A, di_df/dt=100 A/\u03bcs",
+        "_page": 3
+      },
+      {
+        "symbol": "Q_r",
+        "description": "Reverse recovery charge",
+        "min": null,
+        "typ": 2.4,
+        "max": 4.0,
+        "unit": "nC",
+        "conditions": "di_df/dt=100 A/\u03bcs",
+        "_page": 3
+      },
+      {
+        "symbol": "Ptot",
+        "description": "Power dissipation",
+        "min": null,
+        "typ": null,
+        "max": null,
+        "unit": "W",
+        "conditions": "TA",
+        "_page": 4
+      },
+      {
+        "symbol": "Id",
+        "description": "Drain current",
+        "min": null,
+        "typ": null,
+        "max": null,
+        "unit": "A",
+        "conditions": "TA; VGS\u226510V",
+        "_page": 4
+      },
+      {
+        "symbol": "Id",
+        "description": "Safe operating area current",
+        "min": null,
+        "typ": null,
+        "max": null,
+        "unit": "A",
+        "conditions": "VDS; TA=25\u00b0C; D=0",
+        "_page": 4
+      },
+      {
+        "symbol": "ZthJA",
+        "description": "Max. transient thermal impedance",
+        "min": null,
+        "typ": null,
+        "max": null,
+        "unit": "K/W",
+        "conditions": "tp",
+        "_page": 4
+      },
+      {
+        "symbol": "RDS(on)",
+        "description": "Typical drain-source on-resistance",
+        "min": null,
+        "typ": null,
+        "max": null,
+        "unit": "mOhm",
+        "conditions": "ID=2.5A; Tj=25\u00b0C; VGS=VDS",
+        "_page": 5
+      },
+      {
+        "symbol": "ID",
+        "description": "Typical drain current",
+        "min": 0.0,
+        "typ": null,
+        "max": 4.0,
+        "unit": "A",
+        "conditions": "VDS=2.5V; Tj=25\u00b0C",
+        "_page": 5
+      },
+      {
+        "symbol": "VDS",
+        "description": "Typical drain-source voltage",
+        "min": 0.0,
+        "typ": null,
+        "max": 5.0,
+        "unit": "V",
+        "conditions": "ID=2.5A; Tj=25\u00b0C",
+        "_page": 5
+      },
+      {
+        "symbol": "VGS",
+        "description": "Gate-source voltage",
+        "min": 0.0,
+        "typ": null,
+        "max": 10.0,
+        "unit": "V",
+        "conditions": "ID=2.5A; Tj=25\u00b0C",
+        "_page": 5
+      },
+      {
+        "symbol": "gfs",
+        "description": "Typical transconductance",
+        "min": 0.0,
+        "typ": null,
+        "max": 0.5,
+        "unit": "S",
+        "conditions": "ID=2.5A; VDS=2.5V; Tj=25\u00b0C",
+        "_page": 5
+      },
+      {
+        "symbol": "RDS(on)",
+        "description": "Drain-source on-state resistance",
+        "min": null,
+        "typ": null,
+        "max": null,
+        "unit": "mOhm",
+        "conditions": "ID=0.3 A; VGS=10 V",
+        "_page": 6
+      },
+      {
+        "symbol": "VGS(th)",
+        "description": "Typ. gate threshold voltage",
+        "min": null,
+        "typ": null,
+        "max": null,
+        "unit": "V",
+        "conditions": "ID=250 \u00b5A; VDS=VGS; VGS=VDS",
+        "_page": 6
+      },
+      {
+        "symbol": "Ciss",
+        "description": "Input capacitance",
+        "min": null,
+        "typ": null,
+        "max": null,
+        "unit": "pF",
+        "conditions": "VDS=0 V; VGS=0 V; f=1 MHz; Tj=25\u00b0C",
+        "_page": 6
+      },
+      {
+        "symbol": "Coss",
+        "description": "Output capacitance",
+        "min": null,
+        "typ": null,
+        "max": null,
+        "unit": "pF",
+        "conditions": "VDS=0 V; VGS=0 V; f=1 MHz; Tj=25\u00b0C",
+        "_page": 6
+      },
+      {
+        "symbol": "Crss",
+        "description": "Reverse transfer capacitance",
+        "min": null,
+        "typ": null,
+        "max": null,
+        "unit": "pF",
+        "conditions": "VDS=0 V; VGS=0 V",
+        "_page": 6
+      },
+      {
+        "symbol": "Id",
+        "description": "Forward current",
+        "min": null,
+        "typ": null,
+        "max": null,
+        "unit": "A",
+        "conditions": "VSD=1 V",
+        "_page": 6
+      },
+      {
+        "symbol": "I_AV",
+        "description": "Avalanche current",
+        "min": null,
+        "typ": null,
+        "max": null,
+        "unit": "A",
+        "conditions": "Tj(start), R_GS=25\u03a9",
+        "_page": 7
+      },
+      {
+        "symbol": "V_GS",
+        "description": "Gate-to-source voltage",
+        "min": null,
+        "typ": null,
+        "max": null,
+        "unit": "V",
+        "conditions": "Q_gate, I_D=0.5 A pulsed",
+        "_page": 7
+      },
+      {
+        "symbol": "V_BR(DSS)",
+        "description": "Drain-source breakdown voltage",
+        "min": 50.0,
+        "typ": null,
+        "max": 70.0,
+        "unit": "V",
+        "conditions": "Tj, I_D=250 \u03bcA",
+        "_page": 7
+      }
+    ]
+  }
+}

@@ -165,3 +165,97 @@ def test_gate_charge_reference_figure_does_not_match_if_vsd():
         ("QG, Total Gate Charge (nC)", X_LABEL_BBOX),
     ])
     assert score_figure(qg_chart, get_spec("if_vs_vsd")).total_score < MATCH_THRESHOLD
+
+
+# ============================================================
+# Real-device wording gap (2026-07-24): device RD3G08CBKHRBTL's real
+# body-diode chart is captioned "Fig.20 Source Current vs. Source Drain
+# Voltage", x-axis "Source - Drain Voltage : VSD [V]" -- different wording
+# than the original entry recognized ("forward characteristics"/"reverse
+# diode"). Caption and x-axis text below are grepped VERBATIM from this
+# device's real full_extraction.json (not invented) -- confirmed to score
+# 0 against the original entry before this addition.
+#
+# This real figure has NO y-axis OCR line at all (a genuine, separate
+# Stage-3 OCR gap for this exact figure -- the caption says "Source
+# Current" but that text was never captured as its own OCR line) --
+# faithfully reproduced here, not papered over with an invented y-axis
+# line. So even correctly recognized, it lands QUARANTINED
+# (incomplete_axes, flagged for a human to review) rather than
+# auto-MATCHED -- confirmed directly, not assumed. The real, honest
+# outcome of this fix is: invisible (NO_MATCH) -> flagged for review
+# (QUARANTINED), not invisible -> auto-approved.
+# ============================================================
+
+def real_rd3g08cbkhrbtl_source_current_chart(figure_id="real_rd3g08_if_vsd", page=9):
+    return fig(figure_id, "Fig.20 Source Current vs. Source Drain Voltage", [
+        ("Source - Drain Voltage : VSD [V]", X_LABEL_BBOX),
+    ], page=page)
+
+
+def test_real_source_current_chart_now_recognized_not_invisible():
+    figures = [real_rd3g08cbkhrbtl_source_current_chart()]
+    result = classify_page(figures, "if_vs_vsd", claimed=set())
+    assert result.score >= MATCH_THRESHOLD
+    assert result.status == ClassificationStatus.QUARANTINED
+    assert "incomplete_axes" in result.reason
+    assert result.figure.figure_id == "real_rd3g08_if_vsd"
+
+
+def test_real_source_current_chart_score_breakdown_is_exactly_two_signals():
+    # Precise audit: the new caption keyword + the new x-axis keyword,
+    # nothing else contributing (no accidental extra matches).
+    result = score_figure(real_rd3g08cbkhrbtl_source_current_chart(), get_spec("if_vs_vsd"))
+    assert result.total_score == 5.5
+    signal_texts = {(s.source, s.text) for s in result.matched_signals}
+    assert signal_texts == {
+        ("caption_keyword", "source current"),
+        ("axis_x", "vsd ["),
+    }
+
+
+def test_real_source_current_chart_does_not_score_high_against_id_vs_vgs():
+    # "vgs" (unknown-zone partial credit) is the only signal id_vs_vgs
+    # picks up here (from body text like "VGS= 0V" on the real chart,
+    # not tested in this synthetic fixture) -- well below MATCH_THRESHOLD
+    # either way.
+    result = score_figure(real_rd3g08cbkhrbtl_source_current_chart(), get_spec("id_vs_vgs"))
+    assert result.total_score < MATCH_THRESHOLD
+
+
+def test_source_current_phrase_not_used_as_positive_phrase_substring_risk():
+    # Explicit, documented reasoning (not just relying on the reader to
+    # notice): "source current" is a literal substring of id_vs_vgs's OWN
+    # registered y-axis keyword "drain-to-source current" --
+    #   "source current" in "drain-to-source current" == True
+    # Confirmed directly below. This is exactly why the new phrase is
+    # added ONLY as a caption_keyword (checks figure.caption alone) and
+    # NOT as a positive_phrase (which would scan every OCR line,
+    # including a real id_vs_vgs chart's own y-axis text, and silently
+    # award if_vs_vsd points on a genuine id_vs_vgs chart).
+    assert "source current" in "drain-to-source current"
+    spec = get_spec("if_vs_vsd")
+    assert ("source current", 2.0) not in spec.positive_phrases
+    assert not any(phrase == "source current" for phrase, _ in spec.positive_phrases)
+    # And the real regression this reasoning protects against: a genuine
+    # id_vs_vgs chart using that exact phrasing must still score well
+    # below MATCH_THRESHOLD against if_vs_vsd (already covered by
+    # test_id_vs_vgs_reference_figure_does_not_match_if_vsd above, which
+    # uses this exact "Drain-to-Source Current" phrasing -- re-asserted
+    # here for visibility next to the reasoning it's protecting).
+    id_chart = fig("id_vgs2", "Typical Transfer Characteristics", [
+        ("ID, Drain-to-Source Current (A)", Y_LABEL_BBOX),
+        ("VGS, Gate-to-Source Voltage (V)", X_LABEL_BBOX),
+    ])
+    assert score_figure(id_chart, spec).total_score < MATCH_THRESHOLD
+
+
+def test_x_axis_keyword_vsd_bracket_does_not_collide_with_capacitance_vds():
+    # "vsd [" vs capacitance_vs_vds's "vds" -- same reversed-letter-order
+    # safety already established for the original "v_sd"/"vsd," keywords,
+    # re-checked for the new "vsd [" variant specifically.
+    assert "vsd [" not in "vds, drain-to-source voltage (v)"
+    cap_chart = fig("cap2", "Typical Capacitance vs. Drain-to-Source Voltage", [
+        ("VDS, Drain-to-Source Voltage (V)", X_LABEL_BBOX),
+    ])
+    assert score_figure(cap_chart, get_spec("if_vs_vsd")).total_score < MATCH_THRESHOLD

@@ -92,6 +92,28 @@ _REGISTRY: Dict[str, CurveTypeSpec] = {
             ("transfer characteristic", 3.0),
             ("capacitance", 3.0),
             ("gate charge", 3.0),
+            # Same-device distractor found in a real Stage-4 spot-check
+            # (RD3G08CBKHRBTL, 2026-07-23): "Fig.7 Normalized Breakdown
+            # Voltage vs. Junction Temperature" was outscoring the SAME
+            # device's real on-resistance chart (10.5 vs 9.0) purely
+            # because both mention "normalized" and both have a junction-
+            # temperature x-axis -- neither word is specific to on-
+            # resistance. Confirmed safe against the real true chart's own
+            # text, which never mentions "breakdown voltage" (see
+            # tests/test_curve_registry_rdson.py's own
+            # test_real_onresistance_chart_never_mentions_breakdown_voltage).
+            ("breakdown voltage", 3.0),
+            # Same-device distractor found in a real Stage-4 spot-check
+            # (RS6G100BGTB1, 2026-07-24): "Fig.1 Power Dissipation
+            # Derating Curve" was outscoring the SAME device's real
+            # on-resistance chart (6.5 vs 4.0) purely because both are
+            # plotted against junction temperature -- the same root
+            # cause, and the same fix pattern, as the "breakdown
+            # voltage" guard directly above. Confirmed safe against the
+            # real true chart's own text, which never mentions "power
+            # dissipation" (see tests/test_curve_registry_rdson.py's own
+            # test_real_rs6g100b_onresistance_chart_never_mentions_power_dissipation).
+            ("power dissipation", 3.0),
         ],
     ),
     "vgsth_vs_tj": CurveTypeSpec(
@@ -172,6 +194,22 @@ _REGISTRY: Dict[str, CurveTypeSpec] = {
         caption_keywords=[
             "forward characteristics",
             "reverse diode",
+            # Real second wording found on device RD3G08CBKHRBTL
+            # (2026-07-24, grepped verbatim from its real
+            # full_extraction.json): "Fig.20 Source Current vs. Source
+            # Drain Voltage" -- the original two phrases above scored 0
+            # on this real chart, so it was never picked at all. Caption-
+            # keyword ONLY, deliberately NOT also added as a
+            # positive_phrase: "source current" is a literal substring of
+            # id_vs_vgs's own registered y-axis keyword "drain-to-source
+            # current" ("source current" in "drain-to-source current" ==
+            # True) -- a positive_phrase scans every OCR line (not just
+            # the caption), so it would silently award if_vs_vsd points
+            # on a genuine id_vs_vgs chart. Caption-only avoids this: real
+            # id_vs_vgs captions say "Typical Transfer Characteristics",
+            # never "source current" (checked directly, not assumed, in
+            # test_source_current_phrase_not_used_as_positive_phrase_substring_risk).
+            "source current",
         ],
         axis_keywords={
             "y": ["i_f", "i_sd", "if,", "isd,"],
@@ -181,7 +219,13 @@ _REGISTRY: Dict[str, CurveTypeSpec] = {
             # charts, not a typo; kept as two distinct literal strings on
             # purpose (checked directly, not assumed, in
             # test_x_axis_keyword_is_vsd_not_vds_no_accidental_reversal).
-            "x": ["v_sd", "vsd,"],
+            # "vsd [" (2026-07-24, same real RD3G08CBKHRBTL chart): the
+            # real x-axis text is "Source - Drain Voltage : VSD [V]" --
+            # bare "VSD" with no underscore/comma, so neither existing
+            # x-axis keyword matched it. Bracket-anchored (mirrors
+            # rdson_vs_tj/vgsth_vs_tj's own "tj [" convention) rather than
+            # a bare "vsd" substring, for the same defensive reasoning.
+            "x": ["v_sd", "vsd,", "vsd ["],
         },
         positive_phrases=[
             ("forward characteristics", 2.0),
@@ -216,6 +260,68 @@ _REGISTRY: Dict[str, CurveTypeSpec] = {
             ("capacitance", 3.0),
             ("gate charge", 3.0),
             ("threshold voltage", 2.0),
+        ],
+    ),
+    "zth_vs_time": CurveTypeSpec(
+        name="zth_vs_time",
+        # Wording confirmed against real OCR from TWO real chart templates
+        # this session (both grep'd directly from real full_extraction.json,
+        # same standard as rdson_vs_tj's own survey, not guessed):
+        # - ROHM "ratio" template (AG087FGD3HRBTL, page 4, fig index 7):
+        #   caption "Fig.3 Normalized Transient Thermal Resistance vs.
+        #   Pulse Width"; y-axis label is "Normalized Transient Resistance
+        #   : r(t)" -- note it never says "thermal" (that word only
+        #   appears in the CAPTION on this template), so the y-axis
+        #   keyword below is "transient resistance", not "thermal
+        #   resistance", to actually match the real label text; x-axis
+        #   "Pulse Width : PW [s]".
+        # - ROHM "direct units" template (SCT3030ARC15, page 5, fig index
+        #   17): NO caption at all -- the real caption ("Fig.3 Typical
+        #   Transient Thermal Impedance vs. Pulse Width") is shifted onto
+        #   the neighboring Safe-Operating-Area figure, the SAME caption-
+        #   misattribution pattern vgsth_vs_tj's own entry already hit for
+        #   its own template (see that entry's comment) -- so this
+        #   template's match must clear threshold from axis text alone,
+        #   confirmed by tests/test_curve_registry_zth.py's own
+        #   test_direct_units_chart_clears_match_threshold_despite_no_caption.
+        #   y-axis "ZthJC [K/W]" / "Transient Thermal Impedance :"; x-axis
+        #   "Pulse Width : PW [s]".
+        # A THIRD template (Infineon "Diagram N: Max. transient thermal
+        # impedance", y-axis "Z_thJC [K/W]", x-axis "t_p [s]") was reviewed
+        # VISUALLY this session -- no OCR JSON available for those images,
+        # so this wording is owner-confirmed real rather than independently
+        # OCR-grepped (same provenance standard if_vs_vsd's own entry
+        # already used). "tp [s]" is kept as its own x-axis keyword
+        # specifically because this template's x-axis label is NOT the
+        # ROHM templates' "Pulse Width : PW [s]" text.
+        #
+        # Cross-contamination checked explicitly (same diligence as the
+        # vgs(th)-vs-id_vs_vgs / vsd-vs-vds checks already in this
+        # registry) against every OTHER registered type, both directions
+        # -- see tests/test_curve_registry_zth.py's own cross-match tests.
+        caption_keywords=[
+            "transient thermal impedance",
+            "transient thermal resistance",
+        ],
+        axis_keywords={
+            "y": ["zthjc", "thermal impedance", "transient resistance"],
+            "x": ["pulse width", "tp [s]"],
+        },
+        positive_phrases=[
+            ("thermal impedance", 2.0),
+            ("thermal resistance", 2.0),
+            ("pulse width", 1.5),
+        ],
+        negative_phrases=[
+            ("capacitance", 3.0),
+            ("transfer characteristic", 3.0),
+            ("gate charge", 3.0),
+            ("forward characteristics", 3.0),
+            ("reverse diode", 3.0),
+            ("on-state resistance", 3.0),
+            ("on-resistance", 3.0),
+            ("vgs(th)", 3.0),
+            ("safe operating area", 3.0),
         ],
     ),
 }

@@ -1,0 +1,1921 @@
+{
+  "cache_meta": {
+    "pdf_sha256": "70750ebee677759622eecff23d11c224ac839a7a3a539de054f6dc9f9d7c5207",
+    "api_version": "2024-11-30",
+    "timestamp": "2026-03-30T19:49:11.918982"
+  },
+  "result": {
+    "apiVersion": "2024-11-30",
+    "modelId": "prebuilt-layout",
+    "stringIndexType": "textElements",
+    "content": "INFN-S-A0002297093-1.pdf\nThumbnails Document Outline Attachments Layers\nCurrent Outline Item\nPrevious\nNext\n:unselected:Highlight All\n:unselected:Match Case\n:unselected:Match Diacritics\n:unselected:Whole Words\nPresentation Mode Open Print Download Current View\nGo to First Page Go to Last Page\nRotate Clockwise Rotate Counterclockwise\nText Selection Tool Hand Tool\nPage Scrolling Vertical Scrolling Horizontal Scrolling Wrapped Scrolling\nNo Spreads Odd Spreads Even Spreads\nDocument Properties\u2026\nToggle Sidebar\nFind\nPrevious\nNext\n1\nPresentation Mode Open Print Download Current View\nTools\nZoom Out\nZoom In\nAutomatic Zoom Actual Size Page Fit Page Width 50% 75% 100% 125% 150% 200% 300% 400%\nMore Information Less Information\nClose\nEnter the password to open this PDF file:\nCancel OK\nFile name:\n-\nFile size:\n-\nTitle:\n-\nAuthor:\n-\nSubject:\n-\nKeywords:\n-\nCreation Date:\n-\nModification Date:\n-\nCreator:\n-\nPDF Producer:\n-\nPDF Version:\n-\nPage Count:\n-\nPage Size:\n-\nFast Web View:\n-\nClose\nPreparing document for printing\u2026\n0%\nCancel",
+    "pages": [
+      {
+        "pageNumber": 1,
+        "words": [
+          {
+            "content": "INFN-S-A0002297093-1.pdf",
+            "confidence": 1,
+            "span": {
+              "offset": 0,
+              "length": 24
+            }
+          },
+          {
+            "content": "Thumbnails",
+            "confidence": 1,
+            "span": {
+              "offset": 25,
+              "length": 10
+            }
+          },
+          {
+            "content": "Document",
+            "confidence": 1,
+            "span": {
+              "offset": 36,
+              "length": 8
+            }
+          },
+          {
+            "content": "Outline",
+            "confidence": 1,
+            "span": {
+              "offset": 45,
+              "length": 7
+            }
+          },
+          {
+            "content": "Attachments",
+            "confidence": 1,
+            "span": {
+              "offset": 53,
+              "length": 11
+            }
+          },
+          {
+            "content": "Layers",
+            "confidence": 1,
+            "span": {
+              "offset": 65,
+              "length": 6
+            }
+          },
+          {
+            "content": "Current",
+            "confidence": 1,
+            "span": {
+              "offset": 72,
+              "length": 7
+            }
+          },
+          {
+            "content": "Outline",
+            "confidence": 1,
+            "span": {
+              "offset": 80,
+              "length": 7
+            }
+          },
+          {
+            "content": "Item",
+            "confidence": 1,
+            "span": {
+              "offset": 88,
+              "length": 4
+            }
+          },
+          {
+            "content": "Previous",
+            "confidence": 1,
+            "span": {
+              "offset": 93,
+              "length": 8
+            }
+          },
+          {
+            "content": "Next",
+            "confidence": 1,
+            "span": {
+              "offset": 102,
+              "length": 4
+            }
+          },
+          {
+            "content": "Highlight",
+            "confidence": 1,
+            "span": {
+              "offset": 119,
+              "length": 9
+            }
+          },
+          {
+            "content": "All",
+            "confidence": 1,
+            "span": {
+              "offset": 129,
+              "length": 3
+            }
+          },
+          {
+            "content": "Match",
+            "confidence": 1,
+            "span": {
+              "offset": 145,
+              "length": 5
+            }
+          },
+          {
+            "content": "Case",
+            "confidence": 1,
+            "span": {
+              "offset": 151,
+              "length": 4
+            }
+          },
+          {
+            "content": "Match",
+            "confidence": 1,
+            "span": {
+              "offset": 168,
+              "length": 5
+            }
+          },
+          {
+            "content": "Diacritics",
+            "confidence": 1,
+            "span": {
+              "offset": 174,
+              "length": 10
+            }
+          },
+          {
+            "content": "Whole",
+            "confidence": 1,
+            "span": {
+              "offset": 197,
+              "length": 5
+            }
+          },
+          {
+            "content": "Words",
+            "confidence": 1,
+            "span": {
+              "offset": 203,
+              "length": 5
+            }
+          },
+          {
+            "content": "Presentation",
+            "confidence": 1,
+            "span": {
+              "offset": 209,
+              "length": 12
+            }
+          },
+          {
+            "content": "Mode",
+            "confidence": 1,
+            "span": {
+              "offset": 222,
+              "length": 4
+            }
+          },
+          {
+            "content": "Open",
+            "confidence": 1,
+            "span": {
+              "offset": 227,
+              "length": 4
+            }
+          },
+          {
+            "content": "Print",
+            "confidence": 1,
+            "span": {
+              "offset": 232,
+              "length": 5
+            }
+          },
+          {
+            "content": "Download",
+            "confidence": 1,
+            "span": {
+              "offset": 238,
+              "length": 8
+            }
+          },
+          {
+            "content": "Current",
+            "confidence": 1,
+            "span": {
+              "offset": 247,
+              "length": 7
+            }
+          },
+          {
+            "content": "View",
+            "confidence": 1,
+            "span": {
+              "offset": 255,
+              "length": 4
+            }
+          },
+          {
+            "content": "Go",
+            "confidence": 1,
+            "span": {
+              "offset": 260,
+              "length": 2
+            }
+          },
+          {
+            "content": "to",
+            "confidence": 1,
+            "span": {
+              "offset": 263,
+              "length": 2
+            }
+          },
+          {
+            "content": "First",
+            "confidence": 1,
+            "span": {
+              "offset": 266,
+              "length": 5
+            }
+          },
+          {
+            "content": "Page",
+            "confidence": 1,
+            "span": {
+              "offset": 272,
+              "length": 4
+            }
+          },
+          {
+            "content": "Go",
+            "confidence": 1,
+            "span": {
+              "offset": 277,
+              "length": 2
+            }
+          },
+          {
+            "content": "to",
+            "confidence": 1,
+            "span": {
+              "offset": 280,
+              "length": 2
+            }
+          },
+          {
+            "content": "Last",
+            "confidence": 1,
+            "span": {
+              "offset": 283,
+              "length": 4
+            }
+          },
+          {
+            "content": "Page",
+            "confidence": 1,
+            "span": {
+              "offset": 288,
+              "length": 4
+            }
+          },
+          {
+            "content": "Rotate",
+            "confidence": 1,
+            "span": {
+              "offset": 293,
+              "length": 6
+            }
+          },
+          {
+            "content": "Clockwise",
+            "confidence": 1,
+            "span": {
+              "offset": 300,
+              "length": 9
+            }
+          },
+          {
+            "content": "Rotate",
+            "confidence": 1,
+            "span": {
+              "offset": 310,
+              "length": 6
+            }
+          },
+          {
+            "content": "Counterclockwise",
+            "confidence": 1,
+            "span": {
+              "offset": 317,
+              "length": 16
+            }
+          },
+          {
+            "content": "Text",
+            "confidence": 1,
+            "span": {
+              "offset": 334,
+              "length": 4
+            }
+          },
+          {
+            "content": "Selection",
+            "confidence": 1,
+            "span": {
+              "offset": 339,
+              "length": 9
+            }
+          },
+          {
+            "content": "Tool",
+            "confidence": 1,
+            "span": {
+              "offset": 349,
+              "length": 4
+            }
+          },
+          {
+            "content": "Hand",
+            "confidence": 1,
+            "span": {
+              "offset": 354,
+              "length": 4
+            }
+          },
+          {
+            "content": "Tool",
+            "confidence": 1,
+            "span": {
+              "offset": 359,
+              "length": 4
+            }
+          },
+          {
+            "content": "Page",
+            "confidence": 1,
+            "span": {
+              "offset": 364,
+              "length": 4
+            }
+          },
+          {
+            "content": "Scrolling",
+            "confidence": 1,
+            "span": {
+              "offset": 369,
+              "length": 9
+            }
+          },
+          {
+            "content": "Vertical",
+            "confidence": 1,
+            "span": {
+              "offset": 379,
+              "length": 8
+            }
+          },
+          {
+            "content": "Scrolling",
+            "confidence": 1,
+            "span": {
+              "offset": 388,
+              "length": 9
+            }
+          },
+          {
+            "content": "Horizontal",
+            "confidence": 1,
+            "span": {
+              "offset": 398,
+              "length": 10
+            }
+          },
+          {
+            "content": "Scrolling",
+            "confidence": 1,
+            "span": {
+              "offset": 409,
+              "length": 9
+            }
+          },
+          {
+            "content": "Wrapped",
+            "confidence": 1,
+            "span": {
+              "offset": 419,
+              "length": 7
+            }
+          },
+          {
+            "content": "Scrolling",
+            "confidence": 1,
+            "span": {
+              "offset": 427,
+              "length": 9
+            }
+          },
+          {
+            "content": "No",
+            "confidence": 1,
+            "span": {
+              "offset": 437,
+              "length": 2
+            }
+          },
+          {
+            "content": "Spreads",
+            "confidence": 1,
+            "span": {
+              "offset": 440,
+              "length": 7
+            }
+          },
+          {
+            "content": "Odd",
+            "confidence": 1,
+            "span": {
+              "offset": 448,
+              "length": 3
+            }
+          },
+          {
+            "content": "Spreads",
+            "confidence": 1,
+            "span": {
+              "offset": 452,
+              "length": 7
+            }
+          },
+          {
+            "content": "Even",
+            "confidence": 1,
+            "span": {
+              "offset": 460,
+              "length": 4
+            }
+          },
+          {
+            "content": "Spreads",
+            "confidence": 1,
+            "span": {
+              "offset": 465,
+              "length": 7
+            }
+          },
+          {
+            "content": "Document",
+            "confidence": 1,
+            "span": {
+              "offset": 473,
+              "length": 8
+            }
+          },
+          {
+            "content": "Properties\u2026",
+            "confidence": 1,
+            "span": {
+              "offset": 482,
+              "length": 11
+            }
+          },
+          {
+            "content": "Toggle",
+            "confidence": 1,
+            "span": {
+              "offset": 494,
+              "length": 6
+            }
+          },
+          {
+            "content": "Sidebar",
+            "confidence": 1,
+            "span": {
+              "offset": 501,
+              "length": 7
+            }
+          },
+          {
+            "content": "Find",
+            "confidence": 1,
+            "span": {
+              "offset": 509,
+              "length": 4
+            }
+          },
+          {
+            "content": "Previous",
+            "confidence": 1,
+            "span": {
+              "offset": 514,
+              "length": 8
+            }
+          },
+          {
+            "content": "Next",
+            "confidence": 1,
+            "span": {
+              "offset": 523,
+              "length": 4
+            }
+          },
+          {
+            "content": "1",
+            "confidence": 1,
+            "span": {
+              "offset": 528,
+              "length": 1
+            }
+          },
+          {
+            "content": "Presentation",
+            "confidence": 1,
+            "span": {
+              "offset": 530,
+              "length": 12
+            }
+          },
+          {
+            "content": "Mode",
+            "confidence": 1,
+            "span": {
+              "offset": 543,
+              "length": 4
+            }
+          },
+          {
+            "content": "Open",
+            "confidence": 1,
+            "span": {
+              "offset": 548,
+              "length": 4
+            }
+          },
+          {
+            "content": "Print",
+            "confidence": 1,
+            "span": {
+              "offset": 553,
+              "length": 5
+            }
+          },
+          {
+            "content": "Download",
+            "confidence": 1,
+            "span": {
+              "offset": 559,
+              "length": 8
+            }
+          },
+          {
+            "content": "Current",
+            "confidence": 1,
+            "span": {
+              "offset": 568,
+              "length": 7
+            }
+          },
+          {
+            "content": "View",
+            "confidence": 1,
+            "span": {
+              "offset": 576,
+              "length": 4
+            }
+          },
+          {
+            "content": "Tools",
+            "confidence": 1,
+            "span": {
+              "offset": 581,
+              "length": 5
+            }
+          },
+          {
+            "content": "Zoom",
+            "confidence": 1,
+            "span": {
+              "offset": 587,
+              "length": 4
+            }
+          },
+          {
+            "content": "Out",
+            "confidence": 1,
+            "span": {
+              "offset": 592,
+              "length": 3
+            }
+          },
+          {
+            "content": "Zoom",
+            "confidence": 1,
+            "span": {
+              "offset": 596,
+              "length": 4
+            }
+          },
+          {
+            "content": "In",
+            "confidence": 1,
+            "span": {
+              "offset": 601,
+              "length": 2
+            }
+          },
+          {
+            "content": "Automatic",
+            "confidence": 1,
+            "span": {
+              "offset": 604,
+              "length": 9
+            }
+          },
+          {
+            "content": "Zoom",
+            "confidence": 1,
+            "span": {
+              "offset": 614,
+              "length": 4
+            }
+          },
+          {
+            "content": "Actual",
+            "confidence": 1,
+            "span": {
+              "offset": 619,
+              "length": 6
+            }
+          },
+          {
+            "content": "Size",
+            "confidence": 1,
+            "span": {
+              "offset": 626,
+              "length": 4
+            }
+          },
+          {
+            "content": "Page",
+            "confidence": 1,
+            "span": {
+              "offset": 631,
+              "length": 4
+            }
+          },
+          {
+            "content": "Fit",
+            "confidence": 1,
+            "span": {
+              "offset": 636,
+              "length": 3
+            }
+          },
+          {
+            "content": "Page",
+            "confidence": 1,
+            "span": {
+              "offset": 640,
+              "length": 4
+            }
+          },
+          {
+            "content": "Width",
+            "confidence": 1,
+            "span": {
+              "offset": 645,
+              "length": 5
+            }
+          },
+          {
+            "content": "50%",
+            "confidence": 1,
+            "span": {
+              "offset": 651,
+              "length": 3
+            }
+          },
+          {
+            "content": "75%",
+            "confidence": 1,
+            "span": {
+              "offset": 655,
+              "length": 3
+            }
+          },
+          {
+            "content": "100%",
+            "confidence": 1,
+            "span": {
+              "offset": 659,
+              "length": 4
+            }
+          },
+          {
+            "content": "125%",
+            "confidence": 1,
+            "span": {
+              "offset": 664,
+              "length": 4
+            }
+          },
+          {
+            "content": "150%",
+            "confidence": 1,
+            "span": {
+              "offset": 669,
+              "length": 4
+            }
+          },
+          {
+            "content": "200%",
+            "confidence": 1,
+            "span": {
+              "offset": 674,
+              "length": 4
+            }
+          },
+          {
+            "content": "300%",
+            "confidence": 1,
+            "span": {
+              "offset": 679,
+              "length": 4
+            }
+          },
+          {
+            "content": "400%",
+            "confidence": 1,
+            "span": {
+              "offset": 684,
+              "length": 4
+            }
+          },
+          {
+            "content": "More",
+            "confidence": 1,
+            "span": {
+              "offset": 689,
+              "length": 4
+            }
+          },
+          {
+            "content": "Information",
+            "confidence": 1,
+            "span": {
+              "offset": 694,
+              "length": 11
+            }
+          },
+          {
+            "content": "Less",
+            "confidence": 1,
+            "span": {
+              "offset": 706,
+              "length": 4
+            }
+          },
+          {
+            "content": "Information",
+            "confidence": 1,
+            "span": {
+              "offset": 711,
+              "length": 11
+            }
+          },
+          {
+            "content": "Close",
+            "confidence": 1,
+            "span": {
+              "offset": 723,
+              "length": 5
+            }
+          },
+          {
+            "content": "Enter",
+            "confidence": 1,
+            "span": {
+              "offset": 729,
+              "length": 5
+            }
+          },
+          {
+            "content": "the",
+            "confidence": 1,
+            "span": {
+              "offset": 735,
+              "length": 3
+            }
+          },
+          {
+            "content": "password",
+            "confidence": 1,
+            "span": {
+              "offset": 739,
+              "length": 8
+            }
+          },
+          {
+            "content": "to",
+            "confidence": 1,
+            "span": {
+              "offset": 748,
+              "length": 2
+            }
+          },
+          {
+            "content": "open",
+            "confidence": 1,
+            "span": {
+              "offset": 751,
+              "length": 4
+            }
+          },
+          {
+            "content": "this",
+            "confidence": 1,
+            "span": {
+              "offset": 756,
+              "length": 4
+            }
+          },
+          {
+            "content": "PDF",
+            "confidence": 1,
+            "span": {
+              "offset": 761,
+              "length": 3
+            }
+          },
+          {
+            "content": "file:",
+            "confidence": 1,
+            "span": {
+              "offset": 765,
+              "length": 5
+            }
+          },
+          {
+            "content": "Cancel",
+            "confidence": 1,
+            "span": {
+              "offset": 771,
+              "length": 6
+            }
+          },
+          {
+            "content": "OK",
+            "confidence": 1,
+            "span": {
+              "offset": 778,
+              "length": 2
+            }
+          },
+          {
+            "content": "File",
+            "confidence": 1,
+            "span": {
+              "offset": 781,
+              "length": 4
+            }
+          },
+          {
+            "content": "name:",
+            "confidence": 1,
+            "span": {
+              "offset": 786,
+              "length": 5
+            }
+          },
+          {
+            "content": "-",
+            "confidence": 1,
+            "span": {
+              "offset": 792,
+              "length": 1
+            }
+          },
+          {
+            "content": "File",
+            "confidence": 1,
+            "span": {
+              "offset": 794,
+              "length": 4
+            }
+          },
+          {
+            "content": "size:",
+            "confidence": 1,
+            "span": {
+              "offset": 799,
+              "length": 5
+            }
+          },
+          {
+            "content": "-",
+            "confidence": 1,
+            "span": {
+              "offset": 805,
+              "length": 1
+            }
+          },
+          {
+            "content": "Title:",
+            "confidence": 1,
+            "span": {
+              "offset": 807,
+              "length": 6
+            }
+          },
+          {
+            "content": "-",
+            "confidence": 1,
+            "span": {
+              "offset": 814,
+              "length": 1
+            }
+          },
+          {
+            "content": "Author:",
+            "confidence": 1,
+            "span": {
+              "offset": 816,
+              "length": 7
+            }
+          },
+          {
+            "content": "-",
+            "confidence": 1,
+            "span": {
+              "offset": 824,
+              "length": 1
+            }
+          },
+          {
+            "content": "Subject:",
+            "confidence": 1,
+            "span": {
+              "offset": 826,
+              "length": 8
+            }
+          },
+          {
+            "content": "-",
+            "confidence": 1,
+            "span": {
+              "offset": 835,
+              "length": 1
+            }
+          },
+          {
+            "content": "Keywords:",
+            "confidence": 1,
+            "span": {
+              "offset": 837,
+              "length": 9
+            }
+          },
+          {
+            "content": "-",
+            "confidence": 1,
+            "span": {
+              "offset": 847,
+              "length": 1
+            }
+          },
+          {
+            "content": "Creation",
+            "confidence": 1,
+            "span": {
+              "offset": 849,
+              "length": 8
+            }
+          },
+          {
+            "content": "Date:",
+            "confidence": 1,
+            "span": {
+              "offset": 858,
+              "length": 5
+            }
+          },
+          {
+            "content": "-",
+            "confidence": 1,
+            "span": {
+              "offset": 864,
+              "length": 1
+            }
+          },
+          {
+            "content": "Modification",
+            "confidence": 1,
+            "span": {
+              "offset": 866,
+              "length": 12
+            }
+          },
+          {
+            "content": "Date:",
+            "confidence": 1,
+            "span": {
+              "offset": 879,
+              "length": 5
+            }
+          },
+          {
+            "content": "-",
+            "confidence": 1,
+            "span": {
+              "offset": 885,
+              "length": 1
+            }
+          },
+          {
+            "content": "Creator:",
+            "confidence": 1,
+            "span": {
+              "offset": 887,
+              "length": 8
+            }
+          },
+          {
+            "content": "-",
+            "confidence": 1,
+            "span": {
+              "offset": 896,
+              "length": 1
+            }
+          },
+          {
+            "content": "PDF",
+            "confidence": 1,
+            "span": {
+              "offset": 898,
+              "length": 3
+            }
+          },
+          {
+            "content": "Producer:",
+            "confidence": 1,
+            "span": {
+              "offset": 902,
+              "length": 9
+            }
+          },
+          {
+            "content": "-",
+            "confidence": 1,
+            "span": {
+              "offset": 912,
+              "length": 1
+            }
+          },
+          {
+            "content": "PDF",
+            "confidence": 1,
+            "span": {
+              "offset": 914,
+              "length": 3
+            }
+          },
+          {
+            "content": "Version:",
+            "confidence": 1,
+            "span": {
+              "offset": 918,
+              "length": 8
+            }
+          },
+          {
+            "content": "-",
+            "confidence": 1,
+            "span": {
+              "offset": 927,
+              "length": 1
+            }
+          },
+          {
+            "content": "Page",
+            "confidence": 1,
+            "span": {
+              "offset": 929,
+              "length": 4
+            }
+          },
+          {
+            "content": "Count:",
+            "confidence": 1,
+            "span": {
+              "offset": 934,
+              "length": 6
+            }
+          },
+          {
+            "content": "-",
+            "confidence": 1,
+            "span": {
+              "offset": 941,
+              "length": 1
+            }
+          },
+          {
+            "content": "Page",
+            "confidence": 1,
+            "span": {
+              "offset": 943,
+              "length": 4
+            }
+          },
+          {
+            "content": "Size:",
+            "confidence": 1,
+            "span": {
+              "offset": 948,
+              "length": 5
+            }
+          },
+          {
+            "content": "-",
+            "confidence": 1,
+            "span": {
+              "offset": 954,
+              "length": 1
+            }
+          },
+          {
+            "content": "Fast",
+            "confidence": 1,
+            "span": {
+              "offset": 956,
+              "length": 4
+            }
+          },
+          {
+            "content": "Web",
+            "confidence": 1,
+            "span": {
+              "offset": 961,
+              "length": 3
+            }
+          },
+          {
+            "content": "View:",
+            "confidence": 1,
+            "span": {
+              "offset": 965,
+              "length": 5
+            }
+          },
+          {
+            "content": "-",
+            "confidence": 1,
+            "span": {
+              "offset": 971,
+              "length": 1
+            }
+          },
+          {
+            "content": "Close",
+            "confidence": 1,
+            "span": {
+              "offset": 973,
+              "length": 5
+            }
+          },
+          {
+            "content": "Preparing",
+            "confidence": 1,
+            "span": {
+              "offset": 979,
+              "length": 9
+            }
+          },
+          {
+            "content": "document",
+            "confidence": 1,
+            "span": {
+              "offset": 989,
+              "length": 8
+            }
+          },
+          {
+            "content": "for",
+            "confidence": 1,
+            "span": {
+              "offset": 998,
+              "length": 3
+            }
+          },
+          {
+            "content": "printing\u2026",
+            "confidence": 1,
+            "span": {
+              "offset": 1002,
+              "length": 9
+            }
+          },
+          {
+            "content": "0%",
+            "confidence": 1,
+            "span": {
+              "offset": 1012,
+              "length": 2
+            }
+          },
+          {
+            "content": "Cancel",
+            "confidence": 1,
+            "span": {
+              "offset": 1015,
+              "length": 6
+            }
+          }
+        ],
+        "selectionMarks": [
+          {
+            "state": "unselected",
+            "confidence": 1,
+            "span": {
+              "offset": 107,
+              "length": 12
+            }
+          },
+          {
+            "state": "unselected",
+            "confidence": 1,
+            "span": {
+              "offset": 133,
+              "length": 12
+            }
+          },
+          {
+            "state": "unselected",
+            "confidence": 1,
+            "span": {
+              "offset": 156,
+              "length": 12
+            }
+          },
+          {
+            "state": "unselected",
+            "confidence": 1,
+            "span": {
+              "offset": 185,
+              "length": 12
+            }
+          }
+        ],
+        "spans": [
+          {
+            "offset": 0,
+            "length": 1021
+          }
+        ]
+      }
+    ],
+    "tables": [],
+    "paragraphs": [
+      {
+        "spans": [
+          {
+            "offset": 0,
+            "length": 24
+          }
+        ],
+        "content": "INFN-S-A0002297093-1.pdf"
+      },
+      {
+        "spans": [
+          {
+            "offset": 25,
+            "length": 46
+          }
+        ],
+        "content": "Thumbnails Document Outline Attachments Layers"
+      },
+      {
+        "spans": [
+          {
+            "offset": 72,
+            "length": 20
+          }
+        ],
+        "content": "Current Outline Item"
+      },
+      {
+        "spans": [
+          {
+            "offset": 93,
+            "length": 8
+          }
+        ],
+        "content": "Previous"
+      },
+      {
+        "spans": [
+          {
+            "offset": 102,
+            "length": 4
+          }
+        ],
+        "content": "Next"
+      },
+      {
+        "spans": [
+          {
+            "offset": 107,
+            "length": 25
+          }
+        ],
+        "content": ":unselected:Highlight All"
+      },
+      {
+        "spans": [
+          {
+            "offset": 133,
+            "length": 22
+          }
+        ],
+        "content": ":unselected:Match Case"
+      },
+      {
+        "spans": [
+          {
+            "offset": 156,
+            "length": 28
+          }
+        ],
+        "content": ":unselected:Match Diacritics"
+      },
+      {
+        "spans": [
+          {
+            "offset": 185,
+            "length": 23
+          }
+        ],
+        "content": ":unselected:Whole Words"
+      },
+      {
+        "spans": [
+          {
+            "offset": 209,
+            "length": 50
+          }
+        ],
+        "content": "Presentation Mode Open Print Download Current View"
+      },
+      {
+        "spans": [
+          {
+            "offset": 260,
+            "length": 32
+          }
+        ],
+        "content": "Go to First Page Go to Last Page"
+      },
+      {
+        "spans": [
+          {
+            "offset": 293,
+            "length": 40
+          }
+        ],
+        "content": "Rotate Clockwise Rotate Counterclockwise"
+      },
+      {
+        "spans": [
+          {
+            "offset": 334,
+            "length": 29
+          }
+        ],
+        "content": "Text Selection Tool Hand Tool"
+      },
+      {
+        "spans": [
+          {
+            "offset": 364,
+            "length": 72
+          }
+        ],
+        "content": "Page Scrolling Vertical Scrolling Horizontal Scrolling Wrapped Scrolling"
+      },
+      {
+        "spans": [
+          {
+            "offset": 437,
+            "length": 35
+          }
+        ],
+        "content": "No Spreads Odd Spreads Even Spreads"
+      },
+      {
+        "spans": [
+          {
+            "offset": 473,
+            "length": 20
+          }
+        ],
+        "content": "Document Properties\u2026"
+      },
+      {
+        "spans": [
+          {
+            "offset": 494,
+            "length": 14
+          }
+        ],
+        "content": "Toggle Sidebar"
+      },
+      {
+        "spans": [
+          {
+            "offset": 509,
+            "length": 4
+          }
+        ],
+        "content": "Find"
+      },
+      {
+        "spans": [
+          {
+            "offset": 514,
+            "length": 8
+          }
+        ],
+        "content": "Previous"
+      },
+      {
+        "spans": [
+          {
+            "offset": 523,
+            "length": 4
+          }
+        ],
+        "content": "Next"
+      },
+      {
+        "spans": [
+          {
+            "offset": 528,
+            "length": 1
+          }
+        ],
+        "content": "1"
+      },
+      {
+        "spans": [
+          {
+            "offset": 530,
+            "length": 50
+          }
+        ],
+        "content": "Presentation Mode Open Print Download Current View"
+      },
+      {
+        "spans": [
+          {
+            "offset": 581,
+            "length": 5
+          }
+        ],
+        "content": "Tools"
+      },
+      {
+        "spans": [
+          {
+            "offset": 587,
+            "length": 8
+          }
+        ],
+        "content": "Zoom Out"
+      },
+      {
+        "spans": [
+          {
+            "offset": 596,
+            "length": 7
+          }
+        ],
+        "content": "Zoom In"
+      },
+      {
+        "spans": [
+          {
+            "offset": 604,
+            "length": 84
+          }
+        ],
+        "content": "Automatic Zoom Actual Size Page Fit Page Width 50% 75% 100% 125% 150% 200% 300% 400%"
+      },
+      {
+        "spans": [
+          {
+            "offset": 689,
+            "length": 33
+          }
+        ],
+        "content": "More Information Less Information"
+      },
+      {
+        "spans": [
+          {
+            "offset": 723,
+            "length": 5
+          }
+        ],
+        "content": "Close"
+      },
+      {
+        "spans": [
+          {
+            "offset": 729,
+            "length": 41
+          }
+        ],
+        "content": "Enter the password to open this PDF file:"
+      },
+      {
+        "spans": [
+          {
+            "offset": 771,
+            "length": 9
+          }
+        ],
+        "content": "Cancel OK"
+      },
+      {
+        "spans": [
+          {
+            "offset": 781,
+            "length": 10
+          }
+        ],
+        "content": "File name:"
+      },
+      {
+        "spans": [
+          {
+            "offset": 792,
+            "length": 1
+          }
+        ],
+        "content": "-"
+      },
+      {
+        "spans": [
+          {
+            "offset": 794,
+            "length": 10
+          }
+        ],
+        "content": "File size:"
+      },
+      {
+        "spans": [
+          {
+            "offset": 805,
+            "length": 1
+          }
+        ],
+        "content": "-"
+      },
+      {
+        "spans": [
+          {
+            "offset": 807,
+            "length": 6
+          }
+        ],
+        "content": "Title:"
+      },
+      {
+        "spans": [
+          {
+            "offset": 814,
+            "length": 1
+          }
+        ],
+        "content": "-"
+      },
+      {
+        "spans": [
+          {
+            "offset": 816,
+            "length": 7
+          }
+        ],
+        "content": "Author:"
+      },
+      {
+        "spans": [
+          {
+            "offset": 824,
+            "length": 1
+          }
+        ],
+        "content": "-"
+      },
+      {
+        "spans": [
+          {
+            "offset": 826,
+            "length": 8
+          }
+        ],
+        "content": "Subject:"
+      },
+      {
+        "spans": [
+          {
+            "offset": 835,
+            "length": 1
+          }
+        ],
+        "content": "-"
+      },
+      {
+        "spans": [
+          {
+            "offset": 837,
+            "length": 9
+          }
+        ],
+        "content": "Keywords:"
+      },
+      {
+        "spans": [
+          {
+            "offset": 847,
+            "length": 1
+          }
+        ],
+        "content": "-"
+      },
+      {
+        "spans": [
+          {
+            "offset": 849,
+            "length": 14
+          }
+        ],
+        "content": "Creation Date:"
+      },
+      {
+        "spans": [
+          {
+            "offset": 864,
+            "length": 1
+          }
+        ],
+        "content": "-"
+      },
+      {
+        "spans": [
+          {
+            "offset": 866,
+            "length": 18
+          }
+        ],
+        "content": "Modification Date:"
+      },
+      {
+        "spans": [
+          {
+            "offset": 885,
+            "length": 1
+          }
+        ],
+        "content": "-"
+      },
+      {
+        "spans": [
+          {
+            "offset": 887,
+            "length": 8
+          }
+        ],
+        "content": "Creator:"
+      },
+      {
+        "spans": [
+          {
+            "offset": 896,
+            "length": 1
+          }
+        ],
+        "content": "-"
+      },
+      {
+        "spans": [
+          {
+            "offset": 898,
+            "length": 13
+          }
+        ],
+        "content": "PDF Producer:"
+      },
+      {
+        "spans": [
+          {
+            "offset": 912,
+            "length": 1
+          }
+        ],
+        "content": "-"
+      },
+      {
+        "spans": [
+          {
+            "offset": 914,
+            "length": 12
+          }
+        ],
+        "content": "PDF Version:"
+      },
+      {
+        "spans": [
+          {
+            "offset": 927,
+            "length": 1
+          }
+        ],
+        "content": "-"
+      },
+      {
+        "spans": [
+          {
+            "offset": 929,
+            "length": 11
+          }
+        ],
+        "content": "Page Count:"
+      },
+      {
+        "spans": [
+          {
+            "offset": 941,
+            "length": 1
+          }
+        ],
+        "content": "-"
+      },
+      {
+        "spans": [
+          {
+            "offset": 943,
+            "length": 10
+          }
+        ],
+        "content": "Page Size:"
+      },
+      {
+        "spans": [
+          {
+            "offset": 954,
+            "length": 1
+          }
+        ],
+        "content": "-"
+      },
+      {
+        "spans": [
+          {
+            "offset": 956,
+            "length": 14
+          }
+        ],
+        "content": "Fast Web View:"
+      },
+      {
+        "spans": [
+          {
+            "offset": 971,
+            "length": 1
+          }
+        ],
+        "content": "-"
+      },
+      {
+        "spans": [
+          {
+            "offset": 973,
+            "length": 5
+          }
+        ],
+        "content": "Close"
+      },
+      {
+        "spans": [
+          {
+            "offset": 979,
+            "length": 32
+          }
+        ],
+        "content": "Preparing document for printing\u2026"
+      },
+      {
+        "spans": [
+          {
+            "offset": 1012,
+            "length": 2
+          }
+        ],
+        "content": "0%"
+      },
+      {
+        "spans": [
+          {
+            "offset": 1015,
+            "length": 6
+          }
+        ],
+        "content": "Cancel"
+      }
+    ],
+    "styles": [],
+    "contentFormat": "text",
+    "sections": [
+      {
+        "spans": [
+          {
+            "offset": 0,
+            "length": 1021
+          }
+        ],
+        "elements": [
+          "/paragraphs/0",
+          "/paragraphs/1",
+          "/paragraphs/2",
+          "/paragraphs/3",
+          "/paragraphs/4",
+          "/paragraphs/5",
+          "/paragraphs/6",
+          "/paragraphs/7",
+          "/paragraphs/8",
+          "/paragraphs/9",
+          "/paragraphs/10",
+          "/paragraphs/11",
+          "/paragraphs/12",
+          "/paragraphs/13",
+          "/paragraphs/14",
+          "/paragraphs/15",
+          "/paragraphs/16",
+          "/paragraphs/17",
+          "/paragraphs/18",
+          "/paragraphs/19",
+          "/paragraphs/20",
+          "/paragraphs/21",
+          "/paragraphs/22",
+          "/paragraphs/23",
+          "/paragraphs/24",
+          "/paragraphs/25",
+          "/paragraphs/26",
+          "/paragraphs/27",
+          "/paragraphs/28",
+          "/paragraphs/29",
+          "/paragraphs/30",
+          "/paragraphs/31",
+          "/paragraphs/32",
+          "/paragraphs/33",
+          "/paragraphs/34",
+          "/paragraphs/35",
+          "/paragraphs/36",
+          "/paragraphs/37",
+          "/paragraphs/38",
+          "/paragraphs/39",
+          "/paragraphs/40",
+          "/paragraphs/41",
+          "/paragraphs/42",
+          "/paragraphs/43",
+          "/paragraphs/44",
+          "/paragraphs/45",
+          "/paragraphs/46",
+          "/paragraphs/47",
+          "/paragraphs/48",
+          "/paragraphs/49",
+          "/paragraphs/50",
+          "/paragraphs/51",
+          "/paragraphs/52",
+          "/paragraphs/53",
+          "/paragraphs/54",
+          "/paragraphs/55",
+          "/paragraphs/56",
+          "/paragraphs/57",
+          "/paragraphs/58",
+          "/paragraphs/59",
+          "/paragraphs/60",
+          "/paragraphs/61"
+        ]
+      }
+    ]
+  }
+}

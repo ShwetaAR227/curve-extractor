@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "device": "AUIRF1010EZS",
+  "device_class": "mosfet",
+  "extraction_dir": "/mnt/c/Archit/ARPOWer/Device database/Final_OCR_with_curve/OCR_round3/AUIRF1010EZS",
+  "figure_index": 9,
+  "page": 3,
+  "image_path": "figures/fig_p3_009.png",
+  "curve_type": "transfer_char",
+  "bbox": {
+    "x1": 135,
+    "y1": 1349,
+    "x2": 736,
+    "y2": 1952
+  },
+  "candidate_strength": "high",
+  "confidence": "HIGH",
+  "picked_score": 54.0,
+  "margin": 71.5
+}

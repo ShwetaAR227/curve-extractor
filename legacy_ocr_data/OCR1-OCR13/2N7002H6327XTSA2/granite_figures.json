@@ -1,0 +1,160 @@
+{
+  "device": "2N7002H6327XTSA2",
+  "model": "ibm-granite/granite-vision-4.1-4b",
+  "pages_processed": [
+    4,
+    5,
+    6,
+    7,
+    8
+  ],
+  "figures": [
+    {
+      "label": "Power dissipation vs. TA",
+      "y_axis": "Ptot",
+      "y_axis_unit": "W",
+      "x_axis": "TA",
+      "x_axis_unit": "\u00b0C",
+      "grid_position": "top-left",
+      "_page": 4
+    },
+    {
+      "label": "Drain current vs. TA",
+      "y_axis": "Id",
+      "y_axis_unit": "A",
+      "x_axis": "TA",
+      "x_axis_unit": "\u00b0C",
+      "grid_position": "top-right",
+      "_page": 4
+    },
+    {
+      "label": "Safe operating area",
+      "y_axis": "Id",
+      "y_axis_unit": "A",
+      "x_axis": "VDS",
+      "x_axis_unit": "V",
+      "grid_position": "bottom-left",
+      "_page": 4
+    },
+    {
+      "label": "Max. transient thermal impedance",
+      "y_axis": "ZthJA",
+      "y_axis_unit": "K/W",
+      "x_axis": "tp",
+      "x_axis_unit": "s",
+      "grid_position": "bottom-right",
+      "_page": 4
+    },
+    {
+      "label": "5 Typ. output characteristics",
+      "y_axis": "ID",
+      "y_axis_unit": "A",
+      "x_axis": "VDS",
+      "x_axis_unit": "V",
+      "grid_position": "top-left",
+      "_page": 5
+    },
+    {
+      "label": "6 Typ. drain-source on resistance",
+      "y_axis": "RDS(on)",
+      "y_axis_unit": "mOhm",
+      "x_axis": "ID",
+      "x_axis_unit": "A",
+      "grid_position": "top-center",
+      "_page": 5
+    },
+    {
+      "label": "7 Typ. transfer characteristics",
+      "y_axis": "ID",
+      "y_axis_unit": "A",
+      "x_axis": "VGS",
+      "x_axis_unit": "V",
+      "grid_position": "bottom-left",
+      "_page": 5
+    },
+    {
+      "label": "8 Typ. forward transconductance",
+      "y_axis": "gfs",
+      "y_axis_unit": "S",
+      "x_axis": "ID",
+      "x_axis_unit": "A",
+      "grid_position": "bottom-right",
+      "_page": 5
+    },
+    {
+      "label": "9 Drain-source on-state resistance",
+      "y_axis": "RDS(on)",
+      "y_axis_unit": "mOhm",
+      "x_axis": "Tj",
+      "x_axis_unit": "degC",
+      "grid_position": "middle-left",
+      "_page": 6
+    },
+    {
+      "label": "10 Typ. gate threshold voltage",
+      "y_axis": "VGS(th)",
+      "y_axis_unit": "V",
+      "x_axis": "Tj",
+      "x_axis_unit": "degC",
+      "grid_position": "middle-center",
+      "_page": 6
+    },
+    {
+      "label": "11 Typ. capacitances",
+      "y_axis": "Ciss, Coss, Crss",
+      "y_axis_unit": "pF",
+      "x_axis": "VDS",
+      "x_axis_unit": "V",
+      "grid_position": "bottom-left",
+      "_page": 6
+    },
+    {
+      "label": "12 Forward characteristics of reverse diode",
+      "y_axis": "Id",
+      "y_axis_unit": "A",
+      "x_axis": "VSD",
+      "x_axis_unit": "V",
+      "grid_position": "bottom-right",
+      "_page": 6
+    },
+    {
+      "label": "13 Avalanche characteristics",
+      "y_axis": "I_AV",
+      "y_axis_unit": "A",
+      "x_axis": "t_AV",
+      "x_axis_unit": "\u00b5s",
+      "grid_position": "left",
+      "_page": 7
+    },
+    {
+      "label": "14 Typ. gate charge",
+      "y_axis": "V_GS",
+      "y_axis_unit": "V",
+      "x_axis": "Q_gate",
+      "x_axis_unit": "nC",
+      "grid_position": "right",
+      "_page": 7
+    },
+    {
+      "label": "15 Drain-source breakdown voltage",
+      "y_axis": "V_BR(DSS)",
+      "y_axis_unit": "V",
+      "x_axis": "Tj",
+      "x_axis_unit": "\u00b0C",
+      "grid_position": "bottom",
+      "_page": 7
+    },
+    {
+      "label": "Package Outline",
+      "y_axis": "Dimensions in mm",
+      "y_axis_unit": "mm",
+      "x_axis": null,
+      "x_axis_unit": null,
+      "grid_position": "top-center",
+      "_page": 8
+    }
+  ],
+  "rdson_vs_tj_count": 1,
+  "completed_at": "2026-05-23 01:41:40",
+  "raw_response": "see granite_pages.json"
+}

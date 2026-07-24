@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "device": "AUIRFP1405",
+  "device_class": "mosfet",
+  "extraction_dir": "/mnt/c/Archit/ARPOWer/Device database/Final_OCR_with_curve/OCR_round3/AUIRFP1405",
+  "figure_index": 14,
+  "page": 6,
+  "image_path": "figures/fig_p6_013.png",
+  "curve_type": "thermal_impedance",
+  "bbox": {
+    "x1": 220,
+    "y1": 1298,
+    "x2": 1484,
+    "y2": 1921
+  },
+  "candidate_strength": "high",
+  "confidence": "HIGH",
+  "picked_score": 39.0,
+  "margin": 40.0
+}

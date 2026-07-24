@@ -1,0 +1,9 @@
+{
+  "device": "AUIRF1324STRL",
+  "status": "quarantined.no_candidate",
+  "chosen": null,
+  "rejected": [],
+  "notes": [
+    "missing granite_figures.json - new picker needs Granite axes"
+  ]
+}

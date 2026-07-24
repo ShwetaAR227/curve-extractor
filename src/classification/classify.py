@@ -21,6 +21,18 @@ logger = get_logger(__name__)
 MATCH_THRESHOLD = 5.0
 MATCH_MARGIN = 2.0
 
+# A margin at or above this is treated as a decisive win: the content-based
+# score already beat the runner-up by so much that a separate, less
+# reliable structural check (figure_has_complete_axes) is skipped rather
+# than allowed to override it. Below this, the match is still considered
+# close enough that the axis check keeps its say. Derived from the real
+# corpus (2026-07-24): every real case at margin >= 7.0 was a correct
+# match (28/28); real wrong matches cluster exactly at margin 6.5 (35
+# cases, a same-x-axis-keyword mixup between rdson_vs_tj and
+# vgsth_vs_tj/breakdown-voltage charts), so 7.0 is the tightest line that
+# excludes them. See PROGRESS.md for the full investigation.
+DECISIVE_MARGIN = 7.0
+
 
 class ClassificationStatus(str, Enum):
     MATCHED = "matched"
@@ -103,7 +115,11 @@ def classify_page(
         )
         status = ClassificationStatus.QUARANTINED
 
-    if status == ClassificationStatus.MATCHED and not figure_has_complete_axes(best_figure):
+    if (
+        status == ClassificationStatus.MATCHED
+        and margin < DECISIVE_MARGIN
+        and not figure_has_complete_axes(best_figure)
+    ):
         reason = (
             f"{best_figure.figure_id} scored {best_result.total_score:.2f} (would match) but is "
             f"missing an x-axis or y-axis OCR signal (incomplete_axes) — likely a partial/composite "
@@ -126,10 +142,17 @@ def classify_device(
 ) -> Tuple[ClassificationResult, Set[str]]:
     """Classify across every page of a device, picking the single best result.
 
-    Prefers any "matched" page result (highest score wins); if none match,
-    falls back to the best "quarantined" result; otherwise "no_match". Only
-    a "matched" result claims its figure — quarantined figures stay
-    available for human review / re-classification.
+    Gathers every real candidate (matched + quarantined) across ALL pages
+    into one pool and picks the single highest-scoring one overall — a
+    weak matched candidate on one page no longer automatically beats a
+    stronger quarantined candidate on another page. On an EXACT score tie,
+    a "matched" ("cleanly passed") candidate wins over a "quarantined"
+    ("held for review") one. Only "no_match" pages fall outside this pool.
+
+    Winning the comparison does not change a candidate's own status: a
+    quarantined winner is still returned as quarantined (for human review)
+    and does NOT claim its figure — this only changes WHICH candidate is
+    shown for review/use, never whether review is skipped.
 
     Args:
         figures_by_page: Every extracted figure for one device, keyed by
@@ -162,20 +185,30 @@ def classify_device(
             claimed,
         )
 
-    matched = [r for r in page_results if r.status == ClassificationStatus.MATCHED]
-    if matched:
-        best = max(matched, key=lambda r: r.score)
-        new_claimed = set(claimed)
-        new_claimed.add(best.figure.figure_id)
-        logger.info(
-            "classify_device(%s): claimed %s on page %s (score %.2f)",
-            target_curve_type, best.figure.figure_id, best.page, best.score,
-        )
-        return best, new_claimed
+    real_candidates = [
+        r for r in page_results
+        if r.status in (ClassificationStatus.MATCHED, ClassificationStatus.QUARANTINED)
+    ]
+    if real_candidates:
+        # Highest score wins overall; on an exact tie, prefer a "matched"
+        # (cleanly passed) candidate over a "quarantined" (held for
+        # review) one. Within the same status, the first-in-page-order
+        # candidate wins a tie — unchanged from the prior tier-based
+        # behavior for that case.
+        best_score = max(r.score for r in real_candidates)
+        tied = [r for r in real_candidates if r.score == best_score]
+        matched_tied = [r for r in tied if r.status == ClassificationStatus.MATCHED]
+        best = matched_tied[0] if matched_tied else tied[0]
 
-    quarantined = [r for r in page_results if r.status == ClassificationStatus.QUARANTINED]
-    if quarantined:
-        best = max(quarantined, key=lambda r: r.score)
+        if best.status == ClassificationStatus.MATCHED:
+            new_claimed = set(claimed)
+            new_claimed.add(best.figure.figure_id)
+            logger.info(
+                "classify_device(%s): claimed %s on page %s (score %.2f)",
+                target_curve_type, best.figure.figure_id, best.page, best.score,
+            )
+            return best, new_claimed
+
         logger.info(
             "classify_device(%s): quarantined, best candidate %s on page %s (score %.2f)",
             target_curve_type, best.figure.figure_id if best.figure else None, best.page, best.score,

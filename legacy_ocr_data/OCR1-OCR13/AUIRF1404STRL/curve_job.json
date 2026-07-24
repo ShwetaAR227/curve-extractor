@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "device": "AUIRF1404STRL",
+  "device_class": "mosfet",
+  "extraction_dir": "/mnt/c/Archit/ARPOWer/Device database/Final_OCR_with_curve/OCR_round3/AUIRF1404STRL",
+  "figure_index": 9,
+  "page": 3,
+  "image_path": "figures/fig_p3_009.png",
+  "curve_type": "rdson_vs_tj",
+  "bbox": {
+    "x1": 929,
+    "y1": 1345,
+    "x2": 1549,
+    "y2": 1927
+  },
+  "candidate_strength": "high",
+  "confidence": "HIGH",
+  "picked_score": 66.0,
+  "margin": 1066.0
+}

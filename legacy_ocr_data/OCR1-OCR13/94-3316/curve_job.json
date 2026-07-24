@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "device": "94-3316",
+  "device_class": "mosfet",
+  "extraction_dir": "/mnt/c/Archit/ARPOWer/Device database/Final_OCR_with_curve/OCR_round3/94-3316",
+  "figure_index": 6,
+  "page": 3,
+  "image_path": "figures/fig_p3_006.png",
+  "curve_type": "rdson_vs_tj",
+  "bbox": {
+    "x1": 838,
+    "y1": 1191,
+    "x2": 1477,
+    "y2": 1799
+  },
+  "candidate_strength": "high",
+  "confidence": "HIGH",
+  "picked_score": 64.0,
+  "margin": 81.5
+}

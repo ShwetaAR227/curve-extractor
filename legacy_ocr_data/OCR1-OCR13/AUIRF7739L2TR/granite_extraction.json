@@ -1,0 +1,614 @@
+{
+  "device": "AUIRF7739L2TR",
+  "page": 2,
+  "model": "ibm-granite/granite-vision-4.1-4b",
+  "inference_seconds": 254.82899355888367,
+  "raw_response": "{\"parameters\": [{\"symbol\": \"R\\u03b8JA\", \"description\": \"Junction-to-Ambient \\u03b8\", \"min\": null, \"typ\": null, \"max\": 40.0, \"unit\": \"\\u00b0C/W\", \"conditions\": null}, {\"symbol\": \"R\\u03b8JA\", \"description\": \"Junction-to-Ambient \\u03b8\", \"min\": null, \"typ\": 12.5, \"max\": null, \"unit\": \"\\u00b0C/W\", \"conditions\": null}, {\"symbol\": \"R\\u03b8JA\", \"description\": \"Junction-to-Ambient \\u03b8\", \"min\": null, \"typ\": 20.0, \"max\": null, \"unit\": \"\\u00b0C/W\", \"conditions\": null}, {\"symbol\": \"R\\u03b8J-Can\", \"description\": \"Junction-to-Can \\u03b8\", \"min\": null, \"typ\": 1.2, \"max\": null, \"unit\": \"\\u00b0C/W\", \"conditions\": null}, {\"symbol\": \"R\\u03b8J-PCB\", \"description\": \"Junction-to-PCB Mounted\", \"min\": null, \"typ\": 0.5, \"max\": null, \"unit\": \"\\u00b0C/W\", \"conditions\": null}, {\"symbol\": \"Linear Derating Factor\", \"description\": \"Linear Derating Factor\", \"min\": null, \"typ\": 0.83, \"max\": null, \"unit\": \"W/\\u00b0C\", \"conditions\": null}, {\"symbol\": \"V(BR)DSS\", \"description\": \"Drain-to-Source Breakdown Voltage\", \"min\": 40.0, \"typ\": null, \"max\": null, \"unit\": \"V\", \"conditions\": \"VGS = 0V, ID = 250\\u00b5A\"}, {\"symbol\": \"\\u0394V(BR)DSS/\\u0394TJ\", \"description\": \"Breakdown Voltage Temp. Coefficient\", \"min\": null, \"typ\": 0.008, \"max\": null, \"unit\": \"V/\\u00b0C\", \"conditions\": \"Reference to 25\\u00b0C, ID = 1.0mA\"}, {\"symbol\": \"RDS(on)\", \"description\": \"Static Drain-to-Source On-Resistance\", \"min\": null, \"typ\": 700.0, \"max\": 1000.0, \"unit\": \"\\u00b5\\u03a9\", \"conditions\": \"VGS = 10V, ID = 160A\"}, {\"symbol\": \"VGS(th)\", \"description\": \"Gate Threshold Voltage\", \"min\": 2.0, \"typ\": 2.8, \"max\": 4.0, \"unit\": \"V\", \"conditions\": \"VDS = VGS, ID = 250\\u00b5A\"}, {\"symbol\": \"\\u0394VGS(th)/\\u0394TJ\", \"description\": \"Gate Threshold Voltage Coefficient\", \"min\": -6.7, \"typ\": null, \"max\": null, \"unit\": \"mV/\\u00b0C\", \"conditions\": \"VDS = VGS, ID = 250\\u00b5A\"}, {\"symbol\": \"gfs\", \"description\": \"Forward Transconductance\", \"min\": 280.0, \"typ\": null, \"max\": null, \"unit\": \"S\", \"conditions\": \"VDS = 10V, ID = 160A\"}, {\"symbol\": \"RG\", \"description\": \"Internal Gate Resistance\", \"min\": null, \"typ\": 1.5, \"max\": null, \"unit\": \"\\u03a9\", \"conditions\": null}, {\"symbol\": \"IDSS\", \"description\": \"Drain-to-Source Leakage Current\", \"min\": null, \"typ\": null, \"max\": 5.0, \"unit\": \"\\u00b5A\", \"conditions\": \"VDS = 40V, VGS = 0V\"}, {\"symbol\": \"IGSS\", \"description\": \"Gate-to-Source Forward Leakage\", \"min\": null, \"typ\": null, \"max\": 250.0, \"unit\": \"\\u00b5A\", \"conditions\": \"VDS = 40V, VGS = 0V, TJ = 125\\u00b0C\"}, {\"symbol\": \"IGSS\", \"description\": \"Gate-to-Source Reverse Leakage\", \"min\": null, \"typ\": -100.0, \"max\": null, \"unit\": \"nA\", \"conditions\": \"VDS = -20V\"}, {\"symbol\": \"Qg\", \"description\": \"Total Gate Charge\", \"min\": 220.0, \"typ\": 330.0, \"max\": null, \"unit\": \"nC\", \"conditions\": \"VDS = 20V\"}, {\"symbol\": \"Qgs1\", \"description\": \"Gate-to-Source Charge\", \"min\": null, \"typ\": 46.0, \"max\": null, \"unit\": \"nC\", \"conditions\": \"VGS = 10V\"}, {\"symbol\": \"Qgs2\", \"description\": \"Gate-to-Source Charge\", \"min\": null, \"typ\": 19.0, \"max\": null, \"unit\": \"nC\", \"conditions\": \"ID = 160A\"}, {\"symbol\": \"Qgd\", \"description\": \"Gate-to-Drain (Miller) Charge\", \"min\": 81.0, \"typ\": null, \"max\": null, \"unit\": \"nC\", \"conditions\": \"See Fig.11\"}, {\"symbol\": \"Qgodr\", \"description\": \"Gate Charge Overdrive\", \"min\": 74.0, \"typ\": null, \"max\": null, \"unit\": \"nC\", \"conditions\": null}, {\"symbol\": \"Qsw\", \"description\": \"Switch Charge (Qgs2 + Qgd)\", \"min\": null, \"typ\": 100.0, \"max\": null, \"unit\": \"nC\", \"conditions\": null}, {\"symbol\": \"Qoss\", \"description\": \"Output Charge\", \"min\": null, \"typ\": 83.0, \"max\": null, \"unit\": \"nC\", \"conditions\": \"VDS = 16V, VGS = 0V\"}, {\"symbol\": \"td(on)\", \"description\": \"Turn-On Delay Time\", \"min\": null, \"typ\": 21.0, \"max\": null, \"unit\": \"ns\", \"conditions\": \"VDD = 20V, VGS = 10V, ID = 160A\"}, {\"symbol\": \"tr\", \"description\": \"Rise Time\", \"min\": null, \"typ\": 71.0, \"max\": null, \"unit\": \"ns\", \"conditions\": \"Rg = 1.8\\u03a9\"}, {\"symbol\": \"td(off)\", \"description\": \"Turn-Off Delay Time\", \"min\": null, \"typ\": 56.0, \"max\": null, \"unit\": \"ns\", \"conditions\": null}, {\"symbol\": \"tf\", \"description\": \"Fall Time\", \"min\": null, \"typ\": 42.0, \"max\": null, \"unit\": \"ns\", \"conditions\": null}, {\"symbol\": \"Ciss\", \"description\": \"Input Capacitance\", \"min\": null, \"typ\": 11880.0, \"max\": null, \"unit\": \"pF\", \"conditions\": \"VGS = 0V\"}, {\"symbol\": \"Coss\", \"description\": \"Output Capacitance\", \"min\": null, \"typ\": 2510.0, \"max\": null, \"unit\": \"pF\", \"conditions\": \"VDS = 25V\"}, {\"symbol\": \"Crss\", \"description\": \"Reverse Transfer Capacitance\", \"min\": null, \"typ\": 1240.0, \"max\": null, \"unit\": \"pF\", \"conditions\": \"f = 1.0 MHz\"}, {\"symbol\": \"Coss\", \"description\": \"Output Capacitance\", \"min\": null, \"typ\": 8610.0, \"max\": null, \"unit\": \"pF\", \"conditions\": \"VGS = 0V, VDS = 1.0V, f = 1.0 MHz\"}, {\"symbol\": \"Coss\", \"description\": \"Output Capacitance\", \"min\": null, \"typ\": 2230.0, \"max\": null, \"unit\": \"pF\", \"conditions\": \"VGS = 0V, VDS = 32V, f = 1.0 MHz\"}, {\"symbol\": \"Coss eff.\", \"description\": \"Effective Output Capacitance\", \"min\": null, \"typ\": 3040.0, \"max\": null, \"unit\": \"pF\", \"conditions\": \"VGS = 0V to 32V\"}]}",
+  "parsed": {
+    "parameters": [
+      {
+        "symbol": "R\u03b8JA",
+        "description": "Junction-to-Ambient \u03b8",
+        "min": null,
+        "typ": null,
+        "max": 40.0,
+        "unit": "\u00b0C/W",
+        "conditions": null
+      },
+      {
+        "symbol": "R\u03b8JA",
+        "description": "Junction-to-Ambient \u03b8",
+        "min": null,
+        "typ": 12.5,
+        "max": null,
+        "unit": "\u00b0C/W",
+        "conditions": null
+      },
+      {
+        "symbol": "R\u03b8JA",
+        "description": "Junction-to-Ambient \u03b8",
+        "min": null,
+        "typ": 20.0,
+        "max": null,
+        "unit": "\u00b0C/W",
+        "conditions": null
+      },
+      {
+        "symbol": "R\u03b8J-Can",
+        "description": "Junction-to-Can \u03b8",
+        "min": null,
+        "typ": 1.2,
+        "max": null,
+        "unit": "\u00b0C/W",
+        "conditions": null
+      },
+      {
+        "symbol": "R\u03b8J-PCB",
+        "description": "Junction-to-PCB Mounted",
+        "min": null,
+        "typ": 0.5,
+        "max": null,
+        "unit": "\u00b0C/W",
+        "conditions": null
+      },
+      {
+        "symbol": "Linear Derating Factor",
+        "description": "Linear Derating Factor",
+        "min": null,
+        "typ": 0.83,
+        "max": null,
+        "unit": "W/\u00b0C",
+        "conditions": null
+      },
+      {
+        "symbol": "V(BR)DSS",
+        "description": "Drain-to-Source Breakdown Voltage",
+        "min": 40.0,
+        "typ": null,
+        "max": null,
+        "unit": "V",
+        "conditions": "VGS = 0V, ID = 250\u00b5A"
+      },
+      {
+        "symbol": "\u0394V(BR)DSS/\u0394TJ",
+        "description": "Breakdown Voltage Temp. Coefficient",
+        "min": null,
+        "typ": 0.008,
+        "max": null,
+        "unit": "V/\u00b0C",
+        "conditions": "Reference to 25\u00b0C, ID = 1.0mA"
+      },
+      {
+        "symbol": "RDS(on)",
+        "description": "Static Drain-to-Source On-Resistance",
+        "min": null,
+        "typ": 700.0,
+        "max": 1000.0,
+        "unit": "\u00b5\u03a9",
+        "conditions": "VGS = 10V, ID = 160A"
+      },
+      {
+        "symbol": "VGS(th)",
+        "description": "Gate Threshold Voltage",
+        "min": 2.0,
+        "typ": 2.8,
+        "max": 4.0,
+        "unit": "V",
+        "conditions": "VDS = VGS, ID = 250\u00b5A"
+      },
+      {
+        "symbol": "\u0394VGS(th)/\u0394TJ",
+        "description": "Gate Threshold Voltage Coefficient",
+        "min": -6.7,
+        "typ": null,
+        "max": null,
+        "unit": "mV/\u00b0C",
+        "conditions": "VDS = VGS, ID = 250\u00b5A"
+      },
+      {
+        "symbol": "gfs",
+        "description": "Forward Transconductance",
+        "min": 280.0,
+        "typ": null,
+        "max": null,
+        "unit": "S",
+        "conditions": "VDS = 10V, ID = 160A"
+      },
+      {
+        "symbol": "RG",
+        "description": "Internal Gate Resistance",
+        "min": null,
+        "typ": 1.5,
+        "max": null,
+        "unit": "\u03a9",
+        "conditions": null
+      },
+      {
+        "symbol": "IDSS",
+        "description": "Drain-to-Source Leakage Current",
+        "min": null,
+        "typ": null,
+        "max": 5.0,
+        "unit": "\u00b5A",
+        "conditions": "VDS = 40V, VGS = 0V"
+      },
+      {
+        "symbol": "IGSS",
+        "description": "Gate-to-Source Forward Leakage",
+        "min": null,
+        "typ": null,
+        "max": 250.0,
+        "unit": "\u00b5A",
+        "conditions": "VDS = 40V, VGS = 0V, TJ = 125\u00b0C"
+      },
+      {
+        "symbol": "IGSS",
+        "description": "Gate-to-Source Reverse Leakage",
+        "min": null,
+        "typ": -100.0,
+        "max": null,
+        "unit": "nA",
+        "conditions": "VDS = -20V"
+      },
+      {
+        "symbol": "Qg",
+        "description": "Total Gate Charge",
+        "min": 220.0,
+        "typ": 330.0,
+        "max": null,
+        "unit": "nC",
+        "conditions": "VDS = 20V"
+      },
+      {
+        "symbol": "Qgs1",
+        "description": "Gate-to-Source Charge",
+        "min": null,
+        "typ": 46.0,
+        "max": null,
+        "unit": "nC",
+        "conditions": "VGS = 10V"
+      },
+      {
+        "symbol": "Qgs2",
+        "description": "Gate-to-Source Charge",
+        "min": null,
+        "typ": 19.0,
+        "max": null,
+        "unit": "nC",
+        "conditions": "ID = 160A"
+      },
+      {
+        "symbol": "Qgd",
+        "description": "Gate-to-Drain (Miller) Charge",
+        "min": 81.0,
+        "typ": null,
+        "max": null,
+        "unit": "nC",
+        "conditions": "See Fig.11"
+      },
+      {
+        "symbol": "Qgodr",
+        "description": "Gate Charge Overdrive",
+        "min": 74.0,
+        "typ": null,
+        "max": null,
+        "unit": "nC",
+        "conditions": null
+      },
+      {
+        "symbol": "Qsw",
+        "description": "Switch Charge (Qgs2 + Qgd)",
+        "min": null,
+        "typ": 100.0,
+        "max": null,
+        "unit": "nC",
+        "conditions": null
+      },
+      {
+        "symbol": "Qoss",
+        "description": "Output Charge",
+        "min": null,
+        "typ": 83.0,
+        "max": null,
+        "unit": "nC",
+        "conditions": "VDS = 16V, VGS = 0V"
+      },
+      {
+        "symbol": "td(on)",
+        "description": "Turn-On Delay Time",
+        "min": null,
+        "typ": 21.0,
+        "max": null,
+        "unit": "ns",
+        "conditions": "VDD = 20V, VGS = 10V, ID = 160A"
+      },
+      {
+        "symbol": "tr",
+        "description": "Rise Time",
+        "min": null,
+        "typ": 71.0,
+        "max": null,
+        "unit": "ns",
+        "conditions": "Rg = 1.8\u03a9"
+      },
+      {
+        "symbol": "td(off)",
+        "description": "Turn-Off Delay Time",
+        "min": null,
+        "typ": 56.0,
+        "max": null,
+        "unit": "ns",
+        "conditions": null
+      },
+      {
+        "symbol": "tf",
+        "description": "Fall Time",
+        "min": null,
+        "typ": 42.0,
+        "max": null,
+        "unit": "ns",
+        "conditions": null
+      },
+      {
+        "symbol": "Ciss",
+        "description": "Input Capacitance",
+        "min": null,
+        "typ": 11880.0,
+        "max": null,
+        "unit": "pF",
+        "conditions": "VGS = 0V"
+      },
+      {
+        "symbol": "Coss",
+        "description": "Output Capacitance",
+        "min": null,
+        "typ": 2510.0,
+        "max": null,
+        "unit": "pF",
+        "conditions": "VDS = 25V"
+      },
+      {
+        "symbol": "Crss",
+        "description": "Reverse Transfer Capacitance",
+        "min": null,
+        "typ": 1240.0,
+        "max": null,
+        "unit": "pF",
+        "conditions": "f = 1.0 MHz"
+      },
+      {
+        "symbol": "Coss",
+        "description": "Output Capacitance",
+        "min": null,
+        "typ": 8610.0,
+        "max": null,
+        "unit": "pF",
+        "conditions": "VGS = 0V, VDS = 1.0V, f = 1.0 MHz"
+      },
+      {
+        "symbol": "Coss",
+        "description": "Output Capacitance",
+        "min": null,
+        "typ": 2230.0,
+        "max": null,
+        "unit": "pF",
+        "conditions": "VGS = 0V, VDS = 32V, f = 1.0 MHz"
+      },
+      {
+        "symbol": "Coss eff.",
+        "description": "Effective Output Capacitance",
+        "min": null,
+        "typ": 3040.0,
+        "max": null,
+        "unit": "pF",
+        "conditions": "VGS = 0V to 32V"
+      }
+    ]
+  },
+  "parameters": [
+    {
+      "symbol": "R\u03b8JA",
+      "description": "Junction-to-Ambient \u03b8",
+      "min": null,
+      "typ": null,
+      "max": 40.0,
+      "unit": "\u00b0C/W",
+      "conditions": null
+    },
+    {
+      "symbol": "R\u03b8JA",
+      "description": "Junction-to-Ambient \u03b8",
+      "min": null,
+      "typ": 12.5,
+      "max": null,
+      "unit": "\u00b0C/W",
+      "conditions": null
+    },
+    {
+      "symbol": "R\u03b8JA",
+      "description": "Junction-to-Ambient \u03b8",
+      "min": null,
+      "typ": 20.0,
+      "max": null,
+      "unit": "\u00b0C/W",
+      "conditions": null
+    },
+    {
+      "symbol": "R\u03b8J-Can",
+      "description": "Junction-to-Can \u03b8",
+      "min": null,
+      "typ": 1.2,
+      "max": null,
+      "unit": "\u00b0C/W",
+      "conditions": null
+    },
+    {
+      "symbol": "R\u03b8J-PCB",
+      "description": "Junction-to-PCB Mounted",
+      "min": null,
+      "typ": 0.5,
+      "max": null,
+      "unit": "\u00b0C/W",
+      "conditions": null
+    },
+    {
+      "symbol": "Linear Derating Factor",
+      "description": "Linear Derating Factor",
+      "min": null,
+      "typ": 0.83,
+      "max": null,
+      "unit": "W/\u00b0C",
+      "conditions": null
+    },
+    {
+      "symbol": "V(BR)DSS",
+      "description": "Drain-to-Source Breakdown Voltage",
+      "min": 40.0,
+      "typ": null,
+      "max": null,
+      "unit": "V",
+      "conditions": "VGS = 0V, ID = 250\u00b5A"
+    },
+    {
+      "symbol": "\u0394V(BR)DSS/\u0394TJ",
+      "description": "Breakdown Voltage Temp. Coefficient",
+      "min": null,
+      "typ": 0.008,
+      "max": null,
+      "unit": "V/\u00b0C",
+      "conditions": "Reference to 25\u00b0C, ID = 1.0mA"
+    },
+    {
+      "symbol": "RDS(on)",
+      "description": "Static Drain-to-Source On-Resistance",
+      "min": null,
+      "typ": 700.0,
+      "max": 1000.0,
+      "unit": "\u00b5\u03a9",
+      "conditions": "VGS = 10V, ID = 160A"
+    },
+    {
+      "symbol": "VGS(th)",
+      "description": "Gate Threshold Voltage",
+      "min": 2.0,
+      "typ": 2.8,
+      "max": 4.0,
+      "unit": "V",
+      "conditions": "VDS = VGS, ID = 250\u00b5A"
+    },
+    {
+      "symbol": "\u0394VGS(th)/\u0394TJ",
+      "description": "Gate Threshold Voltage Coefficient",
+      "min": -6.7,
+      "typ": null,
+      "max": null,
+      "unit": "mV/\u00b0C",
+      "conditions": "VDS = VGS, ID = 250\u00b5A"
+    },
+    {
+      "symbol": "gfs",
+      "description": "Forward Transconductance",
+      "min": 280.0,
+      "typ": null,
+      "max": null,
+      "unit": "S",
+      "conditions": "VDS = 10V, ID = 160A"
+    },
+    {
+      "symbol": "RG",
+      "description": "Internal Gate Resistance",
+      "min": null,
+      "typ": 1.5,
+      "max": null,
+      "unit": "\u03a9",
+      "conditions": null
+    },
+    {
+      "symbol": "IDSS",
+      "description": "Drain-to-Source Leakage Current",
+      "min": null,
+      "typ": null,
+      "max": 5.0,
+      "unit": "\u00b5A",
+      "conditions": "VDS = 40V, VGS = 0V"
+    },
+    {
+      "symbol": "IGSS",
+      "description": "Gate-to-Source Forward Leakage",
+      "min": null,
+      "typ": null,
+      "max": 250.0,
+      "unit": "\u00b5A",
+      "conditions": "VDS = 40V, VGS = 0V, TJ = 125\u00b0C"
+    },
+    {
+      "symbol": "IGSS",
+      "description": "Gate-to-Source Reverse Leakage",
+      "min": null,
+      "typ": -100.0,
+      "max": null,
+      "unit": "nA",
+      "conditions": "VDS = -20V"
+    },
+    {
+      "symbol": "Qg",
+      "description": "Total Gate Charge",
+      "min": 220.0,
+      "typ": 330.0,
+      "max": null,
+      "unit": "nC",
+      "conditions": "VDS = 20V"
+    },
+    {
+      "symbol": "Qgs1",
+      "description": "Gate-to-Source Charge",
+      "min": null,
+      "typ": 46.0,
+      "max": null,
+      "unit": "nC",
+      "conditions": "VGS = 10V"
+    },
+    {
+      "symbol": "Qgs2",
+      "description": "Gate-to-Source Charge",
+      "min": null,
+      "typ": 19.0,
+      "max": null,
+      "unit": "nC",
+      "conditions": "ID = 160A"
+    },
+    {
+      "symbol": "Qgd",
+      "description": "Gate-to-Drain (Miller) Charge",
+      "min": 81.0,
+      "typ": null,
+      "max": null,
+      "unit": "nC",
+      "conditions": "See Fig.11"
+    },
+    {
+      "symbol": "Qgodr",
+      "description": "Gate Charge Overdrive",
+      "min": 74.0,
+      "typ": null,
+      "max": null,
+      "unit": "nC",
+      "conditions": null
+    },
+    {
+      "symbol": "Qsw",
+      "description": "Switch Charge (Qgs2 + Qgd)",
+      "min": null,
+      "typ": 100.0,
+      "max": null,
+      "unit": "nC",
+      "conditions": null
+    },
+    {
+      "symbol": "Qoss",
+      "description": "Output Charge",
+      "min": null,
+      "typ": 83.0,
+      "max": null,
+      "unit": "nC",
+      "conditions": "VDS = 16V, VGS = 0V"
+    },
+    {
+      "symbol": "td(on)",
+      "description": "Turn-On Delay Time",
+      "min": null,
+      "typ": 21.0,
+      "max": null,
+      "unit": "ns",
+      "conditions": "VDD = 20V, VGS = 10V, ID = 160A"
+    },
+    {
+      "symbol": "tr",
+      "description": "Rise Time",
+      "min": null,
+      "typ": 71.0,
+      "max": null,
+      "unit": "ns",
+      "conditions": "Rg = 1.8\u03a9"
+    },
+    {
+      "symbol": "td(off)",
+      "description": "Turn-Off Delay Time",
+      "min": null,
+      "typ": 56.0,
+      "max": null,
+      "unit": "ns",
+      "conditions": null
+    },
+    {
+      "symbol": "tf",
+      "description": "Fall Time",
+      "min": null,
+      "typ": 42.0,
+      "max": null,
+      "unit": "ns",
+      "conditions": null
+    },
+    {
+      "symbol": "Ciss",
+      "description": "Input Capacitance",
+      "min": null,
+      "typ": 11880.0,
+      "max": null,
+      "unit": "pF",
+      "conditions": "VGS = 0V"
+    },
+    {
+      "symbol": "Coss",
+      "description": "Output Capacitance",
+      "min": null,
+      "typ": 2510.0,
+      "max": null,
+      "unit": "pF",
+      "conditions": "VDS = 25V"
+    },
+    {
+      "symbol": "Crss",
+      "description": "Reverse Transfer Capacitance",
+      "min": null,
+      "typ": 1240.0,
+      "max": null,
+      "unit": "pF",
+      "conditions": "f = 1.0 MHz"
+    },
+    {
+      "symbol": "Coss",
+      "description": "Output Capacitance",
+      "min": null,
+      "typ": 8610.0,
+      "max": null,
+      "unit": "pF",
+      "conditions": "VGS = 0V, VDS = 1.0V, f = 1.0 MHz"
+    },
+    {
+      "symbol": "Coss",
+      "description": "Output Capacitance",
+      "min": null,
+      "typ": 2230.0,
+      "max": null,
+      "unit": "pF",
+      "conditions": "VGS = 0V, VDS = 32V, f = 1.0 MHz"
+    },
+    {
+      "symbol": "Coss eff.",
+      "description": "Effective Output Capacitance",
+      "min": null,
+      "typ": 3040.0,
+      "max": null,
+      "unit": "pF",
+      "conditions": "VGS = 0V to 32V"
+    }
+  ],
+  "stats": {
+    "suspicious_units": 0,
+    "suspicious_symbols": 0,
+    "missing_units": 0,
+    "total_rows": 33
+  },
+  "completed_at": "2026-05-22 10:43:37"
+}

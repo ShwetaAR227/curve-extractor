@@ -50,8 +50,6 @@ extracted". This module maps that to ``needs_review`` instead (the message
 itself describes something a reviewer should see), keeping their exact
 warning text as the review_reason.
 """
-import json
-import os
 import re
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
@@ -61,12 +59,16 @@ from scipy.optimize import curve_fit
 
 from src.common.log import get_logger
 from src.extraction.schema import build_result
+from src.extraction.zth_fit import (
+    CURVE_NAME,
+    UNITS,
+    build_needs_review_result as _needs_review,
+    calibration_with_bonus_fields as _calibration_with_bonus_fields,
+    fit_and_validate_curve,
+    pixel_to_data,
+)
 
 logger = get_logger(__name__)
-
-STAGE3_ROOT_ENV_VAR = "LINEFORMER_STAGE3_ROOT"
-CURVE_NAME = "single_pulse"
-UNITS = "K/W"
 
 # ---------------------------------------------------------------------------
 # Tick parsing (unit-aware) — ported from zth_extract.py, unchanged logic.
@@ -93,7 +95,17 @@ def parse_tick(text: str, axis: str = "x") -> Optional[float]:
         return None
     t = text.strip().replace("\u2212", "-").replace(",", ".")
     t = _normalize_super(t)
-    m = re.match(r"^10([0-9])$", t)
+    # Bare "10d" (100-109) is reinterpreted as 10**d -- meant for OCR
+    # mojibake where a superscript exponent digit gets flattened onto the
+    # end of "10" (e.g. "10³" -> "103" after _normalize_super, or OCR
+    # just drops the superscript rendering outright). Deliberately excludes
+    # "100" (bug found on real device AG087FGD3HRBTL, 2026-07-23): a plain
+    # 3-digit "100" is an entirely ordinary tick value (e.g. 100 seconds on
+    # a pulse-width axis) and is far more likely to be genuine than "101"-
+    # "109", which are essentially never real tick values in this domain --
+    # so only 101-109 are reinterpreted, "100" always falls through to
+    # plain-number parsing below.
+    m = re.match(r"^10([1-9])$", t)
     if m:
         try:
             return 10.0 ** int(m.group(1))
@@ -138,7 +150,21 @@ def parse_axis_ticks(
     ocr_lines: Sequence[Dict[str, Any]], img_w: float, img_h: float
 ) -> Tuple[List[Tuple[float, float]], List[Tuple[float, float]]]:
     """Pull axis tick candidates from OCR lines: x-ticks (time, bottom 20%
-    of the figure), y-ticks (left 20%). Ported unchanged."""
+    of the figure), y-ticks (left 20%). Ported from zth_extract.py, plus one
+    addition (2026-07-23, real bug found on device AG087FGD3HRBTL):
+
+    Azure OCR sometimes glues two adjacent tick labels into a single line
+    with a space between them (e.g. "0.0001 0.001" for two neighboring
+    pulse-width ticks). ``parse_tick`` returns None for the whole glued
+    string, so both ticks were silently dropped. This reuses the exact
+    "compound token" fix :func:`src.calibration.ticks.parse_numeric_ticks`
+    already has for the identical OCR-gluing problem, rather than inventing
+    a new one: split the line on whitespace, and if every part parses on
+    its own, distribute the parsed values evenly across the line's own
+    bounding box (x1->x2 for an x-tick line, y1->y2 for a y-tick line) --
+    same fractional-interpolation logic, same "drop the whole line if any
+    part doesn't parse" rule (never guess at a partial match).
+    """
     x_ticks, y_ticks = [], []
     for line in ocr_lines:
         bb = line.get("bounding_box") or {}
@@ -150,13 +176,28 @@ def parse_axis_ticks(
         norm_cy = cy / max(img_h, 1)
         text = line.get("text", "")
         if norm_cy > 0.80:
-            v = parse_tick(text, axis="x")
-            if v is not None:
-                x_ticks.append((v, cx))
+            axis, ticks, single_pos, span = "x", x_ticks, cx, (bb["x1"], bb["x2"])
         elif norm_cx < 0.20:
-            v = parse_tick(text, axis="y")
-            if v is not None:
-                y_ticks.append((v, cy))
+            axis, ticks, single_pos, span = "y", y_ticks, cy, (bb["y1"], bb["y2"])
+        else:
+            continue
+
+        v = parse_tick(text, axis=axis)
+        if v is not None:
+            ticks.append((v, single_pos))
+            continue
+
+        parts = text.split()
+        if len(parts) < 2:
+            continue
+        vals = [parse_tick(part, axis=axis) for part in parts]
+        if any(val is None for val in vals):
+            continue
+        n = len(vals)
+        p1, p2 = span
+        for i, val in enumerate(vals):
+            frac = i / (n - 1)
+            ticks.append((val, p1 + frac * (p2 - p1)))
     return x_ticks, y_ticks
 
 
@@ -266,25 +307,6 @@ def derive_calibration_zth(fig_meta: Dict[str, Any], img_w: float, img_h: float)
         "y_median_resid": y_fit["median_resid"], "y_decade_span": y_fit.get("decade_span"),
         "x_ticks_used": x_fit["used"], "y_ticks_used": y_fit["used"],
     }
-
-
-def pixel_to_data(px: float, py: float, cal: Dict[str, Any]) -> Tuple[float, float]:
-    """zth's own pixel->data inverse (NOT src.calibration.ticks.pixel_to_data
-    — a different, module-private calibration dict shape; kept as a plain
-    module-level function here purely to mirror the legacy port, never
-    imported by any other module, so there is no actual name collision at
-    runtime). Ported unchanged, including the 12-decade clamp."""
-    if cal["x_scale"] == "log":
-        log_x = (px - cal["x_intercept"]) / cal["x_slope"]
-        x = 10 ** max(min(log_x, 12.0), -12.0)
-    else:
-        x = (px - cal["x_intercept"]) / cal["x_slope"]
-    if cal["y_scale"] == "log":
-        log_y = (py - cal["y_intercept"]) / cal["y_slope"]
-        y = 10 ** max(min(log_y, 12.0), -12.0)
-    else:
-        y = (py - cal["y_intercept"]) / cal["y_slope"]
-    return float(x), float(y)
 
 
 # ---------------------------------------------------------------------------
@@ -812,70 +834,76 @@ def pick_rth_constraint(full_extraction: Dict[str, Any]) -> Tuple[Optional[float
 
 
 # ---------------------------------------------------------------------------
-# NEW: self-contained Rth-table file read (owner-approved design, 2026-07-23)
+# Ratio-axis guard (owner-approved design, 2026-07-23) — some zth_vs_time
+# charts plot a NORMALIZED ratio r(t) (dimensionless, needs multiplying by a
+# separately-printed Rth(j-c)/Rth(j-a) value to become real K/W), rather than
+# printing K/W directly. Found on real device AG087FGD3HRBTL: its y-axis
+# label reads "Normalized Transient Resistance : r(t)", and the chart prints
+# its own conversion formula "Rth(j-c)(t) = r(t) x Rth(j-c)" — treating its
+# numbers as direct K/W is silently wrong. A corpus check across the
+# downloaded ROHM datasheets found this is the DOMINANT pattern for
+# multi-duty-cycle zth charts, not a rare edge case.
 # ---------------------------------------------------------------------------
 
-def _read_full_extraction_for_rth(
-    device: str, stage3_root: Optional[str],
-) -> Optional[Dict[str, Any]]:
-    """Best-effort read of ``<stage3_root>/<device>/full_extraction.json``
-    for the printed Rth_JC table lookup ONLY. Falls back to the
-    ``LINEFORMER_STAGE3_ROOT`` env var when ``stage3_root`` is omitted
-    (CLAUDE.md §3 — never a hardcoded path). Any failure (root unset,
-    device folder missing, malformed JSON) degrades to ``None`` — this
-    piece of data is optional (an unconstrained Foster fit is a normal,
-    common outcome), never a crash. Logged either way.
+_RATIO_FORMULA_RE = re.compile(r"r\s*\(\s*t\s*\)\s*[x×]\s*rth", re.IGNORECASE)
+# Same y-axis-label zone convention parse_axis_ticks already uses for
+# y-tick candidates (cx / img_w < 0.20) — reused, not reinvented.
+_Y_ZONE_MAX_NORM_CX = 0.20
+
+
+def detect_normalized_ratio_axis(
+    ocr_lines: Sequence[Dict[str, Any]], img_w: float, img_h: float
+) -> Optional[str]:
+    """Return a plain-English review reason if this chart's y-axis is a
+    normalized ratio rather than a direct K/W value, else ``None``.
+
+    Two independent signals, reusing OCR text already read in (no new
+    inputs needed):
+
+    1. The y-axis label zone (same ``cx / img_w < 0.20`` left-side zone
+       :func:`parse_axis_ticks` already uses for y-tick candidates)
+       contains "normalized"/"normalised" (case-insensitive).
+    2. Anywhere on the chart, the printed conversion formula appears --
+       "r(t) x Rth" or "r(t) x Rth", the multiplication sign rendered by
+       OCR as a plain "x"/"X" or a real "×", with or without extra spacing
+       (including a space before the opening parenthesis, "r (t)").
+
+    Either signal alone is enough to flag the chart; the y-axis-label check
+    runs first, so on a chart where both fire, the returned reason names
+    the axis label. A chart with neither signal (e.g. one whose axis
+    already reads "ZthJC [K/W]" directly) returns ``None`` and is
+    unaffected — including by this function ever being called: see
+    :func:`run_classical_pipeline`, which only calls this AFTER the
+    printed-Foster-table shortcut has already failed to find real values
+    directly (a table hit always wins regardless of what the axis label
+    says).
     """
-    root = stage3_root or os.environ.get(STAGE3_ROOT_ENV_VAR)
-    if not root:
-        logger.info(
-            "classical_zth(%s): no stage3_root and %s unset — "
-            "proceeding without an Rth_JC table constraint", device, STAGE3_ROOT_ENV_VAR,
+    yzone_texts = []
+    for line in ocr_lines:
+        bb = line.get("bounding_box") or {}
+        if not bb:
+            continue
+        cx = (bb["x1"] + bb["x2"]) / 2.0
+        if cx / max(img_w, 1) < _Y_ZONE_MAX_NORM_CX:
+            yzone_texts.append(line.get("text", ""))
+    yzone_text = " ".join(yzone_texts).lower()
+    if "normali" in yzone_text:
+        return (
+            "axis_is_normalized_ratio: the y-axis label says \"normalized\" "
+            "-- this chart's numbers are a ratio, not a direct K/W value. "
+            "Needs multiplying by the chart's printed Rth value before "
+            "trusting it."
         )
-        return None
-    json_path = os.path.join(str(root), device, "full_extraction.json")
-    try:
-        with open(json_path, "r", encoding="utf-8") as fh:
-            return json.load(fh)
-    except (OSError, json.JSONDecodeError) as exc:
-        logger.info(
-            "classical_zth(%s): could not read %s (%s) — "
-            "proceeding without an Rth_JC table constraint", device, json_path, exc,
+
+    all_text = " ".join(line.get("text", "") for line in ocr_lines)
+    if _RATIO_FORMULA_RE.search(all_text):
+        return (
+            "axis_is_normalized_ratio: found this chart's own "
+            "\"r(t) x Rth\" conversion formula -- this chart's numbers are "
+            "a ratio, not a direct K/W value. Needs multiplying by the "
+            "chart's printed Rth value before trusting it."
         )
-        return None
-
-
-# ---------------------------------------------------------------------------
-# Result construction helpers
-# ---------------------------------------------------------------------------
-
-def _clamp_confidence(r_squared: Optional[float]) -> float:
-    if r_squared is None:
-        return 0.0
-    return max(0.0, min(1.0, r_squared))
-
-
-def _needs_review(
-    device: str, curve_type: str, source_image: str, reason: str,
-    calibration: Optional[Dict[str, Any]] = None,
-    points: Optional[List[Dict[str, float]]] = None,
-) -> Dict[str, Any]:
-    logger.warning("classical_zth(%s, %s): needs_review - %s", device, curve_type, reason)
-    curves = [{"curve_name": CURVE_NAME, "confidence": 0.0, "points": points or []}]
-    return build_result(
-        device=device, curve_type=curve_type, source_image=source_image,
-        status="needs_review", review_reason=reason, duplicates_removed=0,
-        calibration=calibration, curves=curves, units=None if calibration is None else UNITS,
-    )
-
-
-def _calibration_with_bonus_fields(cal_zth: Dict[str, Any]) -> Dict[str, Any]:
-    """Map zth's own calibration dict onto our 6 required fields, keeping
-    every extra legacy field as bonus detail alongside them."""
-    calibration = dict(cal_zth)
-    calibration["x_log"] = cal_zth["x_scale"] == "log"
-    calibration["y_log"] = cal_zth["y_scale"] == "log"
-    return calibration
+    return None
 
 
 def run_classical_pipeline(
@@ -926,8 +954,20 @@ def run_classical_pipeline(
             calibration=None, curves=[curve], units=UNITS,
         )
 
-    # ---- Fallback: CV pipeline (curve digitisation + Foster fit) ----
+    # ---- Ratio-axis guard: some charts plot a normalized ratio r(t), not a
+    # direct K/W value (see detect_normalized_ratio_axis's own docstring).
+    # Only checked once the table-read above has already failed to find
+    # real values directly -- a table hit always wins regardless of what
+    # the axis label says. Short-circuits BEFORE calibration/tracing even
+    # runs: both would otherwise "succeed" on a ratio chart (nothing about
+    # a ratio axis breaks the CV math) and silently mislabel the result as
+    # real K/W.
     img_h, img_w = image.shape[:2]
+    ratio_reason = detect_normalized_ratio_axis(ocr_lines, img_w, img_h)
+    if ratio_reason is not None:
+        return _needs_review(device, curve_type, source_image, ratio_reason)
+
+    # ---- Fallback: CV pipeline (curve digitisation + Foster fit) ----
     cal_zth = derive_calibration_zth(fig_meta, img_w, img_h)
     if cal_zth is None:
         return _needs_review(
@@ -972,99 +1012,17 @@ def run_classical_pipeline(
 
     chosen = pick["cluster"]
     local_pts = trace_curve(chosen, x_step=2)
-    eng_pts = []
-    for x_local, y_local in local_pts:
-        x_img = x_local + L
-        y_img = y_local + T
-        x_data, y_data = pixel_to_data(x_img, y_img, cal_zth)
-        eng_pts.append((x_data, y_data))
+    pixel_points = [(x_local + L, y_local + T) for x_local, y_local in local_pts]
 
-    if len(eng_pts) < 6:
-        return _needs_review(
-            device, curve_type, source_image,
-            f"too_few_points: fewer than 6 digitized points ({len(eng_pts)} found)",
-            calibration=calibration,
-        )
-
-    xs = [p[0] for p in eng_pts]
-    ys = [p[1] for p in eng_pts]
-    sorted_pairs = sorted(zip(xs, ys))
-    sxs = np.array([p[0] for p in sorted_pairs])
-    sys_ = np.array([p[1] for p in sorted_pairs])
-    pos_mask = sys_ > 0
-    pos_y = sys_[pos_mask] if pos_mask.any() else sys_
-    left_q = float(np.median(pos_y[: max(len(pos_y) // 5, 1)]))
-    right_q = float(np.median(pos_y[-max(len(pos_y) // 5, 1):]))
-    rise_ratio = right_q / max(left_q, 1e-9)
-
-    full_extraction = _read_full_extraction_for_rth(device, stage3_root)
-    rth_constraint, rth_source = pick_rth_constraint(full_extraction or {})
-
-    if rth_constraint is None and (rise_ratio > 1e6 or rise_ratio < 1.0 or right_q > 100.0):
-        return _needs_review(
-            device, curve_type, source_image,
-            f"calibration_disaster: rise_ratio={rise_ratio:.3g} out of [1, 1e6] or "
-            f"right_q={right_q:.3g} > 100 K/W — calibration is not physically plausible",
-            calibration=calibration,
-        )
-
-    fit_constraint = None
-    constraint_warning = None
-    skip_fit = False
-    if rth_constraint is not None:
-        scale_ratio = right_q / float(rth_constraint)
-        if 0.05 <= scale_ratio <= 3.0:
-            fit_constraint = rth_constraint
-        else:
-            skip_fit = True
-            constraint_warning = (
-                f"calibration_broken: y_obs_late={right_q:.3g} vs rth_table="
-                f"{rth_constraint:.3g} (ratio {scale_ratio:.2g}); "
-                f"curve trace unreliable, tau values not extracted"
-            )
-
-    if skip_fit:
-        # Deliberate remap (see module docstring): legacy calls this
-        # "clean", we call it needs_review — the message itself describes
-        # something a reviewer should see.
-        return _needs_review(
-            device, curve_type, source_image, constraint_warning, calibration=calibration,
-        )
-
-    fitted_params, r2 = fit_foster(sxs.tolist(), sys_.tolist(), rth_constraint=fit_constraint)
-    if fitted_params is None or r2 is None or r2 < 0.5:
-        r2_text = f"{r2:.3g}" if r2 is not None else "N/A"
-        return _needs_review(
-            device, curve_type, source_image,
-            f"foster_fit_failed: r_squared={r2_text} (< 0.5 or fit did not converge)",
-            calibration=calibration,
-            points=[{"x": x, "y": y} for x, y in eng_pts],
-        )
-
-    if rth_constraint is not None:
-        rth_steady = float(rth_constraint)
-        rth_steady_source = rth_source
-    else:
-        rth_steady = fitted_params["r1"]
-        rth_steady_source = "foster_unconstrained"
-
-    curve = {
-        "curve_name": CURVE_NAME,
-        "confidence": _clamp_confidence(r2),
-        "points": [{"x": x, "y": y} for x, y in eng_pts],
-        "extraction_source": "curve_fit_v3" if fit_constraint is None else "curve_fit_v3_constrained",
-        "fitted_params": fitted_params,
-        "r_squared": r2,
-        "r_fixed_at_rth_jc": fit_constraint is not None,
-        "rth_jc_steady_state": rth_steady,
-        "rth_jc_steady_state_source": rth_steady_source,
-        "rise_ratio": rise_ratio,
-    }
-    logger.info(
-        "classical_zth(%s, %s): ok, r_squared=%.4f, rth_jc=%.4g", device, curve_type, r2, rth_steady,
-    )
-    return build_result(
-        device=device, curve_type=curve_type, source_image=source_image,
-        status="ok", review_reason=None, duplicates_removed=0,
-        calibration=calibration, curves=[curve], units=UNITS,
+    # ---- Everything downstream of "we have the curve's traced pixel
+    # points" (convert to engineering units, sanity-check the shape,
+    # Rth cross-check, Foster fit, build the final result) is shared with
+    # hybrid_zth.py's model-based path -- see src.extraction.zth_fit's own
+    # module docstring. fit_foster/pick_rth_constraint are passed through
+    # as THIS module's own current references (not zth_fit.py's), so
+    # existing tests that monkeypatch classical_zth.fit_foster /
+    # classical_zth.pick_rth_constraint keep working unchanged.
+    return fit_and_validate_curve(
+        device, curve_type, source_image, pixel_points, calibration, stage3_root,
+        fit_foster=fit_foster, pick_rth_constraint=pick_rth_constraint,
     )

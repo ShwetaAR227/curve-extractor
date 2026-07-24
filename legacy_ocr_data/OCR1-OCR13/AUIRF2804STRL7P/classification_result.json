@@ -1,0 +1,41 @@
+{
+  "device": "AUIRF2804STRL7P",
+  "status": "shipped",
+  "chosen": {
+    "figure_index": 18,
+    "page": 5,
+    "image_path": "figures/fig_p5_018.png",
+    "bbox": {
+      "x1": 906,
+      "y1": 282,
+      "x2": 1562,
+      "y2": 885
+    },
+    "candidate_strength": "agreement",
+    "checks_passed": [
+      "cap_rdson",
+      "cap_temp",
+      "cap_norm",
+      "ocr_rdson",
+      "ocr_tj",
+      "ocr_temp",
+      "ocr_temp_unit",
+      "ocr_temp_axis",
+      "ocr_two_axis",
+      "spatial"
+    ],
+    "checks_failed": [],
+    "join_method": "score_based",
+    "granite_page": 5,
+    "granite_position": "right",
+    "confidence": "HIGH",
+    "picked_score": 32.0,
+    "margin": 40.0
+  },
+  "rejected": [],
+  "notes": [
+    "score=32.0",
+    "margin=40.0",
+    "confidence=HIGH"
+  ]
+}

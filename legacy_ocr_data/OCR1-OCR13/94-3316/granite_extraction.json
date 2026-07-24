@@ -1,0 +1,488 @@
+{
+  "device": "94-3316",
+  "page": 2,
+  "model": "ibm-granite/granite-vision-4.1-4b",
+  "inference_seconds": 240.63009572029114,
+  "raw_response": "{\"parameters\": [{\"symbol\": \"V(BR)DSS\", \"description\": \"Drain-to-Source Breakdown Voltage\", \"min\": 55, \"typ\": null, \"max\": null, \"unit\": \"V\", \"conditions\": \"VGS = 0V, ID = 250\\u00b5A\"}, {\"symbol\": \"\\u0394V(BR)DSS/\\u0394TJ\", \"description\": \"Breakdown Voltage Temp. Coefficient\", \"min\": null, \"typ\": null, \"max\": null, \"unit\": \"V/\\u00b0C\", \"conditions\": \"Reference to 25\\u00b0C, ID = 1mA\"}, {\"symbol\": \"RDS(on)\", \"description\": \"Static Drain-to-Source On-Resistance\", \"min\": null, \"typ\": 0.14, \"max\": null, \"unit\": \"\\u03a9\", \"conditions\": \"VGS = 10V, ID = 2.0A\"}, {\"symbol\": \"RDS(on)\", \"description\": \"Static Drain-to-Source On-Resistance\", \"min\": null, \"typ\": 0.2, \"max\": null, \"unit\": \"\\u03a9\", \"conditions\": \"VGS = 5.0V, ID = 1.2A\"}, {\"symbol\": \"RDS(on)\", \"description\": \"Static Drain-to-Source On-Resistance\", \"min\": null, \"typ\": 0.28, \"max\": null, \"unit\": \"\\u03a9\", \"conditions\": \"VGS = 4.0V, ID = 1.0A\"}, {\"symbol\": \"VGS(th)\", \"description\": \"Gate Threshold Voltage\", \"min\": 1.0, \"typ\": 2.0, \"max\": null, \"unit\": \"V\", \"conditions\": \"VDS = VGS, ID = 250\\u00b5A\"}, {\"symbol\": \"\\u03b4S\", \"description\": \"Forward Transconductance\", \"min\": 2.3, \"typ\": null, \"max\": null, \"unit\": \"S\", \"conditions\": \"VDS = 25V, ID = 1.0A\"}, {\"symbol\": \"IDSS\", \"description\": \"Drain-to-Source Leakage Current\", \"min\": null, \"typ\": 25, \"max\": 250, \"unit\": \"\\u00b5A\", \"conditions\": \"VDS = 55V, VGS = 0V\"}, {\"symbol\": \"IGSS\", \"description\": \"Gate-to-Source Forward Leakage\", \"min\": null, \"typ\": 100, \"max\": null, \"unit\": \"nA\", \"conditions\": \"VGS = 16V\"}, {\"symbol\": \"IGSS\", \"description\": \"Gate-to-Source Reverse Leakage\", \"min\": null, \"typ\": -100, \"max\": null, \"unit\": \"nA\", \"conditions\": \"VGS = -16V\"}, {\"symbol\": \"Qg\", \"description\": \"Total Gate Charge\", \"min\": 9.5, \"typ\": 14, \"max\": null, \"unit\": \"nC\", \"conditions\": \"ID = 2.0A\"}, {\"symbol\": \"Qgs\", \"description\": \"Gate-to-Source Charge\", \"min\": 1.1, \"typ\": 1.7, \"max\": null, \"unit\": \"nC\", \"conditions\": \"VDS = 44V\"}, {\"symbol\": \"Qgd\", \"description\": \"Gate-to-Drain (Miller) Charge\", \"min\": 3.0, \"typ\": 4.4, \"max\": null, \"unit\": \"nC\", \"conditions\": \"VGS = 10V, See Fig. 6 and 9\"}, {\"symbol\": \"td(on)\", \"description\": \"Turn-On Delay Time\", \"min\": null, \"typ\": 5.1, \"max\": null, \"unit\": \"ns\", \"conditions\": \"VDD = 28V\"}, {\"symbol\": \"tr\", \"description\": \"Rise Time\", \"min\": null, \"typ\": 4.9, \"max\": null, \"unit\": \"ns\", \"conditions\": \"ID = 2.0A\"}, {\"symbol\": \"td(off)\", \"description\": \"Turn-Off Delay Time\", \"min\": null, \"typ\": 14, \"max\": null, \"unit\": \"ns\", \"conditions\": \"RG = 6.0\\u03a9\"}, {\"symbol\": \"tf\", \"description\": \"Fall Time\", \"min\": null, \"typ\": 2.9, \"max\": null, \"unit\": \"ns\", \"conditions\": \"RD = 14\\u03a9, See Fig. 10\"}, {\"symbol\": \"Ciss\", \"description\": \"Input Capacitance\", \"min\": null, \"typ\": 230, \"max\": null, \"unit\": \"pF\", \"conditions\": \"VGS = 0V\"}, {\"symbol\": \"Coss\", \"description\": \"Output Capacitance\", \"min\": null, \"typ\": 66, \"max\": null, \"unit\": \"pF\", \"conditions\": \"VGS = 25V\"}, {\"symbol\": \"Crss\", \"description\": \"Reverse Transfer Capacitance\", \"min\": null, \"typ\": 30, \"max\": null, \"unit\": \"pF\", \"conditions\": \"f = 1.0MHz, See Fig. 5\"}, {\"symbol\": \"IS\", \"description\": \"Continuous Source Current (Body Diode)\", \"min\": null, \"typ\": null, \"max\": 1.3, \"unit\": \"A\", \"conditions\": \"MOSFET symbol showing the integral reverse-polarity\"}, {\"symbol\": \"ISM\", \"description\": \"Pulsed Source Current (Body Diode)\", \"min\": null, \"typ\": null, \"max\": 16, \"unit\": \"A\", \"conditions\": \"Integral reverse-polarity\"}, {\"symbol\": \"VSD\", \"description\": \"Diode Forward Voltage\", \"min\": null, \"typ\": 1.0, \"max\": null, \"unit\": \"V\", \"conditions\": \"TJ = 25\\u00b0C, IS = 2.0A, VGS = 0V\"}, {\"symbol\": \"trr\", \"description\": \"Reverse Recovery Time\", \"min\": 41, \"typ\": 61, \"max\": null, \"unit\": \"ns\", \"conditions\": \"TJ = 25\\u00b0C, IF = 2.0A\"}, {\"symbol\": \"Qrr\", \"description\": \"Reverse Recovery Charge\", \"min\": 73, \"typ\": 110, \"max\": null, \"unit\": \"nC\", \"conditions\": \"di/dt = 100A/\\u00b5s, VDS = V(BR)DSS, TJ = 150\\u00b0C\"}, {\"symbol\": \"ton\", \"description\": \"Forward Turn-On Time\", \"min\": null, \"typ\": null, \"max\": null, \"unit\": \"ns\", \"conditions\": \"Intrinsic turn-on time is negligible (turn-on is dominated by Ls+Ld)\"}]}",
+  "parsed": {
+    "parameters": [
+      {
+        "symbol": "V(BR)DSS",
+        "description": "Drain-to-Source Breakdown Voltage",
+        "min": 55,
+        "typ": null,
+        "max": null,
+        "unit": "V",
+        "conditions": "VGS = 0V, ID = 250\u00b5A"
+      },
+      {
+        "symbol": "\u0394V(BR)DSS/\u0394TJ",
+        "description": "Breakdown Voltage Temp. Coefficient",
+        "min": null,
+        "typ": null,
+        "max": null,
+        "unit": "V/\u00b0C",
+        "conditions": "Reference to 25\u00b0C, ID = 1mA"
+      },
+      {
+        "symbol": "RDS(on)",
+        "description": "Static Drain-to-Source On-Resistance",
+        "min": null,
+        "typ": 0.14,
+        "max": null,
+        "unit": "\u03a9",
+        "conditions": "VGS = 10V, ID = 2.0A"
+      },
+      {
+        "symbol": "RDS(on)",
+        "description": "Static Drain-to-Source On-Resistance",
+        "min": null,
+        "typ": 0.2,
+        "max": null,
+        "unit": "\u03a9",
+        "conditions": "VGS = 5.0V, ID = 1.2A"
+      },
+      {
+        "symbol": "RDS(on)",
+        "description": "Static Drain-to-Source On-Resistance",
+        "min": null,
+        "typ": 0.28,
+        "max": null,
+        "unit": "\u03a9",
+        "conditions": "VGS = 4.0V, ID = 1.0A"
+      },
+      {
+        "symbol": "VGS(th)",
+        "description": "Gate Threshold Voltage",
+        "min": 1.0,
+        "typ": 2.0,
+        "max": null,
+        "unit": "V",
+        "conditions": "VDS = VGS, ID = 250\u00b5A"
+      },
+      {
+        "symbol": "\u03b4S",
+        "description": "Forward Transconductance",
+        "min": 2.3,
+        "typ": null,
+        "max": null,
+        "unit": "S",
+        "conditions": "VDS = 25V, ID = 1.0A"
+      },
+      {
+        "symbol": "IDSS",
+        "description": "Drain-to-Source Leakage Current",
+        "min": null,
+        "typ": 25,
+        "max": 250,
+        "unit": "\u00b5A",
+        "conditions": "VDS = 55V, VGS = 0V"
+      },
+      {
+        "symbol": "IGSS",
+        "description": "Gate-to-Source Forward Leakage",
+        "min": null,
+        "typ": 100,
+        "max": null,
+        "unit": "nA",
+        "conditions": "VGS = 16V"
+      },
+      {
+        "symbol": "IGSS",
+        "description": "Gate-to-Source Reverse Leakage",
+        "min": null,
+        "typ": -100,
+        "max": null,
+        "unit": "nA",
+        "conditions": "VGS = -16V"
+      },
+      {
+        "symbol": "Qg",
+        "description": "Total Gate Charge",
+        "min": 9.5,
+        "typ": 14,
+        "max": null,
+        "unit": "nC",
+        "conditions": "ID = 2.0A"
+      },
+      {
+        "symbol": "Qgs",
+        "description": "Gate-to-Source Charge",
+        "min": 1.1,
+        "typ": 1.7,
+        "max": null,
+        "unit": "nC",
+        "conditions": "VDS = 44V"
+      },
+      {
+        "symbol": "Qgd",
+        "description": "Gate-to-Drain (Miller) Charge",
+        "min": 3.0,
+        "typ": 4.4,
+        "max": null,
+        "unit": "nC",
+        "conditions": "VGS = 10V, See Fig. 6 and 9"
+      },
+      {
+        "symbol": "td(on)",
+        "description": "Turn-On Delay Time",
+        "min": null,
+        "typ": 5.1,
+        "max": null,
+        "unit": "ns",
+        "conditions": "VDD = 28V"
+      },
+      {
+        "symbol": "tr",
+        "description": "Rise Time",
+        "min": null,
+        "typ": 4.9,
+        "max": null,
+        "unit": "ns",
+        "conditions": "ID = 2.0A"
+      },
+      {
+        "symbol": "td(off)",
+        "description": "Turn-Off Delay Time",
+        "min": null,
+        "typ": 14,
+        "max": null,
+        "unit": "ns",
+        "conditions": "RG = 6.0\u03a9"
+      },
+      {
+        "symbol": "tf",
+        "description": "Fall Time",
+        "min": null,
+        "typ": 2.9,
+        "max": null,
+        "unit": "ns",
+        "conditions": "RD = 14\u03a9, See Fig. 10"
+      },
+      {
+        "symbol": "Ciss",
+        "description": "Input Capacitance",
+        "min": null,
+        "typ": 230,
+        "max": null,
+        "unit": "pF",
+        "conditions": "VGS = 0V"
+      },
+      {
+        "symbol": "Coss",
+        "description": "Output Capacitance",
+        "min": null,
+        "typ": 66,
+        "max": null,
+        "unit": "pF",
+        "conditions": "VGS = 25V"
+      },
+      {
+        "symbol": "Crss",
+        "description": "Reverse Transfer Capacitance",
+        "min": null,
+        "typ": 30,
+        "max": null,
+        "unit": "pF",
+        "conditions": "f = 1.0MHz, See Fig. 5"
+      },
+      {
+        "symbol": "IS",
+        "description": "Continuous Source Current (Body Diode)",
+        "min": null,
+        "typ": null,
+        "max": 1.3,
+        "unit": "A",
+        "conditions": "MOSFET symbol showing the integral reverse-polarity"
+      },
+      {
+        "symbol": "ISM",
+        "description": "Pulsed Source Current (Body Diode)",
+        "min": null,
+        "typ": null,
+        "max": 16,
+        "unit": "A",
+        "conditions": "Integral reverse-polarity"
+      },
+      {
+        "symbol": "VSD",
+        "description": "Diode Forward Voltage",
+        "min": null,
+        "typ": 1.0,
+        "max": null,
+        "unit": "V",
+        "conditions": "TJ = 25\u00b0C, IS = 2.0A, VGS = 0V"
+      },
+      {
+        "symbol": "trr",
+        "description": "Reverse Recovery Time",
+        "min": 41,
+        "typ": 61,
+        "max": null,
+        "unit": "ns",
+        "conditions": "TJ = 25\u00b0C, IF = 2.0A"
+      },
+      {
+        "symbol": "Qrr",
+        "description": "Reverse Recovery Charge",
+        "min": 73,
+        "typ": 110,
+        "max": null,
+        "unit": "nC",
+        "conditions": "di/dt = 100A/\u00b5s, VDS = V(BR)DSS, TJ = 150\u00b0C"
+      },
+      {
+        "symbol": "ton",
+        "description": "Forward Turn-On Time",
+        "min": null,
+        "typ": null,
+        "max": null,
+        "unit": "ns",
+        "conditions": "Intrinsic turn-on time is negligible (turn-on is dominated by Ls+Ld)"
+      }
+    ]
+  },
+  "parameters": [
+    {
+      "symbol": "V(BR)DSS",
+      "description": "Drain-to-Source Breakdown Voltage",
+      "min": 55,
+      "typ": null,
+      "max": null,
+      "unit": "V",
+      "conditions": "VGS = 0V, ID = 250\u00b5A"
+    },
+    {
+      "symbol": "\u0394V(BR)DSS/\u0394TJ",
+      "description": "Breakdown Voltage Temp. Coefficient",
+      "min": null,
+      "typ": null,
+      "max": null,
+      "unit": "V/\u00b0C",
+      "conditions": "Reference to 25\u00b0C, ID = 1mA"
+    },
+    {
+      "symbol": "RDS(on)",
+      "description": "Static Drain-to-Source On-Resistance",
+      "min": null,
+      "typ": 0.14,
+      "max": null,
+      "unit": "\u03a9",
+      "conditions": "VGS = 10V, ID = 2.0A"
+    },
+    {
+      "symbol": "RDS(on)",
+      "description": "Static Drain-to-Source On-Resistance",
+      "min": null,
+      "typ": 0.2,
+      "max": null,
+      "unit": "\u03a9",
+      "conditions": "VGS = 5.0V, ID = 1.2A"
+    },
+    {
+      "symbol": "RDS(on)",
+      "description": "Static Drain-to-Source On-Resistance",
+      "min": null,
+      "typ": 0.28,
+      "max": null,
+      "unit": "\u03a9",
+      "conditions": "VGS = 4.0V, ID = 1.0A"
+    },
+    {
+      "symbol": "VGS(th)",
+      "description": "Gate Threshold Voltage",
+      "min": 1.0,
+      "typ": 2.0,
+      "max": null,
+      "unit": "V",
+      "conditions": "VDS = VGS, ID = 250\u00b5A"
+    },
+    {
+      "symbol": "\u03b4S",
+      "description": "Forward Transconductance",
+      "min": 2.3,
+      "typ": null,
+      "max": null,
+      "unit": "S",
+      "conditions": "VDS = 25V, ID = 1.0A"
+    },
+    {
+      "symbol": "IDSS",
+      "description": "Drain-to-Source Leakage Current",
+      "min": null,
+      "typ": 25,
+      "max": 250,
+      "unit": "\u00b5A",
+      "conditions": "VDS = 55V, VGS = 0V"
+    },
+    {
+      "symbol": "IGSS",
+      "description": "Gate-to-Source Forward Leakage",
+      "min": null,
+      "typ": 100,
+      "max": null,
+      "unit": "nA",
+      "conditions": "VGS = 16V"
+    },
+    {
+      "symbol": "IGSS",
+      "description": "Gate-to-Source Reverse Leakage",
+      "min": null,
+      "typ": -100,
+      "max": null,
+      "unit": "nA",
+      "conditions": "VGS = -16V"
+    },
+    {
+      "symbol": "Qg",
+      "description": "Total Gate Charge",
+      "min": 9.5,
+      "typ": 14,
+      "max": null,
+      "unit": "nC",
+      "conditions": "ID = 2.0A"
+    },
+    {
+      "symbol": "Qgs",
+      "description": "Gate-to-Source Charge",
+      "min": 1.1,
+      "typ": 1.7,
+      "max": null,
+      "unit": "nC",
+      "conditions": "VDS = 44V"
+    },
+    {
+      "symbol": "Qgd",
+      "description": "Gate-to-Drain (Miller) Charge",
+      "min": 3.0,
+      "typ": 4.4,
+      "max": null,
+      "unit": "nC",
+      "conditions": "VGS = 10V, See Fig. 6 and 9"
+    },
+    {
+      "symbol": "td(on)",
+      "description": "Turn-On Delay Time",
+      "min": null,
+      "typ": 5.1,
+      "max": null,
+      "unit": "ns",
+      "conditions": "VDD = 28V"
+    },
+    {
+      "symbol": "tr",
+      "description": "Rise Time",
+      "min": null,
+      "typ": 4.9,
+      "max": null,
+      "unit": "ns",
+      "conditions": "ID = 2.0A"
+    },
+    {
+      "symbol": "td(off)",
+      "description": "Turn-Off Delay Time",
+      "min": null,
+      "typ": 14,
+      "max": null,
+      "unit": "ns",
+      "conditions": "RG = 6.0\u03a9"
+    },
+    {
+      "symbol": "tf",
+      "description": "Fall Time",
+      "min": null,
+      "typ": 2.9,
+      "max": null,
+      "unit": "ns",
+      "conditions": "RD = 14\u03a9, See Fig. 10"
+    },
+    {
+      "symbol": "Ciss",
+      "description": "Input Capacitance",
+      "min": null,
+      "typ": 230,
+      "max": null,
+      "unit": "pF",
+      "conditions": "VGS = 0V"
+    },
+    {
+      "symbol": "Coss",
+      "description": "Output Capacitance",
+      "min": null,
+      "typ": 66,
+      "max": null,
+      "unit": "pF",
+      "conditions": "VGS = 25V"
+    },
+    {
+      "symbol": "Crss",
+      "description": "Reverse Transfer Capacitance",
+      "min": null,
+      "typ": 30,
+      "max": null,
+      "unit": "pF",
+      "conditions": "f = 1.0MHz, See Fig. 5"
+    },
+    {
+      "symbol": "IS",
+      "description": "Continuous Source Current (Body Diode)",
+      "min": null,
+      "typ": null,
+      "max": 1.3,
+      "unit": "A",
+      "conditions": "MOSFET symbol showing the integral reverse-polarity"
+    },
+    {
+      "symbol": "ISM",
+      "description": "Pulsed Source Current (Body Diode)",
+      "min": null,
+      "typ": null,
+      "max": 16,
+      "unit": "A",
+      "conditions": "Integral reverse-polarity"
+    },
+    {
+      "symbol": "VSD",
+      "description": "Diode Forward Voltage",
+      "min": null,
+      "typ": 1.0,
+      "max": null,
+      "unit": "V",
+      "conditions": "TJ = 25\u00b0C, IS = 2.0A, VGS = 0V"
+    },
+    {
+      "symbol": "trr",
+      "description": "Reverse Recovery Time",
+      "min": 41,
+      "typ": 61,
+      "max": null,
+      "unit": "ns",
+      "conditions": "TJ = 25\u00b0C, IF = 2.0A"
+    },
+    {
+      "symbol": "Qrr",
+      "description": "Reverse Recovery Charge",
+      "min": 73,
+      "typ": 110,
+      "max": null,
+      "unit": "nC",
+      "conditions": "di/dt = 100A/\u00b5s, VDS = V(BR)DSS, TJ = 150\u00b0C"
+    },
+    {
+      "symbol": "ton",
+      "description": "Forward Turn-On Time",
+      "min": null,
+      "typ": null,
+      "max": null,
+      "unit": "ns",
+      "conditions": "Intrinsic turn-on time is negligible (turn-on is dominated by Ls+Ld)"
+    }
+  ],
+  "stats": {
+    "suspicious_units": 0,
+    "suspicious_symbols": 0,
+    "missing_units": 0,
+    "total_rows": 26
+  },
+  "completed_at": "2026-05-22 00:58:03"
+}

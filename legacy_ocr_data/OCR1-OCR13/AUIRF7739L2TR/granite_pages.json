@@ -1,0 +1,321 @@
+{
+  "device": "AUIRF7739L2TR",
+  "model": "ibm-granite/granite-vision-4.1-4b",
+  "pages_processed": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "total_inference_seconds": 566.2713391780853,
+  "pages": [
+    {
+      "page": 1,
+      "inference_seconds": 155.33619093894958,
+      "timed_out": false,
+      "parameters": [],
+      "figures": [],
+      "raw_response": "{\"product_name\": \"AUIRF7739L2TR\", \"product_type\": \"Automotive DirectFET Power MOSFET\", \"application_areas\": \"Automotive Motor Drive, DC-DC and other Heavy Load Applications\", \"footprint\": \"Exceptionally Small Footprint and Low Profile\", \"power_density\": \"High Power Density\", \"parasitic_parameters\": \"Low Parasitic Parameters\", \"cooling_method\": \"Dual Sided Cooling\", \"operating_temperature\": \"175\\u00b0C\", \"avalanche_capability\": \"Repetitive Avalanche Capability for Robustness and Reliability\", \"compliance\": \"Lead free, RoHS and Halogen free\", \"qualification_status\": \"Automotive Qualified\", \"description\": \"The AUIRF7739L2TR combines the latest Automotive HEXFET Power MOSFET Silicon technology with the advanced DirectFET packaging to achieve the lowest on-state resistance in a package that has the footprint of a DPak (TO-252AA) and only 0.7 mm profile. The DirectFET package is compatible with existing layout geometries used in power applications, PCB assembly equipment and vapor phase, infrared or convection soldering techniques, when application note AN-1035 is followed regarding the manufacturing methods and processes. The DirectFET package allows dual sided cooling to maximize thermal transfer in automotive power systems. This HEXFET Power MOSFET is designed for applications where efficiency and power density are essential. The advanced DirectFET packaging platform coupled with the latest silicon technology allows the AUIRF7739L2TR to offer substantial system level savings and performance improvement specifically in motor drive, high frequency DC-DC and other heavy load applications on ICE, HEV and EV platforms. This MOSFET utilizes the latest processing techniques to achieve low on-resistance and low Qg per silicon area. Additional features of this MOSFET are 175\\u00b0C operating junction temperature and high repetitive peak current capability. These features combine to make this MOSFET a highly efficient, robust and reliable device for high current automotive applications.\", \"base_part_number\": \"AUIRF7739L2\", \"package_type\": \"DirectFET Large Can\", \"standard_packaging\": \"Tape and Reel\", \"quantity_per_pack\": 4000, \"orderable_part_number\": \"AUIRF7739L2TR\", \"qualification_standards_url\": \"http://www.infineon.com\", \"qualification_date\": \"11/19/2015\", \"parameters\": [{\"symbol\": \"VDS\", \"description\": \"Drain-to-Source Voltage\", \"max\": 40.0, \"unit\": \"V\"}, {\"symbol\": \"VGS\", \"description\": \"Gate-to-Source Voltage\", \"max\": 20.0, \"unit\": \"V\"}, {\"symbol\": \"ID @ TC = 25\\u00b0C\", \"description\": \"Continuous Drain Current, VGS @ 10V (Silicon Limited)\", \"max\": 270.0, \"unit\": \"A\", \"conditions\": \"TC = 25\\u00b0C\"}, {\"symbol\": \"ID @ TC = 100\\u00b0C\", \"description\": \"Continuous Drain Current, VGS @ 10V (Silicon Limited)\", \"max\": 190.0, \"unit\": \"A\", \"conditions\": \"TC = 100\\u00b0C\"}, {\"symbol\": \"ID @ TA = 25\\u00b0C\", \"description\": \"Continuous Drain Current, VGS @ 10V (Package Limited)\", \"max\": 46.0, \"unit\": \"A\", \"conditions\": \"TA = 25\\u00b0C\"}, {\"symbol\": \"ID @ TC = 25\\u00b0C\", \"description\": \"Continuous Drain Current, VGS @ 10V\", \"max\": 375.0, \"unit\": \"A\", \"conditions\": \"TC = 25\\u00b0C\"}, {\"symbol\": \"IDM\", \"description\": \"Pulsed Drain Current\", \"max\": 1070.0, \"unit\": \"A\", \"conditions\": null}, {\"symbol\": \"PD @ TC = 25\\u00b0C\", \"description\": \"Power Dissipation\", \"max\": 125.0, \"unit\": \"W\", \"conditions\": \"TC = 25\\u00b0C\"}, {\"symbol\": \"PD @ TA = 25\\u00b0C\", \"description\": \"Power Dissipation\", \"max\": 3.8, \"unit\": \"W\", \"conditions\": \"TA = 25\\u00b0C\"}, {\"symbol\": \"EAS\", \"description\": \"Single Pulse Avalanche Energy (Thermally Limited)\", \"max\": 270.0, \"unit\": \"mJ\", \"conditions\": null}, {\"symbol\": \"EAS (tested)\", \"description\": \"Single Pulse Avalanche Energy (Tested Value)\", \"max\": 160.0, \"unit\": \"mJ\", \"conditions\": \"tested\"}, {\"symbol\": \"IAR\", \"description\": \"Avalanche Current\", \"max\": \"See Fig. 16, 17, 18a, 18b\", \"unit\": \"A\", \"conditions\": null}, {\"symbol\": \"EAR\", \"description\": \"Repetitive Avalanche Energy\", \"max\": \"See Fig. 16, 17, 18a, 18b\", \"unit\": \"mJ\", \"conditions\": null}, {\"symbol\": \"TP\", \"",
+      "parsed_ok": false
+    },
+    {
+      "page": 2,
+      "inference_seconds": 154.87809014320374,
+      "timed_out": false,
+      "parameters": [],
+      "figures": [],
+      "raw_response": "{\"parameters\": [{\"symbol\": \"R\\u03b8JA\", \"description\": \"Junction-to-Ambient \\u03b8\", \"min\": null, \"typ\": null, \"max\": 40.0, \"unit\": \"\\u00b0C/W\", \"conditions\": null}, {\"symbol\": \"R\\u03b8JA\", \"description\": \"Junction-to-Ambient \\u03b8\", \"min\": null, \"typ\": 12.5, \"max\": null, \"unit\": \"\\u00b0C/W\", \"conditions\": null}, {\"symbol\": \"R\\u03b8JA\", \"description\": \"Junction-to-Ambient \\u03b8\", \"min\": null, \"typ\": 20.0, \"max\": null, \"unit\": \"\\u00b0C/W\", \"conditions\": null}, {\"symbol\": \"R\\u03b8J-Can\", \"description\": \"Junction-to-Can \\u03b8\", \"min\": null, \"typ\": 1.2, \"max\": null, \"unit\": \"\\u00b0C/W\", \"conditions\": null}, {\"symbol\": \"R\\u03b8J-PCB\", \"description\": \"Junction-to-PCB Mounted\", \"min\": null, \"typ\": 0.5, \"max\": null, \"unit\": \"\\u00b0C/W\", \"conditions\": null}, {\"symbol\": \"Linear Derating Factor\", \"description\": \"Linear Derating Factor\", \"min\": null, \"typ\": 0.83, \"max\": null, \"unit\": \"W/\\u00b0C\", \"conditions\": null}, {\"symbol\": \"V(BR)DSS\", \"description\": \"Drain-to-Source Breakdown Voltage\", \"min\": 40.0, \"typ\": null, \"max\": null, \"unit\": \"V\", \"conditions\": \"VGS = 0V, ID = 250\\u00b5A\"}, {\"symbol\": \"\\u0394V(BR)DSS/\\u0394TJ\", \"description\": \"Breakdown Voltage Temp. Coefficient\", \"min\": null, \"typ\": 0.008, \"max\": null, \"unit\": \"V/\\u00b0C\", \"conditions\": \"Reference to 25\\u00b0C, ID = 1.0mA\"}, {\"symbol\": \"RDS(on)\", \"description\": \"Static Drain-to-Source On-Resistance\", \"min\": null, \"typ\": 700.0, \"max\": 1000.0, \"unit\": \"\\u00b5Ohm\", \"conditions\": \"VGS = 10V, ID = 160A\"}, {\"symbol\": \"VGS(th)\", \"description\": \"Gate Threshold Voltage\", \"min\": 2.0, \"typ\": 2.8, \"max\": 4.0, \"unit\": \"V\", \"conditions\": \"VDS = VGS, ID = 250\\u00b5A\"}, {\"symbol\": \"\\u0394VGS(th)/\\u0394TJ\", \"description\": \"Gate Threshold Voltage Coefficient\", \"min\": -6.7, \"typ\": null, \"max\": null, \"unit\": \"mV/\\u00b0C\", \"conditions\": \"VDS = VGS, ID = 250\\u00b5A\"}, {\"symbol\": \"gfs\", \"description\": \"Forward Transconductance\", \"min\": 280.0, \"typ\": null, \"max\": null, \"unit\": \"S\", \"conditions\": \"VDS = 10V, ID = 160A\"}, {\"symbol\": \"Rg\", \"description\": \"Internal Gate Resistance\", \"min\": null, \"typ\": 1.5, \"max\": null, \"unit\": \"\\u03a9\", \"conditions\": null}, {\"symbol\": \"Idss\", \"description\": \"Drain-to-Source Leakage Current\", \"min\": null, \"typ\": 5.0, \"max\": null, \"unit\": \"\\u00b5A\", \"conditions\": \"VDS = 40V, VGS = 0V\"}, {\"symbol\": \"Igss\", \"description\": \"Gate-to-Source Forward Leakage\", \"min\": null, \"typ\": 250.0, \"max\": null, \"unit\": \"\\u00b5A\", \"conditions\": \"VDS = 40V, VGS = 0V, TJ = 125\\u00b0C\"}, {\"symbol\": \"Igss\", \"description\": \"Gate-to-Source Reverse Leakage\", \"min\": null, \"typ\": 100.0, \"max\": null, \"unit\": \"nA\", \"conditions\": \"VDS = -20V\"}, {\"symbol\": \"Qg\", \"description\": \"Total Gate Charge\", \"min\": 220.0, \"typ\": 330.0, \"max\": null, \"unit\": \"nC\", \"conditions\": \"VDS = 20V\"}, {\"symbol\": \"Qgs1\", \"description\": \"Gate-to-Source Charge\", \"min\": null, \"typ\": 46.0, \"max\": null, \"unit\": \"nC\", \"conditions\": \"VGS = 10V\"}, {\"symbol\": \"Qgs2\", \"description\": \"Gate-to-Source Charge\", \"min\": null, \"typ\": 19.0, \"max",
+      "parsed_ok": false
+    },
+    {
+      "page": 3,
+      "skipped": true,
+      "skip_reason": "no data signal on page",
+      "inference_seconds": 0,
+      "parameters": [],
+      "figures": [],
+      "parsed_ok": true,
+      "timed_out": false
+    },
+    {
+      "page": 4,
+      "inference_seconds": 63.74730825424194,
+      "timed_out": false,
+      "parameters": [],
+      "figures": [
+        {
+          "label": "Fig. 1 Typical Output Characteristics",
+          "y_axis": "ID, Drain-to-Source Current (A)",
+          "y_axis_unit": "A",
+          "x_axis": "VDS, Drain-to-Source Voltage (V)",
+          "x_axis_unit": "V",
+          "grid_position": "top-left"
+        },
+        {
+          "label": "Fig. 2 Typical Output Characteristics",
+          "y_axis": "ID, Drain-to-Source Current (A)",
+          "y_axis_unit": "A",
+          "x_axis": "VDS, Drain-to-Source Voltage (V)",
+          "x_axis_unit": "V",
+          "grid_position": "top-center"
+        },
+        {
+          "label": "Fig. 3 Typical On-Resistance vs. Gate Voltage",
+          "y_axis": "RDS(on), Drain-to-Source On Resistance (m\u03a9)",
+          "y_axis_unit": "mOhm",
+          "x_axis": "VGS, Gate-to-Source Voltage (V)",
+          "x_axis_unit": "V",
+          "grid_position": "middle-left"
+        },
+        {
+          "label": "Fig. 4 Typical On-Resistance vs. Drain Current",
+          "y_axis": "RDS(on), Drain-to-Source On Resistance (m\u03a9)",
+          "y_axis_unit": "mOhm",
+          "x_axis": "ID, Drain Current (A)",
+          "x_axis_unit": "A",
+          "grid_position": "middle-center"
+        },
+        {
+          "label": "Fig. 5. Typical Transfer Characteristics",
+          "y_axis": "ID, Drain-to-Source Current (A)",
+          "y_axis_unit": "A",
+          "x_axis": "VGS, Gate-to-Source Voltage (V)",
+          "x_axis_unit": "V",
+          "grid_position": "middle-right"
+        },
+        {
+          "label": "Fig. 6. Normalized On-Resistance vs. Temperature",
+          "y_axis": "RDS(on), Drain-to-Source On Resistance (Normalized)",
+          "y_axis_unit": "Normalized",
+          "x_axis": "TJ, Junction Temperature (\u00b0C)",
+          "x_axis_unit": "\u00b0C",
+          "grid_position": "bottom-right"
+        }
+      ],
+      "raw_response": "{\"parameters\": [], \"figures\": [{\"label\": \"Fig. 1 Typical Output Characteristics\", \"y_axis\": \"ID, Drain-to-Source Current (A)\", \"y_axis_unit\": \"A\", \"x_axis\": \"VDS, Drain-to-Source Voltage (V)\", \"x_axis_unit\": \"V\", \"grid_position\": \"top-left\"}, {\"label\": \"Fig. 2 Typical Output Characteristics\", \"y_axis\": \"ID, Drain-to-Source Current (A)\", \"y_axis_unit\": \"A\", \"x_axis\": \"VDS, Drain-to-Source Voltage (V)\", \"x_axis_unit\": \"V\", \"grid_position\": \"top-center\"}, {\"label\": \"Fig. 3 Typical On-Resistance vs. Gate Voltage\", \"y_axis\": \"RDS(on), Drain-to-Source On Resistance (m\\u03a9)\", \"y_axis_unit\": \"mOhm\", \"x_axis\": \"VGS, Gate-to-Source Voltage (V)\", \"x_axis_unit\": \"V\", \"grid_position\": \"middle-left\"}, {\"label\": \"Fig. 4 Typical On-Resistance vs. Drain Current\", \"y_axis\": \"RDS(on), Drain-to-Source On Resistance (m\\u03a9)\", \"y_axis_unit\": \"mOhm\", \"x_axis\": \"ID, Drain Current (A)\", \"x_axis_unit\": \"A\", \"grid_position\": \"middle-center\"}, {\"label\": \"Fig. 5. Typical Transfer Characteristics\", \"y_axis\": \"ID, Drain-to-Source Current (A)\", \"y_axis_unit\": \"A\", \"x_axis\": \"VGS, Gate-to-Source Voltage (V)\", \"x_axis_unit\": \"V\", \"grid_position\": \"middle-right\"}, {\"label\": \"Fig. 6. Normalized On-Resistance vs. Temperature\", \"y_axis\": \"RDS(on), Drain-to-Source On Resistance (Normalized)\", \"y_axis_unit\": \"Normalized\", \"x_axis\": \"TJ, Junction Temperature (\\u00b0C)\", \"x_axis_unit\": \"\\u00b0C\", \"grid_position\": \"bottom-right\"}]}",
+      "parsed_ok": true
+    },
+    {
+      "page": 5,
+      "inference_seconds": 50.5865581035614,
+      "timed_out": false,
+      "parameters": [],
+      "figures": [
+        {
+          "label": "Fig. 7 Typical Threshold Voltage vs. Junction Temperature",
+          "y_axis": "VGS(th)",
+          "y_axis_unit": "V",
+          "x_axis": "Tj",
+          "x_axis_unit": "\u00b0C",
+          "grid_position": "left"
+        },
+        {
+          "label": "Fig. 8 Typical Source-Drain Diode Forward Voltage",
+          "y_axis": "ID",
+          "y_axis_unit": "A",
+          "x_axis": "VSD",
+          "x_axis_unit": "V",
+          "grid_position": "right"
+        },
+        {
+          "label": "Fig. 9 Typical Forward Transconductance vs. Drain Current",
+          "y_axis": "GFS",
+          "y_axis_unit": "S",
+          "x_axis": "ID",
+          "x_axis_unit": "A",
+          "grid_position": "left"
+        },
+        {
+          "label": "Fig. 10 Typical Capacitance vs. Drain-to-Source Voltage",
+          "y_axis": "C",
+          "y_axis_unit": "pF",
+          "x_axis": "VDS",
+          "x_axis_unit": "V",
+          "grid_position": "right"
+        },
+        {
+          "label": "Fig. 11 Typical Gate Charge vs. Gate-to-Source Voltage",
+          "y_axis": "VGS",
+          "y_axis_unit": "V",
+          "x_axis": "QG",
+          "x_axis_unit": "nC",
+          "grid_position": "left"
+        },
+        {
+          "label": "Fig. 12 Maximum Drain Current vs. Case Temperature",
+          "y_axis": "ID",
+          "y_axis_unit": "A",
+          "x_axis": "TC",
+          "x_axis_unit": "\u00b0C",
+          "grid_position": "right"
+        }
+      ],
+      "raw_response": "{\"parameters\": [], \"figures\": [{\"label\": \"Fig. 7 Typical Threshold Voltage vs. Junction Temperature\", \"y_axis\": \"VGS(th)\", \"y_axis_unit\": \"V\", \"x_axis\": \"Tj\", \"x_axis_unit\": \"\\u00b0C\", \"grid_position\": \"left\"}, {\"label\": \"Fig. 8 Typical Source-Drain Diode Forward Voltage\", \"y_axis\": \"ID\", \"y_axis_unit\": \"A\", \"x_axis\": \"VSD\", \"x_axis_unit\": \"V\", \"grid_position\": \"right\"}, {\"label\": \"Fig. 9 Typical Forward Transconductance vs. Drain Current\", \"y_axis\": \"GFS\", \"y_axis_unit\": \"S\", \"x_axis\": \"ID\", \"x_axis_unit\": \"A\", \"grid_position\": \"left\"}, {\"label\": \"Fig. 10 Typical Capacitance vs. Drain-to-Source Voltage\", \"y_axis\": \"C\", \"y_axis_unit\": \"pF\", \"x_axis\": \"VDS\", \"x_axis_unit\": \"V\", \"grid_position\": \"right\"}, {\"label\": \"Fig. 11 Typical Gate Charge vs. Gate-to-Source Voltage\", \"y_axis\": \"VGS\", \"y_axis_unit\": \"V\", \"x_axis\": \"QG\", \"x_axis_unit\": \"nC\", \"grid_position\": \"left\"}, {\"label\": \"Fig. 12 Maximum Drain Current vs. Case Temperature\", \"y_axis\": \"ID\", \"y_axis_unit\": \"A\", \"x_axis\": \"TC\", \"x_axis_unit\": \"\\u00b0C\", \"grid_position\": \"right\"}]}",
+      "parsed_ok": true
+    },
+    {
+      "page": 6,
+      "inference_seconds": 39.714794874191284,
+      "timed_out": false,
+      "parameters": [],
+      "figures": [
+        {
+          "label": "Fig 13. Maximum Safe Operating Area",
+          "y_axis": "ID, Drain-to-Source Current",
+          "y_axis_unit": "A",
+          "x_axis": "VDS, Drain-to-Source Voltage",
+          "x_axis_unit": "V",
+          "grid_position": "left"
+        },
+        {
+          "label": "Fig 14. Maximum Avalanche Energy vs. Temperature",
+          "y_axis": "EAS, Single Pulse Avalanche Energy",
+          "y_axis_unit": "mJ",
+          "x_axis": "Starting Tj, Junction Temperature",
+          "x_axis_unit": "\u00b0C",
+          "grid_position": "right"
+        },
+        {
+          "label": "Fig 15. Maximum Effective Transient Thermal Impedance, Junction-to-Case",
+          "y_axis": "Thermal Response (ZthJC)",
+          "y_axis_unit": "C/W",
+          "x_axis": "t1, Rectangular Pulse Duration",
+          "x_axis_unit": "sec",
+          "grid_position": "center"
+        },
+        {
+          "label": "Fig 16. Typical Avalanche Current vs. Pulse Width",
+          "y_axis": "Avalanche Current",
+          "y_axis_unit": "A",
+          "x_axis": "tav, Pulse Width",
+          "x_axis_unit": "sec",
+          "grid_position": "bottom"
+        }
+      ],
+      "raw_response": "{\"parameters\": [], \"figures\": [{\"label\": \"Fig 13. Maximum Safe Operating Area\", \"y_axis\": \"ID, Drain-to-Source Current\", \"y_axis_unit\": \"A\", \"x_axis\": \"VDS, Drain-to-Source Voltage\", \"x_axis_unit\": \"V\", \"grid_position\": \"left\"}, {\"label\": \"Fig 14. Maximum Avalanche Energy vs. Temperature\", \"y_axis\": \"EAS, Single Pulse Avalanche Energy\", \"y_axis_unit\": \"mJ\", \"x_axis\": \"Starting Tj, Junction Temperature\", \"x_axis_unit\": \"\\u00b0C\", \"grid_position\": \"right\"}, {\"label\": \"Fig 15. Maximum Effective Transient Thermal Impedance, Junction-to-Case\", \"y_axis\": \"Thermal Response (ZthJC)\", \"y_axis_unit\": \"C/W\", \"x_axis\": \"t1, Rectangular Pulse Duration\", \"x_axis_unit\": \"sec\", \"grid_position\": \"center\"}, {\"label\": \"Fig 16. Typical Avalanche Current vs. Pulse Width\", \"y_axis\": \"Avalanche Current\", \"y_axis_unit\": \"A\", \"x_axis\": \"tav, Pulse Width\", \"x_axis_unit\": \"sec\", \"grid_position\": \"bottom\"}]}",
+      "parsed_ok": true
+    },
+    {
+      "page": 7,
+      "inference_seconds": 88.90494179725647,
+      "timed_out": false,
+      "parameters": [],
+      "figures": [
+        {
+          "label": "Fig 17. Maximum Avalanche Energy vs. Temperature",
+          "y_axis": "EAR, Avalanche Energy",
+          "y_axis_unit": "mJ",
+          "x_axis": "Starting Tj",
+          "x_axis_unit": "\u00b0C",
+          "grid_position": "top-left"
+        },
+        {
+          "label": "Fig 18a. Unclamped Inductive Test Circuit",
+          "y_axis": "VDS, VGS",
+          "y_axis_unit": "V",
+          "x_axis": null,
+          "x_axis_unit": null,
+          "grid_position": "middle-left"
+        },
+        {
+          "label": "Fig 18b. Unclamped Inductive Waveforms",
+          "y_axis": "V(BR)DSS, ID",
+          "y_axis_unit": "V, A",
+          "x_axis": "tP",
+          "x_axis_unit": "s",
+          "grid_position": "middle-right"
+        },
+        {
+          "label": "Fig 19a. Gate Charge Test Circuit",
+          "y_axis": "VDS, VGS",
+          "y_axis_unit": "V",
+          "x_axis": null,
+          "x_axis_unit": null,
+          "grid_position": "middle-left"
+        },
+        {
+          "label": "Fig 19b. Gate Charge Waveform",
+          "y_axis": "VDS, ID",
+          "y_axis_unit": "V, A",
+          "x_axis": "t",
+          "x_axis_unit": "s",
+          "grid_position": "middle-right"
+        },
+        {
+          "label": "Fig 20a. Switching Time Test Circuit",
+          "y_axis": "VDS, VGS",
+          "y_axis_unit": "V",
+          "x_axis": null,
+          "x_axis_unit": null,
+          "grid_position": "bottom-left"
+        },
+        {
+          "label": "Fig 20b. Switching Time Waveforms",
+          "y_axis": "VDS, ID",
+          "y_axis_unit": "V, A",
+          "x_axis": "t",
+          "x_axis_unit": "s",
+          "grid_position": "bottom-right"
+        }
+      ],
+      "raw_response": "{\"product_name\": \"AURF7739L2TR\", \"document_date\": \"2015-11-19\", \"notes\": \"1. Avalanche failures assumption: Purely a thermal phenomenon and failure occurs at a temperature far in excess of Tjmax. This is validated for every part type.\\n2. Safe operation in Avalanche is allowed as long as Tjmax is not exceeded.\\n3. Equation below based on circuit and waveforms shown in Figures 18a, 18b.\\n4. Pd (ave) = Average power dissipation per single avalanche pulse.\\n5. BV = Rated breakdown voltage (1.3 factor accounts for voltage increase during avalanche).\\n6. iav = Allowable avalanche current.\\n7. \\u0394T = Allowable rise in junction temperature, not to exceed Tjmax (assumed as 25\\u00b0C in Figure 16, 17).\\n8. tav = Average time in avalanche.\\n9. D = Duty cycle in avalanche = tav / t.\\n10. ZthJC(D, tav) = Transient thermal resistance, see Figures 15\", \"parameters\": [], \"figures\": [{\"label\": \"Fig 17. Maximum Avalanche Energy vs. Temperature\", \"y_axis\": \"EAR, Avalanche Energy\", \"y_axis_unit\": \"mJ\", \"x_axis\": \"Starting Tj\", \"x_axis_unit\": \"\\u00b0C\", \"grid_position\": \"top-left\"}, {\"label\": \"Fig 18a. Unclamped Inductive Test Circuit\", \"y_axis\": \"VDS, VGS\", \"y_axis_unit\": \"V\", \"x_axis\": null, \"x_axis_unit\": null, \"grid_position\": \"middle-left\"}, {\"label\": \"Fig 18b. Unclamped Inductive Waveforms\", \"y_axis\": \"V(BR)DSS, ID\", \"y_axis_unit\": \"V, A\", \"x_axis\": \"tP\", \"x_axis_unit\": \"s\", \"grid_position\": \"middle-right\"}, {\"label\": \"Fig 19a. Gate Charge Test Circuit\", \"y_axis\": \"VDS, VGS\", \"y_axis_unit\": \"V\", \"x_axis\": null, \"x_axis_unit\": null, \"grid_position\": \"middle-left\"}, {\"label\": \"Fig 19b. Gate Charge Waveform\", \"y_axis\": \"VDS, ID\", \"y_axis_unit\": \"V, A\", \"x_axis\": \"t\", \"x_axis_unit\": \"s\", \"grid_position\": \"middle-right\"}, {\"label\": \"Fig 20a. Switching Time Test Circuit\", \"y_axis\": \"VDS, VGS\", \"y_axis_unit\": \"V\", \"x_axis\": null, \"x_axis_unit\": null, \"grid_position\": \"bottom-left\"}, {\"label\": \"Fig 20b. Switching Time Waveforms\", \"y_axis\": \"VDS, ID\", \"y_axis_unit\": \"V, A\", \"x_axis\": \"t\", \"x_axis_unit\": \"s\", \"grid_position\": \"bottom-right\"}]}",
+      "parsed_ok": true
+    },
+    {
+      "page": 8,
+      "skipped": true,
+      "skip_reason": "no data signal on page",
+      "inference_seconds": 0,
+      "parameters": [],
+      "figures": [],
+      "parsed_ok": true,
+      "timed_out": false
+    },
+    {
+      "page": 9,
+      "inference_seconds": 13.103455066680908,
+      "timed_out": false,
+      "parameters": [],
+      "figures": [
+        {
+          "label": "Outline Dimension, L8 (Large Size Can)",
+          "y_axis": "DIMENSIONS",
+          "y_axis_unit": "mm",
+          "x_axis": null,
+          "x_axis_unit": null,
+          "grid_position": "center"
+        }
+      ],
+      "raw_response": "{\"parameters\": [], \"figures\": [{\"label\": \"Outline Dimension, L8 (Large Size Can)\", \"y_axis\": \"DIMENSIONS\", \"y_axis_unit\": \"mm\", \"x_axis\": null, \"x_axis_unit\": null, \"grid_position\": \"center\"}]}",
+      "parsed_ok": true
+    },
+    {
+      "page": 10,
+      "skipped": true,
+      "skip_reason": "mechanical/legal: \\bdimensions in mm\\b",
+      "inference_seconds": 0,
+      "parameters": [],
+      "figures": [],
+      "parsed_ok": true,
+      "timed_out": false
+    },
+    {
+      "page": 11,
+      "skipped": true,
+      "skip_reason": "marketing/disclaimer: \\brevision history\\b",
+      "inference_seconds": 0,
+      "parameters": [],
+      "figures": [],
+      "parsed_ok": true,
+      "timed_out": false
+    }
+  ],
+  "completed_at": "2026-05-23 04:42:46"
+}

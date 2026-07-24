@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "device": "AUIRFP1405",
+  "device_class": "mosfet",
+  "extraction_dir": "/mnt/c/Archit/ARPOWer/Device database/Final_OCR_with_curve/OCR_round3/AUIRFP1405",
+  "figure_index": 8,
+  "page": 5,
+  "image_path": "figures/fig_p5_008_sub0.png",
+  "curve_type": "capacitance",
+  "bbox": {
+    "x1": 0,
+    "y1": 0,
+    "x2": 643,
+    "y2": 603
+  },
+  "candidate_strength": "high",
+  "confidence": "HIGH",
+  "picked_score": 65.0,
+  "margin": 1065.0
+}

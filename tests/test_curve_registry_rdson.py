@@ -19,7 +19,7 @@ strictly below the true chart, and stay out of capacitance_vs_vds's way.
 import pytest
 
 from src.classification.classify import (
-    MATCH_MARGIN, MATCH_THRESHOLD, ClassificationStatus, classify_page,
+    MATCH_MARGIN, MATCH_THRESHOLD, ClassificationStatus, classify_device, classify_page,
 )
 from src.classification.curve_registry import (
     CurveTypeSpec, get_spec, list_registered_types,
@@ -247,3 +247,202 @@ def test_rdson_true_chart_does_not_match_capacitance():
     spec = get_spec("capacitance_vs_vds")
     for chart in (ir_true_chart(), infineon_true_chart()):
         assert score_figure(chart, spec).total_score < MATCH_THRESHOLD
+
+
+# --------------------------------------------------- real-device regression:
+# breakdown-voltage distractor (RD3G08CBKHRBTL, found during a real Stage-4
+# classification spot-check, 2026-07-23). "Fig.7 Normalized Breakdown
+# Voltage vs. Junction Temperature" was outscoring the SAME device's real
+# on-resistance chart, "Fig.13 Static Drain-Source On-State Resistance vs.
+# Junction Temperature" (10.5 vs 9.0) -- purely because both charts mention
+# "normalized" and both have a junction-temperature x-axis, neither of
+# which is specific to on-resistance. Every OCR line/bbox below is real,
+# grep'd directly from that device's full_extraction.json (figure index 12
+# and figure index 20 respectively), not invented.
+
+def rd3g08c_breakdown_voltage_chart(figure_id="rd3g08c_breakdown", page=5):
+    """RD3G08CBKHRBTL, page 5, figure index 12 (crop size 701x688) -- the
+    WRONG chart that was outscoring rdson_vs_tj's own true chart."""
+    return FigureCandidate(
+        figure_id=figure_id, page=page, figure_index=12, image_path="rd3g08c_fig12.png",
+        caption="Fig.7 Normalized Breakdown Voltage vs. Junction Temperature",
+        ocr_lines=[OcrLine(text=t, bbox=b) for t, b in [
+            ("1.2", (110, 35, 144, 57)), ("VGS = 0V", (191, 70, 285, 97)),
+            ("ID = 1mA", (191, 101, 284, 127)), ("Pulsed", (192, 131, 266, 153)),
+            ("1.1", (109, 165, 141, 188)), ("1.0", (105, 293, 148, 326)),
+            ("0.9", (108, 430, 144, 450)), ("0.8", (109, 561, 144, 582)),
+            ("Normalized Breakdown Voltage : V(BR)DSS", (21, 46, 58, 580)),
+            ("-50 -25", (146, 586, 248, 606)), ("0", (285, 587, 299, 606)),
+            ("25", (341, 587, 368, 606)), ("50", (402, 587, 430, 607)),
+            ("75", (464, 586, 490, 606)), ("100", (521, 587, 559, 605)),
+            ("125", (581, 588, 617, 606)), ("150", (643, 587, 678, 606)),
+            ("Junction Temperature : Tj [℃]", (222, 640, 609, 674)),
+        ]],
+        figure_width=701.0, figure_height=688.0,
+    )
+
+
+def rd3g08c_onresistance_chart(figure_id="rd3g08c_onres", page=7):
+    """RD3G08CBKHRBTL, page 7, figure index 20 (crop size 716x679) -- the
+    REAL rdson_vs_tj chart on the same device."""
+    return FigureCandidate(
+        figure_id=figure_id, page=page, figure_index=20, image_path="rd3g08c_fig20.png",
+        caption="Fig.13 Static Drain - Source On - State Resistance vs. Junction Temperature",
+        ocr_lines=[OcrLine(text=t, bbox=b) for t, b in [
+            ("4", (141, 31, 158, 52)), ("VGs = 10V", (195, 69, 303, 95)),
+            ("Pulsed", (196, 94, 269, 114)), ("3.5", (122, 118, 156, 140)),
+            ("3", (142, 207, 157, 227)), ("E", (77, 253, 96, 276)),
+            ("ID = 50A", (510, 261, 595, 289)), ("2.5", (120, 295, 156, 317)),
+            ("U", (77, 326, 95, 341)), ("2", (142, 384, 156, 403)),
+            (": RDS(on) [m2]", (68, 216, 102, 392)), ("1.5", (124, 471, 158, 493)),
+            ("1", (144, 561, 157, 579)),
+            ("Static Drain - Source On-State Resistance", (29, 36, 59, 579)),
+            ("-50", (156, 587, 196, 606)), ("-25", (198, 586, 258, 606)),
+            ("0", (292, 586, 307, 605)), ("25", (348, 586, 376, 606)),
+            ("50", (410, 586, 438, 605)), ("75", (474, 586, 501, 606)),
+            ("100", (530, 587, 569, 605)), ("125", (588, 586, 631, 605)),
+            ("150", (655, 586, 691, 605)),
+            ("Junction Temperature : Tj [℃]", (232, 635, 618, 668)),
+        ]],
+        figure_width=716.0, figure_height=679.0,
+    )
+
+
+def test_real_onresistance_chart_never_mentions_breakdown_voltage():
+    # Grounds the "this guard is safe" claim in the real text itself,
+    # rather than assuming it.
+    chart = rd3g08c_onresistance_chart()
+    combined = (chart.caption or "") + " " + " ".join(l.text for l in chart.ocr_lines)
+    assert "breakdown voltage" not in combined.lower()
+
+
+def test_real_onresistance_chart_score_unaffected_by_new_guard():
+    # The true chart's own score must not move at all -- it never mentions
+    # "breakdown voltage", so a negative phrase for it can't touch this score.
+    assert score_figure(rd3g08c_onresistance_chart(), get_spec("rdson_vs_tj")).total_score \
+        == pytest.approx(9.0)
+
+
+def test_real_breakdown_voltage_distractor_no_longer_outscores_true_chart():
+    spec = get_spec("rdson_vs_tj")
+    breakdown_score = score_figure(rd3g08c_breakdown_voltage_chart(), spec).total_score
+    true_score = score_figure(rd3g08c_onresistance_chart(), spec).total_score
+    assert breakdown_score < true_score
+
+
+def test_end_to_end_rd3g08c_prefers_real_onresistance_over_breakdown_voltage():
+    # Reproduces the exact real bug end-to-end: both real charts on their
+    # real pages -- classify_device must now pick the true on-resistance
+    # chart, not the breakdown-voltage distractor.
+    figures_by_page = {
+        5: [rd3g08c_breakdown_voltage_chart(page=5)],
+        7: [rd3g08c_onresistance_chart(page=7)],
+    }
+    result, _ = classify_device(figures_by_page, "rdson_vs_tj")
+    assert result.status is ClassificationStatus.MATCHED
+    assert result.figure.figure_id == "rd3g08c_onres"
+
+
+# --------------------------------------------------------------------------
+# "power dissipation" negative-phrase guard (2026-07-24, owner-approved) --
+# same root cause and same fix pattern as the "breakdown voltage" guard
+# above: RS6G100BGTB1's real "Fig.1 Power Dissipation Derating Curve" chart
+# (page 4) was outscoring the SAME device's real on-resistance chart,
+# "Fig.13 Static Drain-Source On-State Resistance vs. Junction Temperature"
+# (page 7) -- 6.5 vs 4.0 -- purely because both are plotted against
+# junction temperature, which is not specific to on-resistance. Every OCR
+# line/bbox below is real, grep'd directly from that device's real
+# full_extraction.json (figures/fig_p4_005.png and figures/fig_p7_020.png
+# respectively), not invented.
+
+def rs6g100b_power_dissipation_chart(figure_id="rs6g100b_powerdiss", page=4):
+    """RS6G100BGTB1, page 4, figures/fig_p4_005.png (crop size 709x686) --
+    the WRONG chart that was outscoring rdson_vs_tj's own true chart."""
+    return FigureCandidate(
+        figure_id=figure_id, page=page, figure_index=0, image_path="rs6g100b_fig4_005.png",
+        caption="Fig.1 Power Dissipation Derating Curve",
+        ocr_lines=[OcrLine(text=t, bbox=b) for t, b in [
+            ("120", (114, 33, 152, 54)), ("100", (113, 119, 153, 143)),
+            ("80", (125, 208, 152, 229)), ("60", (124, 294, 152, 317)),
+            ("40", (124, 382, 153, 402)), ("20", (125, 467, 152, 490)),
+            ("Power Dissipation : PD/PD max. [%]", (22, 83, 61, 531)),
+            ("0", (138, 556, 152, 575)),
+            ("0", (163, 585, 176, 603)), ("25", (225, 584, 255, 605)),
+            ("50", (296, 584, 324, 604)), ("75", (364, 584, 396, 604)),
+            ("100", (431, 584, 472, 605)), ("125", (500, 584, 541, 604)),
+            ("150", (571, 584, 612, 604)), ("175", (641, 584, 682, 605)),
+            ("Junction Temperature : Tj [℃]", (224, 633, 610, 666)),
+        ]],
+        figure_width=709.0, figure_height=686.0,
+    )
+
+
+def rs6g100b_onresistance_chart(figure_id="rs6g100b_onres", page=7):
+    """RS6G100BGTB1, page 7, figures/fig_p7_020.png (crop size 716x679) --
+    the REAL rdson_vs_tj chart on the same device (real verified score
+    4.0, unaffected by this guard)."""
+    return FigureCandidate(
+        figure_id=figure_id, page=page, figure_index=0, image_path="rs6g100b_fig7_020.png",
+        caption="Fig. 13 Static Drain - Source On - State Resistance vs. Junction Temperature",
+        ocr_lines=[OcrLine(text=t, bbox=b) for t, b in [
+            ("6", (133, 28, 149, 50)), ("VGs = 10V", (195, 73, 316, 103)),
+            ("5", (134, 116, 148, 139)), ("Pulsed", (198, 104, 277, 127)),
+            ("4", (134, 207, 149, 226)), ("3", (133, 294, 148, 315)),
+            ("ID = 90A", (445, 319, 542, 353)), ("2", (132, 383, 148, 403)),
+            (": RDS(on) [m2]", (67, 213, 101, 391)), ("1", (135, 472, 149, 492)),
+            ("0", (134, 560, 150, 580)),
+            ("Static Drain - Source On-State Resistance", (28, 33, 59, 578)),
+            ("-50", (150, 588, 256, 610)), ("0", (287, 589, 303, 609)),
+            ("25", (342, 588, 396, 609)), ("50", (397, 584, 460, 613)),
+            ("75", (458, 585, 634, 612)), ("150", (647, 584, 692, 614)),
+        ]],
+        figure_width=716.0, figure_height=679.0,
+    )
+
+
+def test_real_rs6g100b_onresistance_chart_never_mentions_power_dissipation():
+    # Grounds the "this guard is safe" claim in the real text itself,
+    # rather than assuming it.
+    chart = rs6g100b_onresistance_chart()
+    combined = (chart.caption or "") + " " + " ".join(l.text for l in chart.ocr_lines)
+    assert "power dissipation" not in combined.lower()
+
+
+def test_real_rs6g100b_onresistance_chart_score_unaffected_by_new_guard():
+    # The true chart's own score must not move at all -- it never mentions
+    # "power dissipation", so a negative phrase for it can't touch this
+    # score. Real verified pre-fix score: 4.0.
+    assert score_figure(rs6g100b_onresistance_chart(), get_spec("rdson_vs_tj")).total_score \
+        == pytest.approx(4.0)
+
+
+def test_real_power_dissipation_distractor_no_longer_outscores_true_chart():
+    spec = get_spec("rdson_vs_tj")
+    power_dissipation_score = score_figure(rs6g100b_power_dissipation_chart(), spec).total_score
+    true_score = score_figure(rs6g100b_onresistance_chart(), spec).total_score
+    assert power_dissipation_score < true_score
+
+
+def test_end_to_end_rs6g100b_prefers_real_onresistance_over_power_dissipation():
+    # Reproduces the exact real bug end-to-end: both real charts on their
+    # real pages -- classify_device must now pick the true on-resistance
+    # chart, not the power-dissipation distractor. Unlike the
+    # breakdown-voltage case above, this real chart's own raw score (4.0)
+    # is genuinely below MATCH_THRESHOLD (5.0) on its own merits -- it was
+    # already quarantined on its own page before this fix, and still is
+    # after it. What this fix changes is WHICH chart wins the cross-page
+    # comparison: before, the power-dissipation chart scored high enough
+    # (6.5) to be confidently MATCHED and claim its figure outright,
+    # burying the real chart entirely; after, it drops below threshold
+    # too, so the real chart correctly surfaces as the best candidate --
+    # held for human review (status stays QUARANTINED), not silently
+    # replaced by a wrong confident answer. Same "show the person the
+    # right chart to review" fix shape as the classify_device cross-page
+    # selection fix (T36) this builds on.
+    figures_by_page = {
+        4: [rs6g100b_power_dissipation_chart(page=4)],
+        7: [rs6g100b_onresistance_chart(page=7)],
+    }
+    result, _ = classify_device(figures_by_page, "rdson_vs_tj")
+    assert result.status is ClassificationStatus.QUARANTINED
+    assert result.figure.figure_id == "rs6g100b_onres"

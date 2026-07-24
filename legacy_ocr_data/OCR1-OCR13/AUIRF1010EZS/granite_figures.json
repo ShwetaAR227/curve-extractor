@@ -1,0 +1,244 @@
+{
+  "device": "AUIRF1010EZS",
+  "model": "ibm-granite/granite-vision-4.1-4b",
+  "pages_processed": [
+    1,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "figures": [
+    {
+      "label": "IV Curves",
+      "y_axis": "VDS",
+      "y_axis_unit": "V",
+      "x_axis": "IGD2",
+      "x_axis_unit": "A",
+      "grid_position": "top-left",
+      "_page": 1
+    },
+    {
+      "label": "Thermal Resistance",
+      "y_axis": "Temperature",
+      "y_axis_unit": "\u00b0C",
+      "x_axis": "Power Dissipation",
+      "x_axis_unit": "W",
+      "grid_position": "top-center",
+      "_page": 1
+    },
+    {
+      "label": "Fig. 1 Typical Output Characteristics",
+      "y_axis": "ID, Drain-to-Source Current",
+      "y_axis_unit": "A",
+      "x_axis": "VDS, Drain-to-Source Voltage",
+      "x_axis_unit": "V",
+      "grid_position": "top-left",
+      "_page": 3
+    },
+    {
+      "label": "Fig. 2 Typical Output Characteristics",
+      "y_axis": "ID, Drain-to-Source Current",
+      "y_axis_unit": "A",
+      "x_axis": "VDS, Drain-to-Source Voltage",
+      "x_axis_unit": "V",
+      "grid_position": "top-right",
+      "_page": 3
+    },
+    {
+      "label": "Fig. 3 Typical Transfer Characteristics",
+      "y_axis": "ID, Drain-to-Source Current",
+      "y_axis_unit": "A",
+      "x_axis": "VGS, Gate-to-Source Voltage",
+      "x_axis_unit": "V",
+      "grid_position": "bottom-left",
+      "_page": 3
+    },
+    {
+      "label": "Fig. 4 Typical Forward Transconductance vs. Drain Current",
+      "y_axis": "Gfs, Forward Transconductance",
+      "y_axis_unit": "S",
+      "x_axis": "ID, Drain-to-Source Current",
+      "x_axis_unit": "A",
+      "grid_position": "bottom-right",
+      "_page": 3
+    },
+    {
+      "label": "Fig. 5. Typical Capacitance vs. Drain-to-Source Voltage",
+      "y_axis": "C_iss, C_oss, C_rss",
+      "y_axis_unit": "pF",
+      "x_axis": "V_DS",
+      "x_axis_unit": "V",
+      "grid_position": "left",
+      "_page": 4
+    },
+    {
+      "label": "Fig. 6. Typical Gate Charge vs. Gate-to-Source Voltage",
+      "y_axis": "Q_G",
+      "y_axis_unit": "nC",
+      "x_axis": "V_GS",
+      "x_axis_unit": "V",
+      "grid_position": "right",
+      "_page": 4
+    },
+    {
+      "label": "Fig. 7. Typical Source-to-Drain Diode Forward Voltage",
+      "y_axis": "I_SD",
+      "y_axis_unit": "A",
+      "x_axis": "V_SD",
+      "x_axis_unit": "V",
+      "grid_position": "bottom-left",
+      "_page": 4
+    },
+    {
+      "label": "Fig. 8. Maximum Safe Operating Area",
+      "y_axis": "I_D",
+      "y_axis_unit": "A",
+      "x_axis": "V_DS",
+      "x_axis_unit": "V",
+      "grid_position": "bottom-right",
+      "_page": 4
+    },
+    {
+      "label": "Maximum Drain Current vs. Case Temperature",
+      "y_axis": "ID",
+      "y_axis_unit": "A",
+      "x_axis": "TC",
+      "x_axis_unit": "\u00b0C",
+      "grid_position": "left",
+      "_page": 5
+    },
+    {
+      "label": "Normalized On-Resistance vs. Temperature",
+      "y_axis": "RDS(on)",
+      "y_axis_unit": "Normalized",
+      "x_axis": "TJ",
+      "x_axis_unit": "\u00b0C",
+      "grid_position": "right",
+      "_page": 5
+    },
+    {
+      "label": "Maximum Effective Transient Thermal Impedance, Junction-to-Case",
+      "y_axis": "ZthJC",
+      "y_axis_unit": "m\u03a9",
+      "x_axis": "t1",
+      "x_axis_unit": "sec",
+      "grid_position": "bottom",
+      "_page": 5
+    },
+    {
+      "label": "Fig 12a. Unclamped Inductive Test Circuit",
+      "y_axis": "VDS",
+      "y_axis_unit": "V",
+      "x_axis": null,
+      "x_axis_unit": null,
+      "grid_position": "left",
+      "_page": 6
+    },
+    {
+      "label": "Fig 12b. Unclamped Inductive Waveforms",
+      "y_axis": "V(BR)DSS",
+      "y_axis_unit": "V",
+      "x_axis": "tp",
+      "x_axis_unit": "us",
+      "grid_position": "left",
+      "_page": 6
+    },
+    {
+      "label": "Fig 12c. Maximum Avalanche Energy vs. Drain Current",
+      "y_axis": "EAS, Single Pulse Avalanche Energy",
+      "y_axis_unit": "J",
+      "x_axis": "Starting TJ, Junction Temperature",
+      "x_axis_unit": "\u00b0C",
+      "grid_position": "top",
+      "_page": 6
+    },
+    {
+      "label": "Fig 13a. Gate Charge Waveform",
+      "y_axis": "Vds, Vgs",
+      "y_axis_unit": "V",
+      "x_axis": "Qgs1, Qgs2, Qgd, Qgdr",
+      "x_axis_unit": null,
+      "grid_position": "left",
+      "_page": 6
+    },
+    {
+      "label": "Fig 14. Threshold Voltage vs. Temperature",
+      "y_axis": "VGS(th), Gate threshold Voltage",
+      "y_axis_unit": "V",
+      "x_axis": "TJ, Temperature",
+      "x_axis_unit": "\u00b0C",
+      "grid_position": "top",
+      "_page": 6
+    },
+    {
+      "label": "Fig 13b. Gate Charge Test Circuit",
+      "y_axis": null,
+      "y_axis_unit": null,
+      "x_axis": null,
+      "x_axis_unit": null,
+      "grid_position": null,
+      "_page": 6
+    },
+    {
+      "label": "Fig 15. Typical Avalanche Current vs. Pulse width",
+      "y_axis": "Avalanche Current",
+      "y_axis_unit": "A",
+      "x_axis": "tav",
+      "x_axis_unit": "sec",
+      "grid_position": "top-center",
+      "_page": 7
+    },
+    {
+      "label": "Fig 16. Maximum Avalanche Energy vs. Temperature",
+      "y_axis": "EAR",
+      "y_axis_unit": "mJ",
+      "x_axis": "Starting Tj",
+      "x_axis_unit": "\u00b0C",
+      "grid_position": "middle-left",
+      "_page": 7
+    },
+    {
+      "label": "Peak Diode Recovery dv/dt Test Circuit for N-Channel HEXFET\u00ae Power MOSFETs",
+      "y_axis": "D.U.T. VDS, D.U.T. VGS, Body Diode Forward Current, D.U.T. VDS Recovery Current, D.U.T. VGS Recovery Current, Inductor Current, Ripple",
+      "y_axis_unit": "V, V, A, A, A, A, A",
+      "x_axis": "Time",
+      "x_axis_unit": "s, ms",
+      "grid_position": "middle",
+      "_page": 8
+    },
+    {
+      "label": "Switching Time Test Circuit",
+      "y_axis": "D.U.T. VDS, D.U.T. VGS",
+      "y_axis_unit": "V, V",
+      "x_axis": "Time",
+      "x_axis_unit": "s, ms",
+      "grid_position": "middle",
+      "_page": 8
+    },
+    {
+      "label": "Switching Time Waveforms",
+      "y_axis": "VDS, VGS",
+      "y_axis_unit": "V",
+      "x_axis": "Time",
+      "x_axis_unit": "s, ms",
+      "grid_position": "middle",
+      "_page": 8
+    },
+    {
+      "label": "TO-220AB Package Outline",
+      "y_axis": null,
+      "y_axis_unit": null,
+      "x_axis": null,
+      "x_axis_unit": null,
+      "grid_position": null,
+      "_page": 9
+    }
+  ],
+  "rdson_vs_tj_count": 1,
+  "completed_at": "2026-05-23 02:11:39",
+  "raw_response": "see granite_pages.json"
+}

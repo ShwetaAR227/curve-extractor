@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "device": "AUIRF7739L2TR",
+  "device_class": "mosfet",
+  "extraction_dir": "/mnt/c/Archit/ARPOWer/Device database/Final_OCR_with_curve/OCR_round3/AUIRF7739L2TR",
+  "figure_index": 15,
+  "page": 4,
+  "image_path": "figures/fig_p4_015.png",
+  "curve_type": "rdson_vs_tj",
+  "bbox": {
+    "x1": 877,
+    "y1": 1412,
+    "x2": 1516,
+    "y2": 2016
+  },
+  "candidate_strength": "high",
+  "confidence": "HIGH",
+  "picked_score": 66.0,
+  "margin": 53.0
+}

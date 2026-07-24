@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "device": "AUIRF1405-INF",
+  "device_class": "mosfet",
+  "extraction_dir": "/mnt/c/Archit/ARPOWer/Device database/Final_OCR_with_curve/OCR_round3/AUIRF1405-INF",
+  "figure_index": 21,
+  "page": 7,
+  "image_path": "figures/fig_p7_021.png",
+  "curve_type": "vgsth_vs_tj",
+  "bbox": {
+    "x1": 834,
+    "y1": 1297,
+    "x2": 1480,
+    "y2": 1899
+  },
+  "candidate_strength": "high",
+  "confidence": "HIGH",
+  "picked_score": 58.0,
+  "margin": 64.0
+}

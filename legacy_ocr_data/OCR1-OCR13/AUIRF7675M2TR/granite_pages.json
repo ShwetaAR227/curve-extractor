@@ -1,0 +1,772 @@
+{
+  "device": "AUIRF7675M2TR",
+  "model": "ibm-granite/granite-vision-4.1-4b",
+  "pages_processed": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "total_inference_seconds": 1323.0303864479065,
+  "pages": [
+    {
+      "page": 1,
+      "inference_seconds": 202.420334815979,
+      "timed_out": false,
+      "parameters": [
+        {
+          "symbol": "VDS",
+          "description": "Drain-to-Source Voltage",
+          "min": null,
+          "typ": null,
+          "max": 150.0,
+          "unit": "V"
+        },
+        {
+          "symbol": "VGS",
+          "description": "Gate-to-Source Voltage",
+          "min": null,
+          "typ": null,
+          "max": 20.0,
+          "unit": "V"
+        },
+        {
+          "symbol": "ID @ TC = 25\u00b0C",
+          "description": "Continuous Drain Current, VGS @ 10V (Silicon Limited)",
+          "min": null,
+          "typ": null,
+          "max": 18.0,
+          "unit": "A",
+          "conditions": "VGS = 10V, TC = 25\u00b0C"
+        },
+        {
+          "symbol": "ID @ TC = 100\u00b0C",
+          "description": "Continuous Drain Current, VGS @ 10V (Silicon Limited)",
+          "min": null,
+          "typ": null,
+          "max": 13.0,
+          "unit": "A",
+          "conditions": "VGS = 10V, TC = 100\u00b0C"
+        },
+        {
+          "symbol": "ID @ TA = 25\u00b0C",
+          "description": "Continuous Drain Current, VGS @ 10V (Silicon Limited)",
+          "min": null,
+          "typ": null,
+          "max": 4.4,
+          "unit": "A",
+          "conditions": "VGS = 10V, TA = 25\u00b0C"
+        },
+        {
+          "symbol": "ID @ TC = 25\u00b0C",
+          "description": "Continuous Drain Current, VGS @ 10V (Package Limited)",
+          "min": null,
+          "typ": null,
+          "max": 90.0,
+          "unit": "A",
+          "conditions": "VGS = 10V, TC = 25\u00b0C"
+        },
+        {
+          "symbol": "IDM",
+          "description": "Pulsed Drain Current",
+          "min": null,
+          "typ": null,
+          "max": 72.0,
+          "unit": "A"
+        },
+        {
+          "symbol": "PDI @ TC = 25\u00b0C",
+          "description": "Power Dissipation",
+          "min": null,
+          "typ": null,
+          "max": 45.0,
+          "unit": "W",
+          "conditions": "TC = 25\u00b0C"
+        },
+        {
+          "symbol": "PDI @ TA = 25\u00b0C",
+          "description": "Power Dissipation",
+          "min": null,
+          "typ": null,
+          "max": 2.7,
+          "unit": "W",
+          "conditions": "TA = 25\u00b0C"
+        },
+        {
+          "symbol": "EAS",
+          "description": "Single Pulse Avalanche Energy (Thermally Limited)",
+          "min": null,
+          "typ": null,
+          "max": 59.0,
+          "unit": "mJ"
+        },
+        {
+          "symbol": "EAS (Tested)",
+          "description": "Single Pulse Avalanche Energy",
+          "min": null,
+          "typ": null,
+          "max": 170.0,
+          "unit": "mJ"
+        },
+        {
+          "symbol": "IAR",
+          "description": "Avalanche Current",
+          "min": null,
+          "typ": null,
+          "max": null,
+          "unit": "A"
+        },
+        {
+          "symbol": "EAR",
+          "description": "Repetitive Avalanche Energy",
+          "min": null,
+          "typ": null,
+          "max": null,
+          "unit": "mJ"
+        },
+        {
+          "symbol": "TP",
+          "description": "Peak Soldering Temperature",
+          "min": null,
+          "typ": null,
+          "max": 270.0,
+          "unit": "\u00b0C"
+        },
+        {
+          "symbol": "TJ",
+          "description": "Operating Junction and Storage Temperature Range",
+          "min": -55.0,
+          "typ": null,
+          "max": 175.0,
+          "unit": "\u00b0C"
+        }
+      ],
+      "figures": [],
+      "raw_response": "{\"product_name\": \"AURF7675M2TR\", \"product_type\": \"Automotive DirectFET Power MOSFET\", \"application_area\": \"Automotive Class D audio amplifier applications\", \"key_features\": [\"Advanced Process Technology\", \"Optimized for Class D Audio Amplifier Applications\", \"Low Rds(on) for Improved Efficiency\", \"Low Qg for Better THD and Improved Efficiency\", \"Low Qrr for Better THD and Lower EMI\", \"Low Parasitic Inductance for Reduced Ringing and Lower EMI\", \"Delivers up to 250W per Channel into 4\\u03a9 with No Heat sink\", \"Dual Sided Cooling\", \"175\\u00b0C Operating Temperature\", \"Repetitive Avalanche Capability for Robustness and Reliability\", \"Lead free, RoHS and Halogen free\", \"Automotive Qualified\"], \"description\": \"The AURF7675M2TR/TR combines the latest Automotive HEXFET Power MOSFET Silicon technology with the advanced DirectFET packaging platform to produce a best in class part for Automotive Class D audio amplifier applications. The DirectFET package is compatible with existing layout geometries used in power applications, PCB assembly equipment and vapor phase, infra-red or convection soldering techniques, when application note AN-1035 is followed regarding the manufacturing methods and processes. The DirectFET package allows dual sided cooling to maximize thermal transfer in automotive power systems. This HEXFET Power MOSFET optimizes gate charge, body diode reverse recovery and internal gate resistance to improve key Class D audio amplifier performance factors such as efficiency, THD and EMI. Moreover the DirectFET packaging platform offers low parasitic inductance and resistance when compared to conventional wire bonded SOIC packages which improves EMI performance by reducing the voltage ringing that accompanies current transients.\", \"base_part_number\": \"AURF7675M2\", \"package_type\": \"DirectFET Medium Can\", \"form\": \"Tape and Reel\", \"quantity\": 4800, \"orderable_part_number\": \"AURF7675M2TR\", \"absolute_maximum_ratings\": {\"VDS\": 150, \"VGS\": \"\\u00b120\", \"ID_TC_25C\": 18, \"ID_TC_100C\": 13, \"ID_TA_25C\": 4.4, \"ID_TC_10V_Silicon_Limited\": 90, \"IDM\": 72, \"PDI_TC_25C\": 45, \"PDI_TA_25C\": 2.7, \"EAS\": 59, \"EAS_Tested\": 170, \"IAR\": null, \"EAR\": \"See Fig. 16, 17, 18a, 18b\", \"TP\": 270, \"TJ\": \"-55 to +175\", \"TSTG\": null}, \"parameters\": [{\"symbol\": \"VDS\", \"description\": \"Drain-to-Source Voltage\", \"min\": null, \"typ\": null, \"max\": 150.0, \"unit\": \"V\"}, {\"symbol\": \"VGS\", \"description\": \"Gate-to-Source Voltage\", \"min\": null, \"typ\": null, \"max\": 20.0, \"unit\": \"V\"}, {\"symbol\": \"ID @ TC = 25\\u00b0C\", \"description\": \"Continuous Drain Current, VGS @ 10V (Silicon Limited)\", \"min\": null, \"typ\": null, \"max\": 18.0, \"unit\": \"A\", \"conditions\": \"VGS = 10V, TC = 25\\u00b0C\"}, {\"symbol\": \"ID @ TC = 100\\u00b0C\", \"description\": \"Continuous Drain Current, VGS @ 10V (Silicon Limited)\", \"min\": null, \"typ\": null, \"max\": 13.0, \"unit\": \"A\", \"conditions\": \"VGS = 10V, TC = 100\\u00b0C\"}, {\"symbol\": \"ID @ TA = 25\\u00b0C\", \"description\": \"Continuous Drain Current, VGS @ 10V (Silicon Limited)\", \"min\": null, \"typ\": null, \"max\": 4.4, \"unit\": \"A\", \"conditions\": \"VGS = 10V, TA = 25\\u00b0C\"}, {\"symbol\": \"ID @ TC = 25\\u00b0C\", \"description\": \"Continuous Drain Current, VGS @ 10V (Package Limited)\", \"min\": null, \"typ\": null, \"max\": 90.0, \"unit\": \"A\", \"conditions\": \"VGS = 10V, TC = 25\\u00b0C\"}, {\"symbol\": \"IDM\", \"description\": \"Pulsed Drain Current\", \"min\": null, \"typ\": null, \"max\": 72.0, \"unit\": \"A\"}, {\"symbol\": \"PDI @ TC = 25\\u00b0C\", \"description\": \"Power Dissipation\", \"min\": null, \"typ\": null, \"max\": 45.0, \"unit\": \"W\", \"conditions\": \"TC = 25\\u00b0C\"}, {\"symbol\": \"PDI @ TA = 25\\u00b0C\", \"description\": \"Power Dissipation\", \"min\": null, \"typ\": null, \"max\": 2.7, \"unit\": \"W\", \"conditions\": \"TA = 25\\u00b0C\"}, {\"symbol\": \"EAS\", \"description\": \"Single Pulse Avalanche Energy (Thermally Limited)\", \"min\": null, \"typ\": null, \"max\": 59.0, \"unit\": \"mJ\"}, {\"symbol\": \"EAS (Tested)\", \"description\": \"Single Pulse Avalanche Energy\", \"min\": null, \"typ\": null, \"max\": 170.0, \"unit\": \"mJ\"}, {\"symbol\": \"IAR\", \"description\": \"Avalanche Current\", \"min\": null, \"typ\": null, \"max\": null, \"unit\": \"A\"}, {\"symbol\": \"EAR\", \"description\": \"Repetitive Avalanche Energy\", \"min\": null, \"typ\": null, \"max\": null, \"unit\": \"mJ\"}, {\"symbol\": \"TP\", \"description\": \"Peak Soldering Temperature\", \"min\": null, \"typ\": null, \"max\": 270.0, \"unit\": \"\\u00b0C\"}, {\"symbol\": \"TJ\", \"description\": \"Operating Junction and Storage Temperature Range\", \"min\": -55.0, \"typ\": null, \"max\": 175.0, \"unit\": \"\\u00b0C\"}], \"figures\": []}",
+      "parsed_ok": true
+    },
+    {
+      "page": 2,
+      "inference_seconds": 275.91039061546326,
+      "timed_out": false,
+      "parameters": [
+        {
+          "symbol": "R\u03b8JA",
+          "description": "Junction-to-Ambient \u03b8",
+          "min": null,
+          "typ": null,
+          "max": 60.0,
+          "unit": "\u00b0C/W",
+          "conditions": null
+        },
+        {
+          "symbol": "R\u03b8JA",
+          "description": "Junction-to-Ambient \u03b8",
+          "min": null,
+          "typ": 12.5,
+          "max": null,
+          "unit": "\u00b0C/W",
+          "conditions": null
+        },
+        {
+          "symbol": "R\u03b8JA",
+          "description": "Junction-to-Ambient \u03b8",
+          "min": null,
+          "typ": 20.0,
+          "max": null,
+          "unit": "\u00b0C/W",
+          "conditions": null
+        },
+        {
+          "symbol": "R\u03b8J-Can",
+          "description": "Junction-to-Can \u03b8",
+          "min": null,
+          "typ": null,
+          "max": 3.3,
+          "unit": "\u00b0C/W",
+          "conditions": null
+        },
+        {
+          "symbol": "R\u03b8J-PCB",
+          "description": "Junction-to-PCB Mounted",
+          "min": null,
+          "typ": 1.4,
+          "max": null,
+          "unit": "\u00b0C/W",
+          "conditions": null
+        },
+        {
+          "symbol": "Linear Derating Factor",
+          "description": "Linear Derating Factor",
+          "min": null,
+          "typ": 0.3,
+          "max": null,
+          "unit": "W/\u00b0C",
+          "conditions": null
+        },
+        {
+          "symbol": "V(BR)DSS",
+          "description": "Drain-to-Source Breakdown Voltage",
+          "min": 150.0,
+          "typ": null,
+          "max": null,
+          "unit": "V",
+          "conditions": "VGS = 0V, ID = 250\u00b5A"
+        },
+        {
+          "symbol": "\u0394V(BR)DSS/\u0394TJ",
+          "description": "Breakdown Voltage Temp. Coefficient",
+          "min": null,
+          "typ": 0.16,
+          "max": null,
+          "unit": "V/\u00b0C",
+          "conditions": "Reference to 25\u00b0C, ID = 1.0mA"
+        },
+        {
+          "symbol": "RDS(on)",
+          "description": "Static Drain-to-Source On-Resistance",
+          "min": null,
+          "typ": 47.0,
+          "max": 56.0,
+          "unit": "m\u03a9",
+          "conditions": "VGS = 10V, ID = 11A"
+        },
+        {
+          "symbol": "VGS(th)",
+          "description": "Gate Threshold Voltage",
+          "min": 3.0,
+          "typ": 4.0,
+          "max": 5.0,
+          "unit": "V",
+          "conditions": "VDS = VGS, ID = 100\u00b5A"
+        },
+        {
+          "symbol": "\u0394VGS(th)/\u0394TJ",
+          "description": "Gate Threshold Voltage Coefficient",
+          "min": null,
+          "typ": -11.0,
+          "max": null,
+          "unit": "mV/\u00b0C",
+          "conditions": "VDS = VGS, ID = 100\u00b5A"
+        },
+        {
+          "symbol": "gfs",
+          "description": "Forward Transconductance",
+          "min": 16.0,
+          "typ": null,
+          "max": null,
+          "unit": "S",
+          "conditions": "VDS = 50V, ID = 11A"
+        },
+        {
+          "symbol": "Rg",
+          "description": "Internal Gate Resistance",
+          "min": 1.2,
+          "typ": 5.0,
+          "max": null,
+          "unit": "\u03a9",
+          "conditions": null
+        },
+        {
+          "symbol": "Idss",
+          "description": "Drain-to-Source Leakage Current",
+          "min": null,
+          "typ": 20.0,
+          "max": null,
+          "unit": "\u00b5A",
+          "conditions": "VDS = 150V, VGS = 0V"
+        },
+        {
+          "symbol": "Igss",
+          "description": "Gate-to-Source Forward Leakage",
+          "min": null,
+          "typ": 250.0,
+          "max": null,
+          "unit": "\u00b5A",
+          "conditions": "VDS = 150V, VGS = 0V, TJ = 125\u00b0C"
+        },
+        {
+          "symbol": "Igss",
+          "description": "Gate-to-Source Reverse Leakage",
+          "min": null,
+          "typ": 100.0,
+          "max": null,
+          "unit": "nA",
+          "conditions": "VDS = -20V"
+        },
+        {
+          "symbol": "Qg",
+          "description": "Total Gate Charge",
+          "min": 21.0,
+          "typ": 32.0,
+          "max": null,
+          "unit": "nC",
+          "conditions": "VDS = 75V"
+        },
+        {
+          "symbol": "Qgs1",
+          "description": "Gate-to-Source Charge",
+          "min": null,
+          "typ": 5.2,
+          "max": null,
+          "unit": "nC",
+          "conditions": "VGS = 10V"
+        },
+        {
+          "symbol": "Qgs2",
+          "description": "Gate-to-Source Charge",
+          "min": null,
+          "typ": 1.6,
+          "max": null,
+          "unit": "nC",
+          "conditions": "ID = 11A"
+        },
+        {
+          "symbol": "Qgd",
+          "description": "Gate-to-Drain (Miller) Charge",
+          "min": 7.1,
+          "typ": null,
+          "max": null,
+          "unit": "nC",
+          "conditions": "See Fig. 6 and 17"
+        },
+        {
+          "symbol": "Qgodd",
+          "description": "Gate Charge Overdrive",
+          "min": null,
+          "typ": 7.1,
+          "max": null,
+          "unit": "nC",
+          "conditions": null
+        },
+        {
+          "symbol": "Qsw",
+          "description": "Switch Charge (Qgs2 + Qgd)",
+          "min": null,
+          "typ": 8.7,
+          "max": null,
+          "unit": "nC",
+          "conditions": null
+        },
+        {
+          "symbol": "Qoss",
+          "description": "Output Charge",
+          "min": null,
+          "typ": 8.8,
+          "max": null,
+          "unit": "nC",
+          "conditions": "VDS = 16V, VGS = 0V"
+        },
+        {
+          "symbol": "td(on)",
+          "description": "Turn-On Delay Time",
+          "min": null,
+          "typ": 10.0,
+          "max": null,
+          "unit": "ns",
+          "conditions": "VDD = 75V, VGS = 10V"
+        },
+        {
+          "symbol": "tr",
+          "description": "Rise Time",
+          "min": null,
+          "typ": 13.0,
+          "max": null,
+          "unit": "ns",
+          "conditions": "ID = 11A, Rg = 6.8\u03a9"
+        },
+        {
+          "symbol": "td(off)",
+          "description": "Turn-Off Delay Time",
+          "min": null,
+          "typ": 14.0,
+          "max": null,
+          "unit": "ns",
+          "conditions": null
+        },
+        {
+          "symbol": "tf",
+          "description": "Fall Time",
+          "min": null,
+          "typ": 7.5,
+          "max": null,
+          "unit": "ns",
+          "conditions": null
+        },
+        {
+          "symbol": "Ciss",
+          "description": "Input Capacitance",
+          "min": null,
+          "typ": 1360.0,
+          "max": null,
+          "unit": "pF",
+          "conditions": "VGS = 0V"
+        },
+        {
+          "symbol": "Coss",
+          "description": "Output Capacitance",
+          "min": null,
+          "typ": 190.0,
+          "max": null,
+          "unit": "pF",
+          "conditions": "VDS = 25V"
+        },
+        {
+          "symbol": "Crss",
+          "description": "Reverse Transfer Capacitance",
+          "min": null,
+          "typ": 41.0,
+          "max": null,
+          "unit": "pF",
+          "conditions": "f = 1.0 MHz"
+        },
+        {
+          "symbol": "Coss",
+          "description": "Output Capacitance",
+          "min": null,
+          "typ": 1210.0,
+          "max": null,
+          "unit": "pF",
+          "conditions": "VGS = 0V, VDS = 1.0V, f = 1.0 MHz"
+        },
+        {
+          "symbol": "Coss",
+          "description": "Output Capacitance",
+          "min": null,
+          "typ": 92.0,
+          "max": null,
+          "unit": "pF",
+          "conditions": "VGS = 0V, VDS = 120V, f = 1.0MHz"
+        }
+      ],
+      "figures": [],
+      "raw_response": "{\"parameters\": [{\"symbol\": \"R\\u03b8JA\", \"description\": \"Junction-to-Ambient \\u03b8\", \"min\": null, \"typ\": null, \"max\": 60.0, \"unit\": \"\\u00b0C/W\", \"conditions\": null}, {\"symbol\": \"R\\u03b8JA\", \"description\": \"Junction-to-Ambient \\u03b8\", \"min\": null, \"typ\": 12.5, \"max\": null, \"unit\": \"\\u00b0C/W\", \"conditions\": null}, {\"symbol\": \"R\\u03b8JA\", \"description\": \"Junction-to-Ambient \\u03b8\", \"min\": null, \"typ\": 20.0, \"max\": null, \"unit\": \"\\u00b0C/W\", \"conditions\": null}, {\"symbol\": \"R\\u03b8J-Can\", \"description\": \"Junction-to-Can \\u03b8\", \"min\": null, \"typ\": null, \"max\": 3.3, \"unit\": \"\\u00b0C/W\", \"conditions\": null}, {\"symbol\": \"R\\u03b8J-PCB\", \"description\": \"Junction-to-PCB Mounted\", \"min\": null, \"typ\": 1.4, \"max\": null, \"unit\": \"\\u00b0C/W\", \"conditions\": null}, {\"symbol\": \"Linear Derating Factor\", \"description\": \"Linear Derating Factor\", \"min\": null, \"typ\": 0.3, \"max\": null, \"unit\": \"W/\\u00b0C\", \"conditions\": null}, {\"symbol\": \"V(BR)DSS\", \"description\": \"Drain-to-Source Breakdown Voltage\", \"min\": 150.0, \"typ\": null, \"max\": null, \"unit\": \"V\", \"conditions\": \"VGS = 0V, ID = 250\\u00b5A\"}, {\"symbol\": \"\\u0394V(BR)DSS/\\u0394TJ\", \"description\": \"Breakdown Voltage Temp. Coefficient\", \"min\": null, \"typ\": 0.16, \"max\": null, \"unit\": \"V/\\u00b0C\", \"conditions\": \"Reference to 25\\u00b0C, ID = 1.0mA\"}, {\"symbol\": \"RDS(on)\", \"description\": \"Static Drain-to-Source On-Resistance\", \"min\": null, \"typ\": 47.0, \"max\": 56.0, \"unit\": \"m\\u03a9\", \"conditions\": \"VGS = 10V, ID = 11A\"}, {\"symbol\": \"VGS(th)\", \"description\": \"Gate Threshold Voltage\", \"min\": 3.0, \"typ\": 4.0, \"max\": 5.0, \"unit\": \"V\", \"conditions\": \"VDS = VGS, ID = 100\\u00b5A\"}, {\"symbol\": \"\\u0394VGS(th)/\\u0394TJ\", \"description\": \"Gate Threshold Voltage Coefficient\", \"min\": null, \"typ\": -11.0, \"max\": null, \"unit\": \"mV/\\u00b0C\", \"conditions\": \"VDS = VGS, ID = 100\\u00b5A\"}, {\"symbol\": \"gfs\", \"description\": \"Forward Transconductance\", \"min\": 16.0, \"typ\": null, \"max\": null, \"unit\": \"S\", \"conditions\": \"VDS = 50V, ID = 11A\"}, {\"symbol\": \"Rg\", \"description\": \"Internal Gate Resistance\", \"min\": 1.2, \"typ\": 5.0, \"max\": null, \"unit\": \"\\u03a9\", \"conditions\": null}, {\"symbol\": \"Idss\", \"description\": \"Drain-to-Source Leakage Current\", \"min\": null, \"typ\": 20.0, \"max\": null, \"unit\": \"\\u00b5A\", \"conditions\": \"VDS = 150V, VGS = 0V\"}, {\"symbol\": \"Igss\", \"description\": \"Gate-to-Source Forward Leakage\", \"min\": null, \"typ\": 250.0, \"max\": null, \"unit\": \"\\u00b5A\", \"conditions\": \"VDS = 150V, VGS = 0V, TJ = 125\\u00b0C\"}, {\"symbol\": \"Igss\", \"description\": \"Gate-to-Source Reverse Leakage\", \"min\": null, \"typ\": 100.0, \"max\": null, \"unit\": \"nA\", \"conditions\": \"VDS = -20V\"}, {\"symbol\": \"Qg\", \"description\": \"Total Gate Charge\", \"min\": 21.0, \"typ\": 32.0, \"max\": null, \"unit\": \"nC\", \"conditions\": \"VDS = 75V\"}, {\"symbol\": \"Qgs1\", \"description\": \"Gate-to-Source Charge\", \"min\": null, \"typ\": 5.2, \"max\": null, \"unit\": \"nC\", \"conditions\": \"VGS = 10V\"}, {\"symbol\": \"Qgs2\", \"description\": \"Gate-to-Source Charge\", \"min\": null, \"typ\": 1.6, \"max\": null, \"unit\": \"nC\", \"conditions\": \"ID = 11A\"}, {\"symbol\": \"Qgd\", \"description\": \"Gate-to-Drain (Miller) Charge\", \"min\": 7.1, \"typ\": null, \"max\": null, \"unit\": \"nC\", \"conditions\": \"See Fig. 6 and 17\"}, {\"symbol\": \"Qgodd\", \"description\": \"Gate Charge Overdrive\", \"min\": null, \"typ\": 7.1, \"max\": null, \"unit\": \"nC\", \"conditions\": null}, {\"symbol\": \"Qsw\", \"description\": \"Switch Charge (Qgs2 + Qgd)\", \"min\": null, \"typ\": 8.7, \"max\": null, \"unit\": \"nC\", \"conditions\": null}, {\"symbol\": \"Qoss\", \"description\": \"Output Charge\", \"min\": null, \"typ\": 8.8, \"max\": null, \"unit\": \"nC\", \"conditions\": \"VDS = 16V, VGS = 0V\"}, {\"symbol\": \"td(on)\", \"description\": \"Turn-On Delay Time\", \"min\": null, \"typ\": 10.0, \"max\": null, \"unit\": \"ns\", \"conditions\": \"VDD = 75V, VGS = 10V\"}, {\"symbol\": \"tr\", \"description\": \"Rise Time\", \"min\": null, \"typ\": 13.0, \"max\": null, \"unit\": \"ns\", \"conditions\": \"ID = 11A, Rg = 6.8\\u03a9\"}, {\"symbol\": \"td(off)\", \"description\": \"Turn-Off Delay Time\", \"min\": null, \"typ\": 14.0, \"max\": null, \"unit\": \"ns\", \"conditions\": null}, {\"symbol\": \"tf\", \"description\": \"Fall Time\", \"min\": null, \"typ\": 7.5, \"max\": null, \"unit\": \"ns\", \"conditions\": null}, {\"symbol\": \"Ciss\", \"description\": \"Input Capacitance\", \"min\": null, \"typ\": 1360.0, \"max\": null, \"unit\": \"pF\", \"conditions\": \"VGS = 0V\"}, {\"symbol\": \"Coss\", \"description\": \"Output Capacitance\", \"min\": null, \"typ\": 190.0, \"max\": null, \"unit\": \"pF\", \"conditions\": \"VDS = 25V\"}, {\"symbol\": \"Crss\", \"description\": \"Reverse Transfer Capacitance\", \"min\": null, \"typ\": 41.0, \"max\": null, \"unit\": \"pF\", \"conditions\": \"f = 1.0 MHz\"}, {\"symbol\": \"Coss\", \"description\": \"Output Capacitance\", \"min\": null, \"typ\": 1210.0, \"max\": null, \"unit\": \"pF\", \"conditions\": \"VGS = 0V, VDS = 1.0V, f = 1.0 MHz\"}, {\"symbol\": \"Coss\", \"description\": \"Output Capacitance\", \"min\": null, \"typ\": 92.0, \"max\": null, \"unit\": \"pF\", \"conditions\": \"VGS = 0V, VDS = 120V, f = 1.0MHz\"}], \"figures\": []}",
+      "parsed_ok": true
+    },
+    {
+      "page": 3,
+      "skipped": true,
+      "skip_reason": "no data signal on page",
+      "inference_seconds": 0,
+      "parameters": [],
+      "figures": [],
+      "parsed_ok": true,
+      "timed_out": false
+    },
+    {
+      "page": 4,
+      "inference_seconds": 105.04988241195679,
+      "timed_out": false,
+      "parameters": [
+        {
+          "symbol": "ID",
+          "description": "Drain-to-Source Current",
+          "min": null,
+          "typ": null,
+          "max": null,
+          "unit": "A",
+          "conditions": "VDS = 15V, VGS = 5V, TJ = 25\u00b0C"
+        },
+        {
+          "symbol": "VDS",
+          "description": "Drain-to-Source Voltage",
+          "min": null,
+          "typ": null,
+          "max": 100.0,
+          "unit": "V",
+          "conditions": "ID = 11A, VGS = 15V, TJ = 25\u00b0C"
+        },
+        {
+          "symbol": "RDS(on)",
+          "description": "Drain-to-Source On-Resistance",
+          "min": 40.0,
+          "typ": 60.0,
+          "max": 140.0,
+          "unit": "m\u03a9",
+          "conditions": "VGS = 5V, ID = 11A, TJ = 125\u00b0C and 25\u00b0C"
+        },
+        {
+          "symbol": "VGS",
+          "description": "Gate-to-Source Voltage",
+          "min": null,
+          "typ": null,
+          "max": 15.0,
+          "unit": "V",
+          "conditions": null
+        },
+        {
+          "symbol": "TJ",
+          "description": "Junction Temperature",
+          "min": null,
+          "typ": null,
+          "max": null,
+          "unit": "\u00b0C",
+          "conditions": null
+        }
+      ],
+      "figures": [
+        {
+          "label": "Fig. 1 Typical Output Characteristics",
+          "y_axis": "ID",
+          "y_axis_unit": "A",
+          "x_axis": "VDS",
+          "x_axis_unit": "V",
+          "grid_position": "top-left"
+        },
+        {
+          "label": "Fig. 2 Typical Output Characteristics",
+          "y_axis": "ID",
+          "y_axis_unit": "A",
+          "x_axis": "VDS",
+          "x_axis_unit": "V",
+          "grid_position": "top-center"
+        },
+        {
+          "label": "Fig. 3 Typical On-Resistance vs. Gate Voltage",
+          "y_axis": "RDS(on)",
+          "y_axis_unit": "m\u03a9",
+          "x_axis": "VGS",
+          "x_axis_unit": "V",
+          "grid_position": "middle-left"
+        },
+        {
+          "label": "Fig. 4 Typical On-Resistance vs. Drain Current",
+          "y_axis": "RDS(on)",
+          "y_axis_unit": "m\u03a9",
+          "x_axis": "ID",
+          "x_axis_unit": "A",
+          "grid_position": "middle-center"
+        },
+        {
+          "label": "Fig. 5. Transfer Characteristics",
+          "y_axis": "ID",
+          "y_axis_unit": "A",
+          "x_axis": "VGS",
+          "x_axis_unit": "V",
+          "grid_position": "middle-right"
+        },
+        {
+          "label": "Fig. 6. Normalized On-Resistance vs. Temperature",
+          "y_axis": "RDS(on) (Normalized)",
+          "y_axis_unit": "normalized",
+          "x_axis": "TJ",
+          "x_axis_unit": "\u00b0C",
+          "grid_position": "bottom-right"
+        }
+      ],
+      "raw_response": "{\"parameters\": [{\"symbol\": \"ID\", \"description\": \"Drain-to-Source Current\", \"min\": null, \"typ\": null, \"max\": null, \"unit\": \"A\", \"conditions\": \"VDS = 15V, VGS = 5V, TJ = 25\\u00b0C\"}, {\"symbol\": \"VDS\", \"description\": \"Drain-to-Source Voltage\", \"min\": null, \"typ\": null, \"max\": 100.0, \"unit\": \"V\", \"conditions\": \"ID = 11A, VGS = 15V, TJ = 25\\u00b0C\"}, {\"symbol\": \"RDS(on)\", \"description\": \"Drain-to-Source On-Resistance\", \"min\": 40.0, \"typ\": 60.0, \"max\": 140.0, \"unit\": \"m\\u03a9\", \"conditions\": \"VGS = 5V, ID = 11A, TJ = 125\\u00b0C and 25\\u00b0C\"}, {\"symbol\": \"VGS\", \"description\": \"Gate-to-Source Voltage\", \"min\": null, \"typ\": null, \"max\": 15.0, \"unit\": \"V\", \"conditions\": null}, {\"symbol\": \"TJ\", \"description\": \"Junction Temperature\", \"min\": null, \"typ\": null, \"max\": null, \"unit\": \"\\u00b0C\", \"conditions\": null}], \"figures\": [{\"label\": \"Fig. 1 Typical Output Characteristics\", \"y_axis\": \"ID\", \"y_axis_unit\": \"A\", \"x_axis\": \"VDS\", \"x_axis_unit\": \"V\", \"grid_position\": \"top-left\"}, {\"label\": \"Fig. 2 Typical Output Characteristics\", \"y_axis\": \"ID\", \"y_axis_unit\": \"A\", \"x_axis\": \"VDS\", \"x_axis_unit\": \"V\", \"grid_position\": \"top-center\"}, {\"label\": \"Fig. 3 Typical On-Resistance vs. Gate Voltage\", \"y_axis\": \"RDS(on)\", \"y_axis_unit\": \"m\\u03a9\", \"x_axis\": \"VGS\", \"x_axis_unit\": \"V\", \"grid_position\": \"middle-left\"}, {\"label\": \"Fig. 4 Typical On-Resistance vs. Drain Current\", \"y_axis\": \"RDS(on)\", \"y_axis_unit\": \"m\\u03a9\", \"x_axis\": \"ID\", \"x_axis_unit\": \"A\", \"grid_position\": \"middle-center\"}, {\"label\": \"Fig. 5. Transfer Characteristics\", \"y_axis\": \"ID\", \"y_axis_unit\": \"A\", \"x_axis\": \"VGS\", \"x_axis_unit\": \"V\", \"grid_position\": \"middle-right\"}, {\"label\": \"Fig. 6. Normalized On-Resistance vs. Temperature\", \"y_axis\": \"RDS(on) (Normalized)\", \"y_axis_unit\": \"normalized\", \"x_axis\": \"TJ\", \"x_axis_unit\": \"\\u00b0C\", \"grid_position\": \"bottom-right\"}]}",
+      "parsed_ok": true
+    },
+    {
+      "page": 5,
+      "inference_seconds": 56.274298429489136,
+      "timed_out": false,
+      "parameters": [],
+      "figures": [
+        {
+          "label": "Fig. 7 Typical Threshold Voltage vs. Junction Temperature",
+          "y_axis": "VGS(th)",
+          "y_axis_unit": "V",
+          "x_axis": "TJ",
+          "x_axis_unit": "\u00b0C",
+          "grid_position": "left"
+        },
+        {
+          "label": "Fig. 8 Typical Source-Drain Diode Forward Voltage",
+          "y_axis": "IDS",
+          "y_axis_unit": "A",
+          "x_axis": "VSD",
+          "x_axis_unit": "V",
+          "grid_position": "top-right"
+        },
+        {
+          "label": "Fig. 9 Typical Forward Transconductance vs. Drain Current",
+          "y_axis": "Gfs",
+          "y_axis_unit": "S",
+          "x_axis": "ID",
+          "x_axis_unit": "A",
+          "grid_position": "left"
+        },
+        {
+          "label": "Fig. 10 Typical Capacitance vs. Drain-to-Source Voltage",
+          "y_axis": "C",
+          "y_axis_unit": "pF",
+          "x_axis": "VDS",
+          "x_axis_unit": "V",
+          "grid_position": "top-right"
+        },
+        {
+          "label": "Fig. 11 Typical Gate Charge vs. Gate-to-Source Voltage",
+          "y_axis": "VGS",
+          "y_axis_unit": "V",
+          "x_axis": "QG",
+          "x_axis_unit": "nC",
+          "grid_position": "left"
+        },
+        {
+          "label": "Fig. 12 Maximum Drain Current vs. Case Temperature",
+          "y_axis": "ID",
+          "y_axis_unit": "A",
+          "x_axis": "TC",
+          "x_axis_unit": "\u00b0C",
+          "grid_position": "bottom-right"
+        }
+      ],
+      "raw_response": "{\"parameters\": [], \"figures\": [{\"label\": \"Fig. 7 Typical Threshold Voltage vs. Junction Temperature\", \"y_axis\": \"VGS(th)\", \"y_axis_unit\": \"V\", \"x_axis\": \"TJ\", \"x_axis_unit\": \"\\u00b0C\", \"grid_position\": \"left\"}, {\"label\": \"Fig. 8 Typical Source-Drain Diode Forward Voltage\", \"y_axis\": \"IDS\", \"y_axis_unit\": \"A\", \"x_axis\": \"VSD\", \"x_axis_unit\": \"V\", \"grid_position\": \"top-right\"}, {\"label\": \"Fig. 9 Typical Forward Transconductance vs. Drain Current\", \"y_axis\": \"Gfs\", \"y_axis_unit\": \"S\", \"x_axis\": \"ID\", \"x_axis_unit\": \"A\", \"grid_position\": \"left\"}, {\"label\": \"Fig. 10 Typical Capacitance vs. Drain-to-Source Voltage\", \"y_axis\": \"C\", \"y_axis_unit\": \"pF\", \"x_axis\": \"VDS\", \"x_axis_unit\": \"V\", \"grid_position\": \"top-right\"}, {\"label\": \"Fig. 11 Typical Gate Charge vs. Gate-to-Source Voltage\", \"y_axis\": \"VGS\", \"y_axis_unit\": \"V\", \"x_axis\": \"QG\", \"x_axis_unit\": \"nC\", \"grid_position\": \"left\"}, {\"label\": \"Fig. 12 Maximum Drain Current vs. Case Temperature\", \"y_axis\": \"ID\", \"y_axis_unit\": \"A\", \"x_axis\": \"TC\", \"x_axis_unit\": \"\\u00b0C\", \"grid_position\": \"bottom-right\"}]}",
+      "parsed_ok": true
+    },
+    {
+      "page": 6,
+      "inference_seconds": 44.615708351135254,
+      "timed_out": false,
+      "parameters": [],
+      "figures": [
+        {
+          "label": "Fig 13. Maximum Safe Operating Area",
+          "y_axis": "ID, Drain-to-Source Current (A)",
+          "y_axis_unit": "A",
+          "x_axis": "VDS, Drain-to-Source Voltage (V)",
+          "x_axis_unit": "V",
+          "grid_position": "left"
+        },
+        {
+          "label": "Fig 14. Maximum Avalanche Energy vs. Temperature",
+          "y_axis": "EAS, Single Pulse Avalanche Energy (mJ)",
+          "y_axis_unit": "mJ",
+          "x_axis": "Tj, Starting Junction Temperature (\u00b0C)",
+          "x_axis_unit": "\u00b0C",
+          "grid_position": "top"
+        },
+        {
+          "label": "Fig 15. Maximum Effective Transient Thermal Impedance, Junction-to-Case",
+          "y_axis": "Thermal Response, \u0394Tj x Zthjc (C/W)",
+          "y_axis_unit": "C/W",
+          "x_axis": "t1, Rectangular Pulse Duration (sec)",
+          "x_axis_unit": "sec",
+          "grid_position": "left"
+        },
+        {
+          "label": "Fig 16. Typical Avalanche Current vs. Pulse Width",
+          "y_axis": "Avalanche Current (A)",
+          "y_axis_unit": "A",
+          "x_axis": "tav, Pulse Width (sec)",
+          "x_axis_unit": "sec",
+          "grid_position": "bottom"
+        }
+      ],
+      "raw_response": "{\"parameters\": [], \"figures\": [{\"label\": \"Fig 13. Maximum Safe Operating Area\", \"y_axis\": \"ID, Drain-to-Source Current (A)\", \"y_axis_unit\": \"A\", \"x_axis\": \"VDS, Drain-to-Source Voltage (V)\", \"x_axis_unit\": \"V\", \"grid_position\": \"left\"}, {\"label\": \"Fig 14. Maximum Avalanche Energy vs. Temperature\", \"y_axis\": \"EAS, Single Pulse Avalanche Energy (mJ)\", \"y_axis_unit\": \"mJ\", \"x_axis\": \"Tj, Starting Junction Temperature (\\u00b0C)\", \"x_axis_unit\": \"\\u00b0C\", \"grid_position\": \"top\"}, {\"label\": \"Fig 15. Maximum Effective Transient Thermal Impedance, Junction-to-Case\", \"y_axis\": \"Thermal Response, \\u0394Tj x Zthjc (C/W)\", \"y_axis_unit\": \"C/W\", \"x_axis\": \"t1, Rectangular Pulse Duration (sec)\", \"x_axis_unit\": \"sec\", \"grid_position\": \"left\"}, {\"label\": \"Fig 16. Typical Avalanche Current vs. Pulse Width\", \"y_axis\": \"Avalanche Current (A)\", \"y_axis_unit\": \"A\", \"x_axis\": \"tav, Pulse Width (sec)\", \"x_axis_unit\": \"sec\", \"grid_position\": \"bottom\"}]}",
+      "parsed_ok": true
+    },
+    {
+      "page": 7,
+      "inference_seconds": 124.99340081214905,
+      "timed_out": false,
+      "parameters": [],
+      "figures": [
+        {
+          "label": "Fig 17",
+          "y_axis": "EAS - Avalanche Energy",
+          "y_axis_unit": "mJ",
+          "x_axis": "Starting Tj",
+          "x_axis_unit": "\u00b0C",
+          "grid_position": "left"
+        },
+        {
+          "label": "Fig 18a",
+          "y_axis": "Voltage (Vds, Vgs)",
+          "y_axis_unit": "V",
+          "x_axis": "Time (t)",
+          "x_axis_unit": "s",
+          "grid_position": "left"
+        },
+        {
+          "label": "Fig 18b",
+          "y_axis": "Voltage (V(BR)DSS)",
+          "y_axis_unit": "V",
+          "x_axis": "Time (tp)",
+          "x_axis_unit": "s",
+          "grid_position": "right"
+        },
+        {
+          "label": "Fig 19a",
+          "y_axis": "Voltage (Vds, Vgs)",
+          "y_axis_unit": "V",
+          "x_axis": "Time (t)",
+          "x_axis_unit": "s",
+          "grid_position": "left"
+        },
+        {
+          "label": "Fig 19b",
+          "y_axis": "Current (Id)",
+          "y_axis_unit": "A",
+          "x_axis": "Voltage (Vds, Vgs)",
+          "x_axis_unit": "V",
+          "grid_position": "right"
+        },
+        {
+          "label": "Fig 20a",
+          "y_axis": "Voltage (Vds, Vgs)",
+          "y_axis_unit": "V",
+          "x_axis": "Time (t)",
+          "x_axis_unit": "s",
+          "grid_position": "left"
+        },
+        {
+          "label": "Fig 20b",
+          "y_axis": "Voltage (VDS, VGS)",
+          "y_axis_unit": "V",
+          "x_axis": "Time (t1(on), t2(off))",
+          "x_axis_unit": "s",
+          "grid_position": "right"
+        }
+      ],
+      "raw_response": "{\"product_name\": \"AURF7675M2TR\", \"notes_on_repetitive_avalanche_curves\": \"1. Avalanche failures assumption: Purely a thermal phenomenon and failure occurs at a temperature far in excess of Tjmax. This is validated for every part type.\\n2. Safe operation in Avalanche is allowed as long as Tjmax is not exceeded.\\n3. Equation below based on circuit and waveforms shown in Figures 18a, 18b.\\n4. Pd(ave) = Average power dissipation per single avalanche pulse.\\n5. BV = Rated breakdown voltage (1.3 factor accounts for voltage increase during avalanche).\\n6. Iav = Allowable avalanche current.\\n7. \\u0394T = Allowable rise in junction temperature, not to exceed Tjmax (assumed as 25\\u00b0C in Figure 16, 17).\\n8. tav = Average time in avalanche.\\n9. D = Duty cycle in avalanche = tav / t.\\n10. ZthJC(D, tav) = Transient thermal resistance, see Figures 15)\", \"equation_for_power_dissipation\": \"Pd(ave) = 1/2 \\u2022 (1.3\\u2022BV\\u2022Iav) = \\u0394T / ZthJC\", \"equation_for_allowable_avalanche_current\": \"Iav = 2\\u2022T / (1.3\\u2022BV\\u2022ZthJC)\", \"equation_for_avalanche_energy\": \"EAS(AR) = Pd(ave)\\u2022tav\", \"figure_17_description\": \"Maximum Avalanche Energy vs. Temperature\", \"figure_18a_description\": \"Unclamped Inductive Test Circuit\", \"figure_18b_description\": \"Unclamped Inductive Waveforms\", \"figure_19a_description\": \"Gate Charge Test Circuit\", \"figure_19b_description\": \"Gate Charge Waveform\", \"figure_20a_description\": \"Switching Time Test Circuit\", \"figure_20b_description\": \"Switching Time Waveforms\", \"page_number\": 7, \"document_date\": \"Dec 14, 2015\", \"company_logo\": \"infineon\", \"document_title\": \"AURF7675M2TR\", \"parameters\": [], \"figures\": [{\"label\": \"Fig 17\", \"y_axis\": \"EAS - Avalanche Energy\", \"y_axis_unit\": \"mJ\", \"x_axis\": \"Starting Tj\", \"x_axis_unit\": \"\\u00b0C\", \"grid_position\": \"left\"}, {\"label\": \"Fig 18a\", \"y_axis\": \"Voltage (Vds, Vgs)\", \"y_axis_unit\": \"V\", \"x_axis\": \"Time (t)\", \"x_axis_unit\": \"s\", \"grid_position\": \"left\"}, {\"label\": \"Fig 18b\", \"y_axis\": \"Voltage (V(BR)DSS)\", \"y_axis_unit\": \"V\", \"x_axis\": \"Time (tp)\", \"x_axis_unit\": \"s\", \"grid_position\": \"right\"}, {\"label\": \"Fig 19a\", \"y_axis\": \"Voltage (Vds, Vgs)\", \"y_axis_unit\": \"V\", \"x_axis\": \"Time (t)\", \"x_axis_unit\": \"s\", \"grid_position\": \"left\"}, {\"label\": \"Fig 19b\", \"y_axis\": \"Current (Id)\", \"y_axis_unit\": \"A\", \"x_axis\": \"Voltage (Vds, Vgs)\", \"x_axis_unit\": \"V\", \"grid_position\": \"right\"}, {\"label\": \"Fig 20a\", \"y_axis\": \"Voltage (Vds, Vgs)\", \"y_axis_unit\": \"V\", \"x_axis\": \"Time (t)\", \"x_axis_unit\": \"s\", \"grid_position\": \"left\"}, {\"label\": \"Fig 20b\", \"y_axis\": \"Voltage (VDS, VGS)\", \"y_axis_unit\": \"V\", \"x_axis\": \"Time (t1(on), t2(off))\", \"x_axis_unit\": \"s\", \"grid_position\": \"right\"}]}",
+      "parsed_ok": true
+    },
+    {
+      "page": 8,
+      "inference_seconds": 300.05863404273987,
+      "timed_out": true,
+      "parameters": [],
+      "figures": [],
+      "raw_response": "{\"product_name\": \"AURF7675M2TR\", \"document_title\": \"DirectFET\\u00ae Board Footprint, M2 (Medium Size Can)\", \"document_type\": \"Board Footprint\", \"document_number\": \"AURF7675M2TR\", \"document_date\": \"12/14/2015\", \"page_number\": 8, \"company_logo\": \"Infineon\", \"company_website\": \"http://www.infineon.com\", \"application_note_reference\": \"AN-1035\", \"note\": \"For the most current drawing please refer to IR website at http://www.irf.com/package/\", \"figure_description\": \"Board footprint for a DirectFET\\u00ae device in M2 (Medium Size Can) package, showing dimensions, pad layouts, and component pin assignments (GATE, DRAIN, SOURCE).\", \"pin_assignment\": \"G = GATE, D = DRAIN, S = SOURCE\", \"pin_count\": 3, \"pin_spacing\": null, \"pin_length\": null, \"pin_width\": null, \"pin_thickness\": null, \"footprint_dimensions\": {\"length\": 3.2, \"width\": 1.9, \"length_unit\": \"mm\", \"width_unit\": \"mm\"}, \"footprint_notes\": \"Please see DirectFET\\u00ae application note AN-1035 for all details regarding the assembly of DirectFET\\u00ae. This includes all recommendations for stencil and substrate designs.\", \"footprint_url\": \"http://www.irf.com/package/\", \"footprint_image\": null, \"footprint_dimensions_mm\": {\"length\": 3.2, \"width\": 1.9, \"length_unit\": \"mm\", \"width_unit\": \"mm\"}, \"footprint_notes_mm\": \"Please see DirectFET\\u00ae application note AN-1035 for all details regarding the assembly of DirectFET\\u00ae. This includes all recommendations for stencil and substrate designs.\", \"footprint_image_mm\": null, \"footprint_dimensions_in\": {\"length\": 1.26, \"width\": 0.75, \"length_unit\": \"in\", \"width_unit\": \"in\"}, \"footprint_notes_in\": \"Please see DirectFET\\u00ae application note AN-1035 for all details regarding the assembly of DirectFET\\u00ae. This includes all recommendations for stencil and substrate designs.\", \"footprint_image_in\": null, \"footprint_dimensions_cm\": {\"length\": 0.32, \"width\": 0.19, \"length_unit\": \"cm\", \"width_unit\": \"cm\"}, \"footprint_notes_cm\": \"Please see DirectFET\\u00ae application note AN-1035 for all details regarding the assembly of DirectFET\\u00ae. This includes all recommendations for stencil and substrate designs.\", \"footprint_image_cm\": null, \"footprint_dimensions_mm_detail\": {\"length\": 3.2, \"width\": 1.9, \"length_unit\": \"mm\", \"width_unit\": \"mm\"}, \"footprint_notes_detail\": \"Please see DirectFET\\u00ae application note AN-1035 for all details regarding the assembly of DirectFET\\u00ae. This includes all recommendations for stencil and substrate designs.\", \"footprint_image_detail\": null, \"footprint_dimensions_in_detail\": {\"length\": 1.26, \"width\": 0.75, \"length_unit\": \"in\", \"width_unit\": \"in\"}, \"footprint_notes_in_detail\": \"Please see DirectFET\\u00ae application note AN-1035 for all details regarding the assembly of DirectFET\\u00ae. This includes all recommendations for stencil and substrate designs.\", \"footprint_image_in_detail\": null, \"footprint_dimensions_cm_detail\": {\"length\": 0.32, \"width\": 0.19, \"length_unit\": \"cm\", \"width_unit\": \"cm\"}, \"footprint_notes_cm_detail\": \"Please see DirectFET\\u00ae application note AN-1035 for all details regarding the assembly of DirectFET\\u00ae. This includes all recommendations for stencil and substrate designs.\", \"footprint_image_cm_detail\": null, \"footprint_dimensions_mm_detail2\": {\"length\": 3.2, \"width\": 1.9, \"length_unit\": \"mm\", \"width_unit\": \"mm\"}, \"footprint_notes_detail2\": \"Please see DirectFET\\u00ae application note AN-1035 for all details regarding the assembly of DirectFET\\u00ae. This includes all recommendations for stencil and substrate designs.\", \"footprint_image_detail2\": null, \"footprint_dimensions_in_detail2\": {\"length\": 1.26, \"width\": 0.75, \"length_unit\": \"in\", \"width_unit\": \"in\"}, \"footprint_notes_in_detail2\": \"Please see DirectFET\\u00ae application note AN-1035 for all details regarding the assembly of DirectFET\\u00ae. This includes all recommendations for stencil and substrate designs.\", \"footprint_image_in_detail2\": null, \"footprint_dimensions_cm_detail2\": {\"length\": 0.32, \"width\": 0.19, \"length_unit\": \"cm\", \"width_unit\": \"cm\"}, \"footprint_notes_cm_detail2\": \"Please see DirectFET\\u00ae application note AN-1035 for all details regarding the assembly of DirectFET\\u00ae. This includes all recommendations for stencil and substrate designs.\", \"footprint_image_cm_detail2\": null, \"footprint_dimensions_mm_detail3\": {\"length\": 3.2, \"width\": 1.9, \"length_unit\": \"mm\", \"width_unit\": \"mm\"}, \"footprint_notes_detail3\": \"Please see DirectFET\\u00ae application note AN-1035 for all details regarding the assembly of DirectFET\\u00ae. This includes all recommendations for stencil and substrate designs.\", \"footprint_image_detail3\": null, \"footprint_dimensions_in_detail3\": {\"length\": 1.26, \"width\": 0.75, \"length_unit\": \"in\", \"width_unit\": \"in\"}, \"footprint_notes_in_detail3\": \"Please see DirectFET\\u00ae application note AN-1035 for all details regarding the assembly of DirectFET\\u00ae. This includes all recommendations for stencil and substrate designs.\", \"footprint_image_in_detail3\": null, \"footprint_dimensions_cm_detail3\": {\"length\": 0.32, \"width\": 0.19, \"length_unit\": \"cm\", \"width_unit\": \"cm\"}, \"footprint_notes_cm_detail3\": \"Please see DirectFET\\u00ae application note AN-1035 for all details regarding the assembly of DirectFET\\u00ae. This includes all recommendations for stencil and substrate designs.\", \"footprint_image_cm_detail3\": null, \"footprint_dimensions_mm_detail4\": {\"length\": 3.2, \"width\": 1.9, \"length_unit\": \"mm\", \"width_unit\": \"mm\"}, \"footprint_notes_detail4\": \"Please see DirectFET\\u00ae application note AN-1035 for all details regarding the assembly of DirectFET\\u00ae. This includes all recommendations for stencil and substrate designs.\", \"footprint_image_detail4\": null, \"footprint_dimensions_in_detail4\": {\"length\": 1.26, \"width\": 0.75, \"length_unit\": \"in\", \"width_unit\": \"in\"}, \"footprint_notes_in_detail4\": \"Please see DirectFET\\u00ae application note AN-1035 for all details regarding the assembly of DirectFET\\u00ae. This includes all recommendations for stencil and substrate designs.\", \"footprint_image_in_detail4\": null, \"footprint_dimensions_cm_detail4\": {\"length\": 0.32, \"width\": 0.19, \"length_unit\": \"cm\", \"width_unit\": \"cm\"}, \"footprint_notes_cm_detail4\": \"Please see DirectFET\\u00ae application note AN-1035 for all details regarding the assembly of DirectFET\\u00ae. This includes all recommendations for stencil and substrate designs.\", \"footprint_image_cm_detail4\": null, \"footprint_dimensions_mm_detail5\": {\"length\": 3.2, \"width\": 1.9, \"length_unit\": \"mm\", \"width_unit\": \"mm\"}, \"footprint_notes_detail5\": \"Please see DirectFET\\u00ae application note AN-1035 for all details regarding the assembly of DirectFET\\u00ae. This includes all recommendations for stencil and substrate designs.\", \"footprint_image_detail5\": null",
+      "parsed_ok": false
+    },
+    {
+      "page": 9,
+      "inference_seconds": 109.32259130477905,
+      "timed_out": false,
+      "parameters": [],
+      "figures": [],
+      "raw_response": "{\"product_name\": \"AURF7675M2TR\", \"product_code\": \"AURF7675M2TR\", \"application_note_reference\": \"AN-1035\", \"drawing_reference_url\": \"http://www.infineon.com/package/\", \"date\": \"12/14/2015\", \"part_marking\": {\"description\": \"AU = GATE AND AUTOMOTIVE MARKING, LOGO, PART NUMBER, BATCH NUMBER, DATE CODE, Lead-Free indicator above the last character of the date code\", \"au\": \"GATE AND AUTOMOTIVE MARKING\", \"logo\": true, \"part_number\": true, \"batch_number\": true, \"date_code\": true, \"lead_free_indicator\": true}, \"dimension_table\": [{\"code\": \"A\", \"metric\": {\"min\": 6.25, \"max\": 6.35}, \"imperial\": {\"min\": 0.246, \"max\": 0.25}}, {\"code\": \"B\", \"metric\": {\"min\": 4.8, \"max\": 5.05}, \"imperial\": {\"min\": 0.189, \"max\": 0.199}}, {\"code\": \"C\", \"metric\": {\"min\": 3.85, \"max\": 3.95}, \"imperial\": {\"min\": 0.152, \"max\": 0.156}}, {\"code\": \"D\", \"metric\": {\"min\": 0.35, \"max\": 0.45}, \"imperial\": {\"min\": 0.014, \"max\": 0.018}}, {\"code\": \"E\", \"metric\": {\"min\": 0.58, \"max\": 0.62}, \"imperial\": {\"min\": 0.023, \"max\": 0.024}}, {\"code\": \"F\", \"metric\": {\"min\": 0.78, \"max\": 0.82}, \"imperial\": {\"min\": 0.031, \"max\": 0.032}}, {\"code\": \"G\", \"metric\": {\"min\": 0.78, \"max\": 0.82}, \"imperial\": {\"min\": 0.031, \"max\": 0.032}}, {\"code\": \"H\", \"metric\": {\"min\": 0.78, \"max\": 0.82}, \"imperial\": {\"min\": 0.031, \"max\": 0.032}}, {\"code\": \"I\", \"metric\": {\"min\": null, \"max\": null}, \"imperial\": {\"min\": null, \"max\": null}}, {\"code\": \"J\", \"metric\": {\"min\": 0.38, \"max\": 0.42}, \"imperial\": {\"min\": 0.015, \"max\": 0.017}}, {\"code\": \"K\", \"metric\": {\"min\": 1.1, \"max\": 1.2}, \"imperial\": {\"min\": 0.043, \"max\": 0.047}}, {\"code\": \"L\", \"metric\": {\"min\": 2.3, \"max\": 2.4}, \"imperial\": {\"min\": 0.09, \"max\": 0.094}}, {\"code\": \"M\", \"metric\": {\"min\": 0.68, \"max\": 0.74}, \"imperial\": {\"min\": 0.027, \"max\": 0.029}}, {\"code\": \"P\", \"metric\": {\"min\": 0.09, \"max\": 0.17}, \"imperial\": {\"min\": 0.003, \"max\": 0.007}}, {\"code\": \"R\", \"metric\": {\"min\": 0.02, \"max\": 0.08}, \"imperial\": {\"min\": 0.001, \"max\": 0.003}}], \"parameters\": []}",
+      "parsed_ok": true
+    },
+    {
+      "page": 10,
+      "inference_seconds": 104.38514566421509,
+      "timed_out": false,
+      "parameters": [],
+      "figures": [],
+      "raw_response": "{\"product_name\": \"AURF7675M2TR\", \"product_code\": \"AURF7675M2TR\", \"drawing_date\": \"12/14/2015\", \"note\": \"Controlling dimensions in mm. Std reel quantity is 4800 parts, order as AURF7675M2TR.\", \"reel_quantity\": 4800, \"reel_dimensions\": {\"A\": {\"min\": 330.0, \"max\": \"N.C.\", \"imperial_min\": 12.992, \"imperial_max\": \"N.C.\"}, \"B\": {\"min\": 20.2, \"max\": \"N.C.\", \"imperial_min\": 0.795, \"imperial_max\": \"N.C.\"}, \"C\": {\"min\": 12.8, \"max\": 13.2, \"imperial_min\": 0.504, \"imperial_max\": 0.52}, \"D\": {\"min\": 1.5, \"max\": \"N.C.\", \"imperial_min\": 0.059, \"imperial_max\": \"N.C.\"}, \"E\": {\"min\": 100.0, \"max\": \"N.C.\", \"imperial_min\": 3.937, \"imperial_max\": \"N.C.\"}, \"F\": {\"min\": \"N.C.\", \"max\": 18.4, \"imperial_min\": \"N.C.\", \"imperial_max\": 0.724}, \"G\": {\"min\": 12.4, \"max\": 14.4, \"imperial_min\": 0.488, \"imperial_max\": 0.567}, \"H\": {\"min\": 11.9, \"max\": 15.4, \"imperial_min\": 0.469, \"imperial_max\": 0.606}}, \"loaded_tape_feed_direction\": \"Diagram shown with loaded tape feed direction\", \"dimensions\": {\"A\": {\"min\": 7.9, \"max\": 8.1, \"imperial_min\": 0.311, \"imperial_max\": 0.319}, \"B\": {\"min\": 3.9, \"max\": 4.1, \"imperial_min\": 0.154, \"imperial_max\": 0.161}, \"C\": {\"min\": 11.9, \"max\": 12.3, \"imperial_min\": 0.469, \"imperial_max\": 0.484}, \"D\": {\"min\": 5.45, \"max\": 5.55, \"imperial_min\": 0.215, \"imperial_max\": 0.219}, \"E\": {\"min\": 5.1, \"max\": 5.3, \"imperial_min\": 0.201, \"imperial_max\": 0.209}, \"F\": {\"min\": 6.5, \"max\": 6.7, \"imperial_min\": 0.256, \"imperial_max\": 0.264}, \"G\": {\"min\": 1.5, \"max\": \"N.C.\", \"imperial_min\": 0.059, \"imperial_max\": \"N.C.\"}, \"H\": {\"min\": 1.5, \"max\": 1.6, \"imperial_min\": 0.059, \"imperial_max\": 0.063}}, \"note\": \"For the most current drawing please refer to IR website at http://www.irf.com/package/\", \"website\": \"http://www.irf.com/package/\", \"parameters\": []}",
+      "parsed_ok": true
+    },
+    {
+      "page": 11,
+      "skipped": true,
+      "skip_reason": "marketing/disclaimer: \\brevision history\\b",
+      "inference_seconds": 0,
+      "parameters": [],
+      "figures": [],
+      "parsed_ok": true,
+      "timed_out": false
+    }
+  ],
+  "completed_at": "2026-05-23 04:17:55"
+}

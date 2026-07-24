@@ -62,6 +62,8 @@ import pytest
 
 import src.extraction.classical_zth as classical_zth
 from src.extraction.classical_zth import (
+    derive_calibration_zth,
+    detect_normalized_ratio_axis,
     fit_axis_auto,
     fit_foster,
     parse_axis_ticks,
@@ -400,6 +402,200 @@ class TestRthTableFileRead:
         validate_result(result)
 
 
+# --------------------------------------------- G. Ratio-axis guard (new check)
+
+class TestRatioAxisGuard:
+    """Some zth_vs_time charts plot a NORMALIZED ratio r(t) rather than a
+    direct K/W value (real bug found on device AG087FGD3HRBTL, 2026-07-23,
+    caught during a look-only AI-model comparison check) -- treating r(t)
+    as if it were real K/W is silently wrong. See
+    detect_normalized_ratio_axis's own docstring for the two detection
+    signals (reused here as wired into run_classical_pipeline; the
+    detector itself gets its own isolated unit tests in
+    TestDetectNormalizedRatioAxis, below)."""
+
+    def _yzone_line(self, text):
+        # cx/img_w < 0.20 with IMG_W=700 -> cx must stay under 140.
+        return _ocr_line(text, 10, 290, 50, 310)
+
+    def _offzone_line(self, text):
+        return _ocr_line(text, 300, 200, 480, 220)
+
+    def test_normalized_yzone_label_short_circuits_to_needs_review(self):
+        lines = _axis_ticks_ocr() + [
+            self._yzone_line("Normalized Transient Resistance : r(t)")
+        ]
+        result = run_standard(ocr_lines=lines)
+        validate_result(result)
+        assert result["status"] == "needs_review"
+        assert "ratio" in result["review_reason"].lower()
+
+    def test_formula_pattern_short_circuits_to_needs_review(self):
+        lines = _axis_ticks_ocr() + [
+            self._offzone_line("Rth(j-c)(t)=r(t) x Rth(j-c)")
+        ]
+        result = run_standard(ocr_lines=lines)
+        validate_result(result)
+        assert result["status"] == "needs_review"
+        assert "ratio" in result["review_reason"].lower()
+
+    def test_ratio_axis_never_reaches_calibration(self, monkeypatch):
+        def _explode(*a, **kw):
+            raise AssertionError(
+                "derive_calibration_zth must not be called once a ratio axis is detected"
+            )
+        monkeypatch.setattr(classical_zth, "derive_calibration_zth", _explode)
+        lines = _axis_ticks_ocr() + [
+            self._yzone_line("Normalized Transient Resistance : r(t)")
+        ]
+        result = run_standard(ocr_lines=lines)
+        assert result["status"] == "needs_review"
+
+    def test_printed_table_shortcut_wins_over_ratio_signal(self):
+        # Even when the OCR text ALSO contains a ratio signal somewhere,
+        # a valid printed Foster table must still win with status "ok" --
+        # the ratio check only ever applies on the CV-pipeline fallback
+        # path, never ahead of the table-read shortcut.
+        lines = [
+            _ocr_line("Ri (°C/W)", 290, 45, 320, 58),
+            _ocr_line("τi (sec)", 390, 47, 420, 60),
+            _ocr_line("0.5", 295, 75, 315, 88),
+            _ocr_line("0.0001", 385, 77, 425, 90),
+            _ocr_line("1.5", 295, 105, 315, 118),
+            _ocr_line("0.001", 385, 107, 425, 120),
+            self._yzone_line("Normalized Transient Resistance : r(t)"),
+        ]
+        result = run_standard(ocr_lines=lines)
+        assert result["status"] == "ok"
+        assert result["curves"][0]["confidence"] == 1.0
+
+    def test_direct_units_chart_unaffected_still_ok(self):
+        # The standard fixture's OCR text has no "normalized" wording and
+        # no r(t) x Rth formula anywhere -- the new guard must not fire,
+        # and the existing clean-chart behavior must be unchanged.
+        result = run_standard()
+        validate_result(result)
+        assert result["status"] == "ok"
+
+    def test_real_device_ag087_now_flagged_instead_of_silently_ok(self):
+        # Real bug (2026-07-23): AG087FGD3HRBTL's zth_vs_time chart (Fig.3,
+        # fig_p4_007.png) is a normalized-ratio chart -- its y-axis label
+        # literally reads "Normalized Transient Resistance : r(t)" and it
+        # prints its own "Rth(j-c)(t)=r(t) x Rth(j-c)" conversion formula.
+        # BEFORE this guard existed, calling run_classical_pipeline with no
+        # Rth constraint (stage3_root=None, the unconstrained path) returned
+        # status="ok" with confidence 0.88 -- a real digitized trace,
+        # silently mislabeled as direct K/W when it is actually the
+        # dimensionless ratio r(t). Exact OCR line set from the real figure
+        # (full_extraction.json figure index 7), crop size 707x694.
+        real_lines = [
+            _ocr_line("10", 114, 42, 144, 63),
+            _ocr_line("Tc=25℃", 184, 79, 279, 107),
+            _ocr_line("1", 129, 220, 142, 237),
+            _ocr_line("Duty cycle", 479, 263, 574, 283),
+            _ocr_line("top", 479, 285, 511, 304),
+            _ocr_line("D=1", 554, 284, 591, 301),
+            _ocr_line("D=0.5", 553, 305, 610, 322),
+            _ocr_line("D=0.1", 555, 326, 607, 343),
+            _ocr_line("D=0.05", 555, 347, 620, 363),
+            _ocr_line("D=0.01", 553, 368, 620, 385),
+            _ocr_line("0.1", 104, 393, 140, 414),
+            _ocr_line("bottom Single", 479, 389, 611, 409),
+            _ocr_line("Rth(j-c)=2.80℃/W", 265, 487, 429, 507),
+            _ocr_line("Rth(j-c)(t)=r(t) × Rth(j-c)", 265, 511, 476, 533),
+            _ocr_line("Normalized Transient Resistance : r(t)", 20, 76, 57, 559),
+            _ocr_line("0.01", 88, 567, 142, 590),
+            _ocr_line("0.0001 0.001", 129, 594, 276, 616),
+            _ocr_line("0.01", 277, 594, 351, 615),
+            _ocr_line("0.1", 394, 595, 425, 615),
+            _ocr_line("1", 488, 596, 499, 613),
+            _ocr_line("10", 562, 595, 590, 614),
+            _ocr_line("100", 638, 595, 679, 615),
+            _ocr_line("Pulse Width : PW [s]", 282, 642, 547, 674),
+        ]
+        img = np.full((694, 707, 3), 255, dtype=np.uint8)
+        result = run_classical_pipeline(
+            device="AG087FGD3HRBTL", curve_type="zth_vs_time",
+            source_image="fig_p4_007.png", image=img, ocr_lines=real_lines,
+            stage3_root=None,
+        )
+        validate_result(result)
+        assert result["status"] == "needs_review"
+        assert "ratio" in result["review_reason"].lower()
+        assert result["curves"][0]["confidence"] == 0.0
+
+
+class TestDetectNormalizedRatioAxis:
+    """Unit tests for detect_normalized_ratio_axis in isolation -- pure
+    OCR-text-in / reason-string-out, no image or pipeline involved."""
+
+    def _yzone(self, text):
+        return _ocr_line(text, 10, 100, 50, 300)  # cx=30, well inside cx/700<0.20
+
+    def _offzone(self, text):
+        return _ocr_line(text, 300, 100, 480, 120)
+
+    def test_yzone_normalized_word_detected(self):
+        lines = [self._yzone("Normalized Transient Resistance : r(t)")]
+        reason = detect_normalized_ratio_axis(lines, IMG_W, IMG_H)
+        assert reason is not None
+        assert "ratio" in reason.lower()
+
+    def test_yzone_normalised_british_spelling_detected(self):
+        lines = [self._yzone("Normalised Transient Thermal Resistance")]
+        assert detect_normalized_ratio_axis(lines, IMG_W, IMG_H) is not None
+
+    def test_yzone_normalized_all_caps_detected(self):
+        lines = [self._yzone("NORMALIZED TRANSIENT RESISTANCE")]
+        assert detect_normalized_ratio_axis(lines, IMG_W, IMG_H) is not None
+
+    def test_formula_unicode_times_sign_detected(self):
+        lines = [self._offzone("Rth(j-c)(t)=r(t) × Rth(j-c)")]
+        assert detect_normalized_ratio_axis(lines, IMG_W, IMG_H) is not None
+
+    def test_formula_plain_x_no_space_detected(self):
+        lines = [self._offzone("Rth(ch-c)(t) = r(t) xrth(ch-c)")]
+        assert detect_normalized_ratio_axis(lines, IMG_W, IMG_H) is not None
+
+    def test_formula_space_before_paren_detected(self):
+        lines = [self._offzone("rth(j-c)(t) = r (t) × rth(j-c)")]
+        assert detect_normalized_ratio_axis(lines, IMG_W, IMG_H) is not None
+
+    def test_formula_with_extra_whitespace_detected(self):
+        lines = [self._offzone("Rth(j-c) (t)  =  r ( t )   ×   Rth(j-c)")]
+        assert detect_normalized_ratio_axis(lines, IMG_W, IMG_H) is not None
+
+    def test_both_signals_present_detected_once(self):
+        lines = [
+            self._yzone("Normalized Transient Resistance : r(t)"),
+            self._offzone("Rth(j-c)(t)=r(t) × Rth(j-c)"),
+        ]
+        reason = detect_normalized_ratio_axis(lines, IMG_W, IMG_H)
+        assert reason is not None
+
+    def test_neither_signal_returns_none(self):
+        lines = [self._yzone("ZthJC [K/W]"), self._offzone("Single Pulse")]
+        assert detect_normalized_ratio_axis(lines, IMG_W, IMG_H) is None
+
+    def test_direct_units_label_not_falsely_flagged(self):
+        lines = [self._yzone("Transient Thermal Impedance : ZthJC [K/W]")]
+        assert detect_normalized_ratio_axis(lines, IMG_W, IMG_H) is None
+
+    def test_normalized_word_outside_yzone_alone_is_not_enough(self):
+        # "normalized" appearing OUTSIDE the y-axis-label zone, with no
+        # formula pattern anywhere, must NOT trigger -- the word-based
+        # signal is deliberately scoped to the y-axis label zone only.
+        lines = [self._offzone("see the normalized curve family in Fig. 9")]
+        assert detect_normalized_ratio_axis(lines, IMG_W, IMG_H) is None
+
+    def test_empty_ocr_lines_returns_none(self):
+        assert detect_normalized_ratio_axis([], IMG_W, IMG_H) is None
+
+    def test_lines_missing_bounding_box_are_skipped_not_a_crash(self):
+        lines = [{"text": "Normalized"}, self._offzone("Single Pulse")]
+        assert detect_normalized_ratio_axis(lines, IMG_W, IMG_H) is None
+
+
 # ------------------------------------------------- ported-function unit tests
 
 class TestPortedTickParsing:
@@ -420,6 +616,106 @@ class TestPortedTickParsing:
 
     def test_garbage_returns_none(self):
         assert parse_tick("garbage!!", axis="x") is None
+
+    def test_plain_100_is_not_misread_as_exponent(self):
+        # Real bug found on device AG087FGD3HRBTL (2026-07-23): the pulse-
+        # width x-axis has a genuine tick labeled "100" (100 seconds). The
+        # bare-exponent-mojibake repair above (for OCR misreading "10\u00b3"
+        # as "103") was firing on this too, via a regex that matched ANY
+        # "10" + single digit 0-9 -- so "100" was reinterpreted as
+        # 10**0 == 1.0, silently corrupting the axis. "101"-"109" are
+        # deliberately left alone (test_bare_power_of_ten_mojibake, above,
+        # still expects "102" -> 100.0 unchanged) since those are
+        # essentially never real tick values in this domain; "100" is
+        # ordinary and ambiguous, so it must parse as itself.
+        assert parse_tick("100", axis="x") == 100.0
+        assert parse_tick("100", axis="y") == 100.0
+
+    def test_bare_109_upper_boundary_still_treated_as_exponent(self):
+        # Pins the narrowed rule's boundary: 109 (not 100) is the edge of
+        # the still-reinterpreted range.
+        assert parse_tick("109", axis="y") == pytest.approx(1e9)
+
+
+class TestAxisTicksGluedLabels:
+    """Real bug found on device AG087FGD3HRBTL (2026-07-23): Azure OCR read
+    the adjacent "0.0001" and "0.001" pulse-width x-axis tick labels as ONE
+    glued line of text, "0.0001 0.001". parse_tick returns None for that
+    whole string (it isn't a single number), so parse_axis_ticks silently
+    dropped BOTH ticks -- shrinking the fitted plot box from the left.
+
+    src.calibration.ticks.parse_numeric_ticks already has a fix for this
+    exact OCR-gluing problem (its "compound token" path, see that module's
+    own docstring): split the line on whitespace, and if every part parses
+    as its own number, distribute them evenly across the line's own
+    bounding-box pixel span instead of dropping the whole line. These tests
+    check parse_axis_ticks reuses that same approach rather than a new one.
+    """
+
+    def test_glued_x_labels_recovered_as_two_ticks(self):
+        lines = [_ocr_line("0.0001 0.001", 100, 350, 250, 370)]  # cy=360/400=0.90 -> x-zone
+        x_ticks, y_ticks = parse_axis_ticks(lines, IMG_W, IMG_H)
+        vals = sorted(v for v, _ in x_ticks)
+        assert vals == pytest.approx([0.0001, 0.001])
+        assert y_ticks == []
+
+    def test_glued_labels_spread_across_the_lines_own_pixel_span(self):
+        # Left-to-right reading order -> increasing pixel x, spread across
+        # the line's OWN bounding box (x1=100 -> x2=250), same fractional
+        # interpolation as ticks.py's compound-token path.
+        lines = [_ocr_line("0.0001 0.001", 100, 350, 250, 370)]
+        x_ticks, _ = parse_axis_ticks(lines, IMG_W, IMG_H)
+        by_val = dict(x_ticks)
+        assert by_val[0.0001] == pytest.approx(100.0)
+        assert by_val[0.001] == pytest.approx(250.0)
+
+    def test_glued_y_labels_recovered_too(self):
+        # Mirrors the x case but in the y (left, cx/img_w < 0.20) zone,
+        # top-to-bottom reading order -> increasing pixel y.
+        lines = [_ocr_line("10 1", 20, 40, 60, 200)]  # cx=40/700=0.057 -> y-zone
+        _, y_ticks = parse_axis_ticks(lines, IMG_W, IMG_H)
+        vals = sorted(v for v, _ in y_ticks)
+        assert vals == pytest.approx([1.0, 10.0])
+
+    def test_glued_label_with_unparseable_part_is_still_dropped(self):
+        # Not every multi-word line is a glued compound tick -- if any part
+        # fails to parse, this isn't that case; drop the whole line exactly
+        # as before (never guess at a partial match).
+        lines = [_ocr_line("0.0001 garbage", 100, 350, 250, 370)]
+        x_ticks, _ = parse_axis_ticks(lines, IMG_W, IMG_H)
+        assert x_ticks == []
+
+    def test_single_token_lines_are_unaffected(self):
+        # Pre-existing (non-glued) behavior must not change.
+        lines = [_ocr_line("10", 560, 350, 590, 370)]
+        x_ticks, _ = parse_axis_ticks(lines, IMG_W, IMG_H)
+        assert x_ticks == [(10.0, 575.0)]
+
+    def test_real_device_ag087_x_axis_recovers_full_six_decade_span(self):
+        # The exact OCR line set from AG087FGD3HRBTL's zth_vs_time chart
+        # (Fig.3 "Normalized Transient Thermal Resistance vs. Pulse Width",
+        # fig_p4_007.png, crop size 707x694) -- both bugs' real-world
+        # trigger together: the glued "0.0001 0.001" line, and the plain
+        # "100" label. Before either fix, derive_calibration_zth's x fit
+        # only spanned 3 decades (0.01..10, "100" corrupted to a duplicate
+        # "1"); with both fixed it must recover the chart's real 6-decade
+        # span (0.0001..100).
+        lines = [
+            _ocr_line("10", 114, 42, 144, 63),
+            _ocr_line("Tc=25℃", 184, 79, 279, 107),
+            _ocr_line("1", 129, 220, 142, 237),
+            _ocr_line("0.1", 104, 393, 140, 414),
+            _ocr_line("0.01", 88, 567, 142, 590),
+            _ocr_line("0.0001 0.001", 129, 594, 276, 616),
+            _ocr_line("0.01", 277, 594, 351, 615),
+            _ocr_line("0.1", 394, 595, 425, 615),
+            _ocr_line("1", 488, 596, 499, 613),
+            _ocr_line("10", 562, 595, 590, 614),
+            _ocr_line("100", 638, 595, 679, 615),
+        ]
+        cal = derive_calibration_zth({"ocr_lines": lines}, 707, 694)
+        assert cal is not None
+        assert cal["x_decade_span"] >= 5.0  # was 3.0 before either fix
 
 
 class TestPortedAxisFit:

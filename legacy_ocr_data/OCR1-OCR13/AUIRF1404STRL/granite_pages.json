@@ -1,0 +1,668 @@
+{
+  "device": "AUIRF1404STRL",
+  "model": "ibm-granite/granite-vision-4.1-4b",
+  "pages_processed": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11
+  ],
+  "total_inference_seconds": 968.1027066707611,
+  "pages": [
+    {
+      "page": 1,
+      "inference_seconds": 210.98323559761047,
+      "timed_out": false,
+      "parameters": [
+        {
+          "symbol": "RDS(on)",
+          "description": "Drain-to-Source On-Resistance",
+          "min": 3.5,
+          "typ": null,
+          "max": 4.0,
+          "unit": "mOhm",
+          "conditions": null
+        },
+        {
+          "symbol": "Id (Silicon Limited)",
+          "description": "Continuous Drain Current (Silicon Limited)",
+          "min": 162.0,
+          "typ": null,
+          "max": 162.0,
+          "unit": "A",
+          "conditions": "Tc = 25\u00b0C, VGS = 10V"
+        },
+        {
+          "symbol": "Id (Package Limited)",
+          "description": "Continuous Drain Current (Package Limited)",
+          "min": 75.0,
+          "typ": null,
+          "max": 75.0,
+          "unit": "A",
+          "conditions": "Tc = 25\u00b0C, VGS = 10V"
+        },
+        {
+          "symbol": "IDM",
+          "description": "Pulsed Drain Current",
+          "min": 650.0,
+          "typ": null,
+          "max": null,
+          "unit": "A",
+          "conditions": null
+        },
+        {
+          "symbol": "PD @ TA = 25\u00b0C",
+          "description": "Maximum Power Dissipation",
+          "min": 3.8,
+          "typ": null,
+          "max": 3.8,
+          "unit": "W",
+          "conditions": "Tj = 25\u00b0C"
+        },
+        {
+          "symbol": "PD @ Tj = 25\u00b0C",
+          "description": "Maximum Power Dissipation",
+          "min": null,
+          "typ": 200.0,
+          "max": 200.0,
+          "unit": "W",
+          "conditions": "Tj = 25\u00b0C"
+        },
+        {
+          "symbol": "Linear Derating Factor",
+          "description": "Linear Derating Factor",
+          "min": 1.3,
+          "typ": null,
+          "max": null,
+          "unit": "W/\u00b0C",
+          "conditions": null
+        },
+        {
+          "symbol": "VGS",
+          "description": "Gate-to-Source Voltage",
+          "min": null,
+          "typ": null,
+          "max": 20.0,
+          "unit": "V",
+          "conditions": null
+        },
+        {
+          "symbol": "EAS",
+          "description": "Single Pulse Avalanche Energy (Thermally Limited)",
+          "min": null,
+          "typ": 519.0,
+          "max": null,
+          "unit": "mJ",
+          "conditions": null
+        },
+        {
+          "symbol": "IAR",
+          "description": "Avalanche Current",
+          "min": null,
+          "typ": 95.0,
+          "max": null,
+          "unit": "A",
+          "conditions": null
+        },
+        {
+          "symbol": "EAR",
+          "description": "Repetitive Avalanche Energy",
+          "min": null,
+          "typ": 20.0,
+          "max": null,
+          "unit": "mJ",
+          "conditions": null
+        },
+        {
+          "symbol": "Dv/dt",
+          "description": "Peak Diode Recovery",
+          "min": null,
+          "typ": 5.0,
+          "max": null,
+          "unit": "V/ns",
+          "conditions": null
+        },
+        {
+          "symbol": "Tj",
+          "description": "Operating Junction and Case Temperature",
+          "min": -55.0,
+          "typ": null,
+          "max": 175.0,
+          "unit": "\u00b0C",
+          "conditions": null
+        },
+        {
+          "symbol": "TSTG",
+          "description": "Storage Temperature Range",
+          "min": null,
+          "typ": null,
+          "max": null,
+          "unit": "\u00b0C",
+          "conditions": null
+        },
+        {
+          "symbol": "Soldering Temperature",
+          "description": "Soldering Temperature, for 10 seconds (1.6mm from case)",
+          "min": 300.0,
+          "typ": null,
+          "max": 300.0,
+          "unit": "\u00b0C",
+          "conditions": null
+        }
+      ],
+      "figures": [],
+      "raw_response": "{\"product_name\": \"AURF1404S / AURF1404L\", \"product_type\": \"HEXFET Power MOSFET\", \"features\": [\"Advanced Planar Technology\", \"Dynamic dv/dt Rating\", \"175\\u00b0C Operating Temperature\", \"Fast Switching\", \"Fully Avalanche Rated\", \"Repetitive Avalanche Allowed up to Tjmax\", \"Lead-Free, RoHS Compliant\", \"Automotive Qualified\"], \"description\": \"Specifically designed for Automotive applications, this Stripe Planar design of HEXFET\\u00ae Power MOSFETs utilizes the latest processing techniques to achieve low on-resistance per silicon area. This benefit combined with the fast switching speed and ruggedized device design that HEXFET power MOSFETs are well known for, provides the designer with an extremely efficient and reliable device for use in Automotive and a wide variety of other applications.\", \"base_part_number\": \"AURF1404L / AURF1404S\", \"package_type\": [\"TO-262\", \"D2-Pak\"], \"standard_pack\": {\"form\": [\"Tube\", \"Tube\", \"Tape and Reel Left\"], \"quantity\": [50, 50, 800], \"orderable_part_number\": [\"AURF1404L\", \"AURF1404S\", \"AURF1404STRL\"]}, \"absolute_maximum_ratings\": {\"symbol\": \"Id @ Tc = 25\\u00b0C\", \"parameter\": \"Continuous Drain Current, VGS @ 10V (Silicon Limited)\", \"max\": 162, \"unit\": \"A\", \"conditions\": \"Tc = 25\\u00b0C\"}, \"thermal_resistance\": {\"symbol\": \"RthJC\", \"parameter\": \"Junction-to-Case\", \"typ\": null, \"max\": 0.75, \"unit\": \"\\u00b0C/W\"}, \"thermal_resistance_ja\": {\"symbol\": \"RthJA\", \"parameter\": \"Junction-to-Ambient (PCB Mount, steady state)\", \"typ\": null, \"max\": 40, \"unit\": \"\\u00b0C/W\"}, \"qualification_standards\": \"Qualification standards can be found at www.infineon.com\", \"qualification_url\": \"http://www.infineon.com\", \"date\": \"11/11/2015\", \"parameters\": [{\"symbol\": \"RDS(on)\", \"description\": \"Drain-to-Source On-Resistance\", \"min\": 3.5, \"typ\": null, \"max\": 4.0, \"unit\": \"mOhm\", \"conditions\": null}, {\"symbol\": \"Id (Silicon Limited)\", \"description\": \"Continuous Drain Current (Silicon Limited)\", \"min\": 162.0, \"typ\": null, \"max\": 162.0, \"unit\": \"A\", \"conditions\": \"Tc = 25\\u00b0C, VGS = 10V\"}, {\"symbol\": \"Id (Package Limited)\", \"description\": \"Continuous Drain Current (Package Limited)\", \"min\": 75.0, \"typ\": null, \"max\": 75.0, \"unit\": \"A\", \"conditions\": \"Tc = 25\\u00b0C, VGS = 10V\"}, {\"symbol\": \"IDM\", \"description\": \"Pulsed Drain Current\", \"min\": 650.0, \"typ\": null, \"max\": null, \"unit\": \"A\", \"conditions\": null}, {\"symbol\": \"PD @ TA = 25\\u00b0C\", \"description\": \"Maximum Power Dissipation\", \"min\": 3.8, \"typ\": null, \"max\": 3.8, \"unit\": \"W\", \"conditions\": \"Tj = 25\\u00b0C\"}, {\"symbol\": \"PD @ Tj = 25\\u00b0C\", \"description\": \"Maximum Power Dissipation\", \"min\": null, \"typ\": 200.0, \"max\": 200.0, \"unit\": \"W\", \"conditions\": \"Tj = 25\\u00b0C\"}, {\"symbol\": \"Linear Derating Factor\", \"description\": \"Linear Derating Factor\", \"min\": 1.3, \"typ\": null, \"max\": null, \"unit\": \"W/\\u00b0C\", \"conditions\": null}, {\"symbol\": \"VGS\", \"description\": \"Gate-to-Source Voltage\", \"min\": null, \"typ\": null, \"max\": 20.0, \"unit\": \"V\", \"conditions\": null}, {\"symbol\": \"EAS\", \"description\": \"Single Pulse Avalanche Energy (Thermally Limited)\", \"min\": null, \"typ\": 519.0, \"max\": null, \"unit\": \"mJ\", \"conditions\": null}, {\"symbol\": \"IAR\", \"description\": \"Avalanche Current\", \"min\": null, \"typ\": 95.0, \"max\": null, \"unit\": \"A\", \"conditions\": null}, {\"symbol\": \"EAR\", \"description\": \"Repetitive Avalanche Energy\", \"min\": null, \"typ\": 20.0, \"max\": null, \"unit\": \"mJ\", \"conditions\": null}, {\"symbol\": \"Dv/dt\", \"description\": \"Peak Diode Recovery\", \"min\": null, \"typ\": 5.0, \"max\": null, \"unit\": \"V/ns\", \"conditions\": null}, {\"symbol\": \"Tj\", \"description\": \"Operating Junction and Case Temperature\", \"min\": -55.0, \"typ\": null, \"max\": 175.0, \"unit\": \"\\u00b0C\", \"conditions\": null}, {\"symbol\": \"TSTG\", \"description\": \"Storage Temperature Range\", \"min\": null, \"typ\": null, \"max\": null, \"unit\": \"\\u00b0C\", \"conditions\": null}, {\"symbol\": \"Soldering Temperature\", \"description\": \"Soldering Temperature, for 10 seconds (1.6mm from case)\", \"min\": 300.0, \"typ\": null, \"max\": 300.0, \"unit\": \"\\u00b0C\", \"conditions\": null}]}",
+      "parsed_ok": true
+    },
+    {
+      "page": 2,
+      "inference_seconds": 244.38394331932068,
+      "timed_out": false,
+      "parameters": [
+        {
+          "symbol": "V(BR)DSS",
+          "description": "Drain-to-Source Breakdown Voltage",
+          "min": 40.0,
+          "typ": null,
+          "max": null,
+          "unit": "V",
+          "conditions": "VGS = 0V, ID = 250\u00b5A"
+        },
+        {
+          "symbol": "\u0394V(BR)DSS/\u0394TJ",
+          "description": "Breakdown Voltage Temp. Coefficient",
+          "min": null,
+          "typ": 0.036,
+          "max": null,
+          "unit": "V/\u00b0C",
+          "conditions": "Reference to 25\u00b0C, ID = 1mA"
+        },
+        {
+          "symbol": "RDS(on)",
+          "description": "Static Drain-to-Source On-Resistance",
+          "min": null,
+          "typ": 3.5,
+          "max": 4.0,
+          "unit": "m\u03a9",
+          "conditions": "VDS = 10V, ID = 95A"
+        },
+        {
+          "symbol": "VGS(th)",
+          "description": "Gate Threshold Voltage",
+          "min": 2.0,
+          "typ": 3.5,
+          "max": 4.0,
+          "unit": "V",
+          "conditions": "VDS = VGS, ID = 250\u00b5A"
+        },
+        {
+          "symbol": "gfs",
+          "description": "Forward Transconductance",
+          "min": 106.0,
+          "typ": null,
+          "max": 20.0,
+          "unit": "S",
+          "conditions": "VDS = 25V, ID = 60A"
+        },
+        {
+          "symbol": "IBSS",
+          "description": "Drain-to-Source Leakage Current",
+          "min": null,
+          "typ": null,
+          "max": 250.0,
+          "unit": "\u00b5A",
+          "conditions": "VDS = 40V, VGS = 0V"
+        },
+        {
+          "symbol": "IGSS",
+          "description": "Gate-to-Source Forward Leakage",
+          "min": null,
+          "typ": null,
+          "max": 200.0,
+          "unit": "nA",
+          "conditions": "VGS = 20V"
+        },
+        {
+          "symbol": "IGSS",
+          "description": "Gate-to-Source Reverse Leakage",
+          "min": null,
+          "typ": null,
+          "max": 200.0,
+          "unit": "nA",
+          "conditions": "VGS = -20V"
+        },
+        {
+          "symbol": "Qg",
+          "description": "Total Gate Charge",
+          "min": null,
+          "typ": 160.0,
+          "max": 200.0,
+          "unit": "nC",
+          "conditions": "ID = 95A"
+        },
+        {
+          "symbol": "Qgs",
+          "description": "Gate-to-Source Charge",
+          "min": null,
+          "typ": 35.0,
+          "max": null,
+          "unit": "nC",
+          "conditions": "VDS = 32V"
+        },
+        {
+          "symbol": "Qgd",
+          "description": "Gate-to-Drain Charge",
+          "min": null,
+          "typ": 42.0,
+          "max": 60.0,
+          "unit": "nC",
+          "conditions": "VGS = 10V"
+        },
+        {
+          "symbol": "td(on)",
+          "description": "Turn-On Delay Time",
+          "min": 17.0,
+          "typ": null,
+          "max": null,
+          "unit": "ns",
+          "conditions": "VDS = 20V, ID = 95A"
+        },
+        {
+          "symbol": "tr",
+          "description": "Rise Time",
+          "min": 140.0,
+          "typ": null,
+          "max": null,
+          "unit": "ns",
+          "conditions": "VDS = 20V, ID = 95A"
+        },
+        {
+          "symbol": "td(off)",
+          "description": "Turn-Off Delay Time",
+          "min": 72.0,
+          "typ": null,
+          "max": null,
+          "unit": "ns",
+          "conditions": "RDS(on) = 2.5\u03a9"
+        },
+        {
+          "symbol": "tf",
+          "description": "Fall Time",
+          "min": 26.0,
+          "typ": null,
+          "max": null,
+          "unit": "ns",
+          "conditions": "RDS(on) = 0.21\u03a9"
+        },
+        {
+          "symbol": "LS",
+          "description": "Internal Source Inductance",
+          "min": null,
+          "typ": 7.5,
+          "max": null,
+          "unit": "nH",
+          "conditions": "Between lead, and center of die contact"
+        },
+        {
+          "symbol": "Ciss",
+          "description": "Input Capacitance",
+          "min": null,
+          "typ": 7360.0,
+          "max": null,
+          "unit": "pF",
+          "conditions": "VGS = 0V"
+        },
+        {
+          "symbol": "Coss",
+          "description": "Output Capacitance",
+          "min": 1680.0,
+          "typ": null,
+          "max": null,
+          "unit": "pF",
+          "conditions": "VDS = 25V"
+        },
+        {
+          "symbol": "Coss",
+          "description": "Reverse Transfer Capacitance",
+          "min": 240.0,
+          "typ": null,
+          "max": null,
+          "unit": "pF",
+          "conditions": "f = 1.0MHz, VGS = 0V"
+        },
+        {
+          "symbol": "Coss",
+          "description": "Output Capacitance",
+          "min": 6630.0,
+          "typ": null,
+          "max": null,
+          "unit": "pF",
+          "conditions": "VGS = 0V, VDS = 1.0V, f = 1.0MHz"
+        },
+        {
+          "symbol": "Coss",
+          "description": "Output Capacitance",
+          "min": 1490.0,
+          "typ": null,
+          "max": null,
+          "unit": "pF",
+          "conditions": "VGS = 0V, VDS = 32V, f = 1.0MHz"
+        },
+        {
+          "symbol": "Coss eff.",
+          "description": "Effective Output Capacitance",
+          "min": null,
+          "typ": 1540.0,
+          "max": null,
+          "unit": "pF",
+          "conditions": "VGS = 0V, VDS = 0V to 32V"
+        },
+        {
+          "symbol": "IS",
+          "description": "Continuous Source Current (Body Diode)",
+          "min": null,
+          "typ": 162.0,
+          "max": null,
+          "unit": "A",
+          "conditions": "MOSFET symbol showing the integral reverse p-junction diode, ID = 95A, VGS = 0V"
+        },
+        {
+          "symbol": "ISM",
+          "description": "Pulsed Source Current (Body Diode)",
+          "min": null,
+          "typ": 650.0,
+          "max": null,
+          "unit": "A",
+          "conditions": "Tj = 25\u00b0C, IS = 95A"
+        },
+        {
+          "symbol": "VSP",
+          "description": "Diode Forward Voltage",
+          "min": null,
+          "typ": 1.3,
+          "max": null,
+          "unit": "V",
+          "conditions": "Tj = 25\u00b0C, IS = 95A"
+        },
+        {
+          "symbol": "trr",
+          "description": "Reverse Recovery Time",
+          "min": 71.0,
+          "typ": 110.0,
+          "max": null,
+          "unit": "ns",
+          "conditions": "Tj = 25\u00b0C, IF = 95A"
+        },
+        {
+          "symbol": "Qrr",
+          "description": "Reverse Recovery Charge",
+          "min": null,
+          "typ": 180.0,
+          "max": 270.0,
+          "unit": "nC",
+          "conditions": "di/dt = 100A/\u00b5s"
+        },
+        {
+          "symbol": "ton",
+          "description": "Forward Turn-On Time",
+          "min": null,
+          "typ": null,
+          "max": null,
+          "unit": "ns",
+          "conditions": "Intrinsic turn-on time is negligible (turn-on is dominated by LS+LD)"
+        }
+      ],
+      "figures": [],
+      "raw_response": "{\"parameters\": [{\"symbol\": \"V(BR)DSS\", \"description\": \"Drain-to-Source Breakdown Voltage\", \"min\": 40.0, \"typ\": null, \"max\": null, \"unit\": \"V\", \"conditions\": \"VGS = 0V, ID = 250\\u00b5A\"}, {\"symbol\": \"\\u0394V(BR)DSS/\\u0394TJ\", \"description\": \"Breakdown Voltage Temp. Coefficient\", \"min\": null, \"typ\": 0.036, \"max\": null, \"unit\": \"V/\\u00b0C\", \"conditions\": \"Reference to 25\\u00b0C, ID = 1mA\"}, {\"symbol\": \"RDS(on)\", \"description\": \"Static Drain-to-Source On-Resistance\", \"min\": null, \"typ\": 3.5, \"max\": 4.0, \"unit\": \"m\\u03a9\", \"conditions\": \"VDS = 10V, ID = 95A\"}, {\"symbol\": \"VGS(th)\", \"description\": \"Gate Threshold Voltage\", \"min\": 2.0, \"typ\": 3.5, \"max\": 4.0, \"unit\": \"V\", \"conditions\": \"VDS = VGS, ID = 250\\u00b5A\"}, {\"symbol\": \"gfs\", \"description\": \"Forward Transconductance\", \"min\": 106.0, \"typ\": null, \"max\": 20.0, \"unit\": \"S\", \"conditions\": \"VDS = 25V, ID = 60A\"}, {\"symbol\": \"IBSS\", \"description\": \"Drain-to-Source Leakage Current\", \"min\": null, \"typ\": null, \"max\": 250.0, \"unit\": \"\\u00b5A\", \"conditions\": \"VDS = 40V, VGS = 0V\"}, {\"symbol\": \"IGSS\", \"description\": \"Gate-to-Source Forward Leakage\", \"min\": null, \"typ\": null, \"max\": 200.0, \"unit\": \"nA\", \"conditions\": \"VGS = 20V\"}, {\"symbol\": \"IGSS\", \"description\": \"Gate-to-Source Reverse Leakage\", \"min\": null, \"typ\": null, \"max\": 200.0, \"unit\": \"nA\", \"conditions\": \"VGS = -20V\"}, {\"symbol\": \"Qg\", \"description\": \"Total Gate Charge\", \"min\": null, \"typ\": 160.0, \"max\": 200.0, \"unit\": \"nC\", \"conditions\": \"ID = 95A\"}, {\"symbol\": \"Qgs\", \"description\": \"Gate-to-Source Charge\", \"min\": null, \"typ\": 35.0, \"max\": null, \"unit\": \"nC\", \"conditions\": \"VDS = 32V\"}, {\"symbol\": \"Qgd\", \"description\": \"Gate-to-Drain Charge\", \"min\": null, \"typ\": 42.0, \"max\": 60.0, \"unit\": \"nC\", \"conditions\": \"VGS = 10V\"}, {\"symbol\": \"td(on)\", \"description\": \"Turn-On Delay Time\", \"min\": 17.0, \"typ\": null, \"max\": null, \"unit\": \"ns\", \"conditions\": \"VDS = 20V, ID = 95A\"}, {\"symbol\": \"tr\", \"description\": \"Rise Time\", \"min\": 140.0, \"typ\": null, \"max\": null, \"unit\": \"ns\", \"conditions\": \"VDS = 20V, ID = 95A\"}, {\"symbol\": \"td(off)\", \"description\": \"Turn-Off Delay Time\", \"min\": 72.0, \"typ\": null, \"max\": null, \"unit\": \"ns\", \"conditions\": \"RDS(on) = 2.5\\u03a9\"}, {\"symbol\": \"tf\", \"description\": \"Fall Time\", \"min\": 26.0, \"typ\": null, \"max\": null, \"unit\": \"ns\", \"conditions\": \"RDS(on) = 0.21\\u03a9\"}, {\"symbol\": \"LS\", \"description\": \"Internal Source Inductance\", \"min\": null, \"typ\": 7.5, \"max\": null, \"unit\": \"nH\", \"conditions\": \"Between lead, and center of die contact\"}, {\"symbol\": \"Ciss\", \"description\": \"Input Capacitance\", \"min\": null, \"typ\": 7360.0, \"max\": null, \"unit\": \"pF\", \"conditions\": \"VGS = 0V\"}, {\"symbol\": \"Coss\", \"description\": \"Output Capacitance\", \"min\": 1680.0, \"typ\": null, \"max\": null, \"unit\": \"pF\", \"conditions\": \"VDS = 25V\"}, {\"symbol\": \"Coss\", \"description\": \"Reverse Transfer Capacitance\", \"min\": 240.0, \"typ\": null, \"max\": null, \"unit\": \"pF\", \"conditions\": \"f = 1.0MHz, VGS = 0V\"}, {\"symbol\": \"Coss\", \"description\": \"Output Capacitance\", \"min\": 6630.0, \"typ\": null, \"max\": null, \"unit\": \"pF\", \"conditions\": \"VGS = 0V, VDS = 1.0V, f = 1.0MHz\"}, {\"symbol\": \"Coss\", \"description\": \"Output Capacitance\", \"min\": 1490.0, \"typ\": null, \"max\": null, \"unit\": \"pF\", \"conditions\": \"VGS = 0V, VDS = 32V, f = 1.0MHz\"}, {\"symbol\": \"Coss eff.\", \"description\": \"Effective Output Capacitance\", \"min\": null, \"typ\": 1540.0, \"max\": null, \"unit\": \"pF\", \"conditions\": \"VGS = 0V, VDS = 0V to 32V\"}, {\"symbol\": \"IS\", \"description\": \"Continuous Source Current (Body Diode)\", \"min\": null, \"typ\": 162.0, \"max\": null, \"unit\": \"A\", \"conditions\": \"MOSFET symbol showing the integral reverse p-junction diode, ID = 95A, VGS = 0V\"}, {\"symbol\": \"ISM\", \"description\": \"Pulsed Source Current (Body Diode)\", \"min\": null, \"typ\": 650.0, \"max\": null, \"unit\": \"A\", \"conditions\": \"Tj = 25\\u00b0C, IS = 95A\"}, {\"symbol\": \"VSP\", \"description\": \"Diode Forward Voltage\", \"min\": null, \"typ\": 1.3, \"max\": null, \"unit\": \"V\", \"conditions\": \"Tj = 25\\u00b0C, IS = 95A\"}, {\"symbol\": \"trr\", \"description\": \"Reverse Recovery Time\", \"min\": 71.0, \"typ\": 110.0, \"max\": null, \"unit\": \"ns\", \"conditions\": \"Tj = 25\\u00b0C, IF = 95A\"}, {\"symbol\": \"Qrr\", \"description\": \"Reverse Recovery Charge\", \"min\": null, \"typ\": 180.0, \"max\": 270.0, \"unit\": \"nC\", \"conditions\": \"di/dt = 100A/\\u00b5s\"}, {\"symbol\": \"ton\", \"description\": \"Forward Turn-On Time\", \"min\": null, \"typ\": null, \"max\": null, \"unit\": \"ns\", \"conditions\": \"Intrinsic turn-on time is negligible (turn-on is dominated by LS+LD)\"}], \"figures\": []}",
+      "parsed_ok": true
+    },
+    {
+      "page": 3,
+      "inference_seconds": 44.09074640274048,
+      "timed_out": false,
+      "parameters": [],
+      "figures": [
+        {
+          "label": "Fig. 1 Typical Output Characteristics",
+          "y_axis": "ID, Drain-to-Source Current (A)",
+          "y_axis_unit": "A",
+          "x_axis": "VDS, Drain-to-Source Voltage (V)",
+          "x_axis_unit": "V",
+          "grid_position": "top-left"
+        },
+        {
+          "label": "Fig. 2 Typical Output Characteristics",
+          "y_axis": "ID, Drain-to-Source Current (A)",
+          "y_axis_unit": "A",
+          "x_axis": "VDS, Drain-to-Source Voltage (V)",
+          "x_axis_unit": "V",
+          "grid_position": "top-right"
+        },
+        {
+          "label": "Fig. 3 Typical Transfer Characteristics",
+          "y_axis": "ID, Drain-to-Source Current (A)",
+          "y_axis_unit": "A",
+          "x_axis": "VGS, Gate-to-Source Voltage (V)",
+          "x_axis_unit": "V",
+          "grid_position": "bottom-left"
+        },
+        {
+          "label": "Fig. 4 Normalized On-Resistance",
+          "y_axis": "RDS(on), Drain-to-Source On Resistance (Normalized)",
+          "y_axis_unit": "normalized",
+          "x_axis": "Tj, Junction Temperature (\u00b0C)",
+          "x_axis_unit": "\u00b0C",
+          "grid_position": "bottom-right"
+        }
+      ],
+      "raw_response": "{\"parameters\": [], \"figures\": [{\"label\": \"Fig. 1 Typical Output Characteristics\", \"y_axis\": \"ID, Drain-to-Source Current (A)\", \"y_axis_unit\": \"A\", \"x_axis\": \"VDS, Drain-to-Source Voltage (V)\", \"x_axis_unit\": \"V\", \"grid_position\": \"top-left\"}, {\"label\": \"Fig. 2 Typical Output Characteristics\", \"y_axis\": \"ID, Drain-to-Source Current (A)\", \"y_axis_unit\": \"A\", \"x_axis\": \"VDS, Drain-to-Source Voltage (V)\", \"x_axis_unit\": \"V\", \"grid_position\": \"top-right\"}, {\"label\": \"Fig. 3 Typical Transfer Characteristics\", \"y_axis\": \"ID, Drain-to-Source Current (A)\", \"y_axis_unit\": \"A\", \"x_axis\": \"VGS, Gate-to-Source Voltage (V)\", \"x_axis_unit\": \"V\", \"grid_position\": \"bottom-left\"}, {\"label\": \"Fig. 4 Normalized On-Resistance\", \"y_axis\": \"RDS(on), Drain-to-Source On Resistance (Normalized)\", \"y_axis_unit\": \"normalized\", \"x_axis\": \"Tj, Junction Temperature (\\u00b0C)\", \"x_axis_unit\": \"\\u00b0C\", \"grid_position\": \"bottom-right\"}]}",
+      "parsed_ok": true
+    },
+    {
+      "page": 4,
+      "inference_seconds": 45.11445903778076,
+      "timed_out": false,
+      "parameters": [],
+      "figures": [
+        {
+          "label": "Fig. 5. Typical Capacitance vs. Drain-to-Source Voltage",
+          "y_axis": "C_oss, C_rss, C_ds",
+          "y_axis_unit": "pF",
+          "x_axis": "V_DS",
+          "x_axis_unit": "V",
+          "grid_position": "left"
+        },
+        {
+          "label": "Fig. 6. Typical Gate Charge vs. Gate-to-Source Voltage",
+          "y_axis": "Q_G",
+          "y_axis_unit": "nC",
+          "x_axis": "V_GS",
+          "x_axis_unit": "V",
+          "grid_position": "right"
+        },
+        {
+          "label": "Fig. 7. Typical Source-to-Drain Diode Forward Voltage",
+          "y_axis": "I_SD",
+          "y_axis_unit": "A",
+          "x_axis": "V_SD",
+          "x_axis_unit": "V",
+          "grid_position": "bottom-left"
+        },
+        {
+          "label": "Fig. 8. Maximum Safe Operating Area",
+          "y_axis": "I_D",
+          "y_axis_unit": "A",
+          "x_axis": "V_DS",
+          "x_axis_unit": "V",
+          "grid_position": "bottom-right"
+        }
+      ],
+      "raw_response": "{\"parameters\": [], \"figures\": [{\"label\": \"Fig. 5. Typical Capacitance vs. Drain-to-Source Voltage\", \"y_axis\": \"C_oss, C_rss, C_ds\", \"y_axis_unit\": \"pF\", \"x_axis\": \"V_DS\", \"x_axis_unit\": \"V\", \"grid_position\": \"left\"}, {\"label\": \"Fig. 6. Typical Gate Charge vs. Gate-to-Source Voltage\", \"y_axis\": \"Q_G\", \"y_axis_unit\": \"nC\", \"x_axis\": \"V_GS\", \"x_axis_unit\": \"V\", \"grid_position\": \"right\"}, {\"label\": \"Fig. 7. Typical Source-to-Drain Diode Forward Voltage\", \"y_axis\": \"I_SD\", \"y_axis_unit\": \"A\", \"x_axis\": \"V_SD\", \"x_axis_unit\": \"V\", \"grid_position\": \"bottom-left\"}, {\"label\": \"Fig. 8. Maximum Safe Operating Area\", \"y_axis\": \"I_D\", \"y_axis_unit\": \"A\", \"x_axis\": \"V_DS\", \"x_axis_unit\": \"V\", \"grid_position\": \"bottom-right\"}]}",
+      "parsed_ok": true
+    },
+    {
+      "page": 5,
+      "inference_seconds": 37.55475950241089,
+      "timed_out": false,
+      "parameters": [],
+      "figures": [
+        {
+          "label": "Maximum Drain Current vs. Case Temperature",
+          "y_axis": "Id, Drain Current",
+          "y_axis_unit": "A",
+          "x_axis": "TC, Case Temperature",
+          "x_axis_unit": "\u00b0C",
+          "grid_position": "left"
+        },
+        {
+          "label": "Switching Time Test Circuit",
+          "y_axis": null,
+          "y_axis_unit": null,
+          "x_axis": null,
+          "x_axis_unit": null,
+          "grid_position": "right"
+        },
+        {
+          "label": "Switching Time Waveforms",
+          "y_axis": "Voltage",
+          "y_axis_unit": "V",
+          "x_axis": "Time",
+          "x_axis_unit": null,
+          "grid_position": "right"
+        },
+        {
+          "label": "Maximum Effective Transient Thermal Impedance, Junction-to-Case",
+          "y_axis": "Thermal Response, Zth,jc",
+          "y_axis_unit": "m\u03a9",
+          "x_axis": "t1, Rectangular Pulse Duration",
+          "x_axis_unit": "sec",
+          "grid_position": "bottom"
+        }
+      ],
+      "raw_response": "{\"parameters\": [], \"figures\": [{\"label\": \"Maximum Drain Current vs. Case Temperature\", \"y_axis\": \"Id, Drain Current\", \"y_axis_unit\": \"A\", \"x_axis\": \"TC, Case Temperature\", \"x_axis_unit\": \"\\u00b0C\", \"grid_position\": \"left\"}, {\"label\": \"Switching Time Test Circuit\", \"y_axis\": null, \"y_axis_unit\": null, \"x_axis\": null, \"x_axis_unit\": null, \"grid_position\": \"right\"}, {\"label\": \"Switching Time Waveforms\", \"y_axis\": \"Voltage\", \"y_axis_unit\": \"V\", \"x_axis\": \"Time\", \"x_axis_unit\": null, \"grid_position\": \"right\"}, {\"label\": \"Maximum Effective Transient Thermal Impedance, Junction-to-Case\", \"y_axis\": \"Thermal Response, Zth,jc\", \"y_axis_unit\": \"m\\u03a9\", \"x_axis\": \"t1, Rectangular Pulse Duration\", \"x_axis_unit\": \"sec\", \"grid_position\": \"bottom\"}]}",
+      "parsed_ok": true
+    },
+    {
+      "page": 6,
+      "inference_seconds": 55.882957458496094,
+      "timed_out": false,
+      "parameters": [],
+      "figures": [
+        {
+          "label": "Fig 12a. Unclamped Inductive Test Circuit",
+          "y_axis": "VDS, V(BR)DSS",
+          "y_axis_unit": "V",
+          "x_axis": null,
+          "x_axis_unit": null,
+          "grid_position": "left"
+        },
+        {
+          "label": "Fig 12b. Unclamped Inductive Waveforms",
+          "y_axis": "V(BR)DSS, IAS",
+          "y_axis_unit": "V, A",
+          "x_axis": "tp",
+          "x_axis_unit": "us",
+          "grid_position": "left"
+        },
+        {
+          "label": "Fig 12c. Maximum Avalanche Energy vs. Drain Current",
+          "y_axis": "EAS",
+          "y_axis_unit": "mJ",
+          "x_axis": "Starting Tj",
+          "x_axis_unit": "\u00b0C",
+          "grid_position": "top"
+        },
+        {
+          "label": "Fig 13a. Gate Charge Waveform",
+          "y_axis": "Vds, Vgs",
+          "y_axis_unit": "V",
+          "x_axis": "Qgs1, Qgs2, Qgd, Qgdr",
+          "x_axis_unit": null,
+          "grid_position": "left"
+        },
+        {
+          "label": "Fig 13b. Gate Charge Test Circuit",
+          "y_axis": null,
+          "y_axis_unit": null,
+          "x_axis": null,
+          "x_axis_unit": null,
+          "grid_position": null
+        },
+        {
+          "label": "Fig 12d. Typical Drain-to-Source Voltage vs. Avalanche Current",
+          "y_axis": "VDSav",
+          "y_axis_unit": "V",
+          "x_axis": "IAV",
+          "x_axis_unit": "A",
+          "grid_position": "bottom"
+        }
+      ],
+      "raw_response": "{\"parameters\": [], \"figures\": [{\"label\": \"Fig 12a. Unclamped Inductive Test Circuit\", \"y_axis\": \"VDS, V(BR)DSS\", \"y_axis_unit\": \"V\", \"x_axis\": null, \"x_axis_unit\": null, \"grid_position\": \"left\"}, {\"label\": \"Fig 12b. Unclamped Inductive Waveforms\", \"y_axis\": \"V(BR)DSS, IAS\", \"y_axis_unit\": \"V, A\", \"x_axis\": \"tp\", \"x_axis_unit\": \"us\", \"grid_position\": \"left\"}, {\"label\": \"Fig 12c. Maximum Avalanche Energy vs. Drain Current\", \"y_axis\": \"EAS\", \"y_axis_unit\": \"mJ\", \"x_axis\": \"Starting Tj\", \"x_axis_unit\": \"\\u00b0C\", \"grid_position\": \"top\"}, {\"label\": \"Fig 13a. Gate Charge Waveform\", \"y_axis\": \"Vds, Vgs\", \"y_axis_unit\": \"V\", \"x_axis\": \"Qgs1, Qgs2, Qgd, Qgdr\", \"x_axis_unit\": null, \"grid_position\": \"left\"}, {\"label\": \"Fig 13b. Gate Charge Test Circuit\", \"y_axis\": null, \"y_axis_unit\": null, \"x_axis\": null, \"x_axis_unit\": null, \"grid_position\": null}, {\"label\": \"Fig 12d. Typical Drain-to-Source Voltage vs. Avalanche Current\", \"y_axis\": \"VDSav\", \"y_axis_unit\": \"V\", \"x_axis\": \"IAV\", \"x_axis_unit\": \"A\", \"grid_position\": \"bottom\"}]}",
+      "parsed_ok": true
+    },
+    {
+      "page": 7,
+      "inference_seconds": 23.40530037879944,
+      "timed_out": false,
+      "parameters": [],
+      "figures": [
+        {
+          "label": "Peak Diode Recovery dv/dt Test Circuit for N-Channel HEXFET\u00ae Power MOSFETs",
+          "y_axis": "D.U.T. VDS, Inductor Current, D.U.T. VDS Waveform, Body Diode Forward Current, D.U.T. VGS Waveform, Ripple",
+          "y_axis_unit": "V, A, %",
+          "x_axis": "Period, Duty Factor (D)",
+          "x_axis_unit": "ns, %",
+          "grid_position": "middle-center"
+        }
+      ],
+      "raw_response": "{\"parameters\": [], \"figures\": [{\"label\": \"Peak Diode Recovery dv/dt Test Circuit for N-Channel HEXFET\\u00ae Power MOSFETs\", \"y_axis\": \"D.U.T. VDS, Inductor Current, D.U.T. VDS Waveform, Body Diode Forward Current, D.U.T. VGS Waveform, Ripple\", \"y_axis_unit\": \"V, A, %\", \"x_axis\": \"Period, Duty Factor (D)\", \"x_axis_unit\": \"ns, %\", \"grid_position\": \"middle-center\"}]}",
+      "parsed_ok": true
+    },
+    {
+      "page": 8,
+      "inference_seconds": 6.597310543060303,
+      "timed_out": false,
+      "parameters": [],
+      "figures": [],
+      "raw_response": "{\"parameters\": [], \"figures\": []}",
+      "parsed_ok": true
+    },
+    {
+      "page": 9,
+      "inference_seconds": 300.089994430542,
+      "timed_out": true,
+      "parameters": [],
+      "figures": [],
+      "raw_response": "{\"product_name\": \"AUIRF1404S/L\", \"part_number\": \"AUIRF1404L\", \"date_code\": \"YWW\", \"year\": 2015, \"work_week\": 11, \"lot_code\": null, \"company_name\": \"Infineon\", \"document_date\": \"11/11/2015\", \"package_type\": \"TO-262\", \"package_outline\": \"TO-262\", \"package_outline_dimensions\": {\"A\": {\"min\": 4.06, \"max\": 4.83, \"unit\": \"mm\"}, \"B\": {\"min\": 2.03, \"max\": 3.02, \"unit\": \"mm\"}, \"B1\": {\"min\": 0.51, \"max\": 0.99, \"unit\": \"mm\"}, \"B2\": {\"min\": 1.14, \"max\": 1.78, \"unit\": \"mm\"}, \"B3\": {\"min\": 1.14, \"max\": 1.73, \"unit\": \"mm\"}, \"C\": {\"min\": 0.38, \"max\": 0.74, \"unit\": \"mm\"}, \"C1\": {\"min\": 0.38, \"max\": 0.58, \"unit\": \"mm\"}, \"C2\": {\"min\": 1.14, \"max\": 1.65, \"unit\": \"mm\"}, \"D\": {\"min\": 8.38, \"max\": 9.65, \"unit\": \"mm\"}, \"D1\": {\"min\": 6.86, \"max\": 7.0, \"unit\": \"mm\"}, \"E\": {\"min\": 9.65, \"max\": 10.67, \"unit\": \"mm\"}, \"E1\": {\"min\": 2.54, \"max\": 3.0, \"unit\": \"mm\"}, \"L1\": {\"min\": 13.46, \"max\": 14.1, \"unit\": \"mm\"}, \"L2\": {\"min\": 3.56, \"max\": 3.71, \"unit\": \"mm\"}}, \"lead_assignments\": {\"1\": \"GATE\", \"2\": \"COLLECTOR\", \"3\": \"EMITTER\", \"4\": \"COLLECTOR\"}, \"die_lead_assignments\": {\"1\": \"GATE\", \"2\": \"DRAIN\", \"3\": \"SOURCE\", \"4\": \"DRAIN\"}, \"die_lead_assignments_dipoles\": {\"1\": \"D1\", \"2\": \"D2\", \"3\": \"D3\", \"4\": \"D4\"}, \"die_lead_assignments_dipoles_min\": {\"1\": 1.0, \"2\": 0.5, \"3\": 0.5, \"4\": 0.5}, \"die_lead_assignments_dipoles_max\": {\"1\": 1.0, \"2\": 0.5, \"3\": 0.5, \"4\": 0.5}, \"die_lead_assignments_dipoles_unit\": {\"1\": \"mm\", \"2\": \"mm\", \"3\": \"mm\", \"4\": \"mm\"}, \"die_lead_assignments_dipoles_note\": \"DIMENSIONS CONFORM TO JEDEC TO-262 EXCEPT AT(max) AND D(min) WHERE DIMENSIONS DERIVED THE ACTUAL PACKAGE OUTLINE\", \"die_lead_assignments_note_2\": \"DIMENSIONS ARE SHOWN IN MILLIMETERS (INCHES)\", \"die_lead_assignments_note_3\": \"DIMENSIONS AND TOLERANCING PER ASME Y14.5M-1994\", \"die_lead_assignments_note_4\": \"FLASH MOLD SHALL NOT EXCEED 0.12mm (0.005) PER SIDE. THESE DIMENSIONS ARE MEASURED AT THE OUTMOST EXTREME OF THE ELASTIC BODY\", \"die_lead_assignments_note_5\": \"THERMAL PAD CONTOUR OUTLINE WITHIN DIMENSION E1, D1 & E1\", \"die_lead_assignments_note_6\": \"DIMENSION B1 AND C1 APPLY TO BASE METAL ONLY\", \"die_lead_assignments_note_7\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_8\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_9\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_10\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_11\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_12\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_13\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_14\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_15\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_16\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_17\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_18\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_19\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_20\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_21\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_22\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_23\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_24\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_25\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_26\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_27\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_28\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_29\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_30\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_31\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_32\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_33\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_34\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_35\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_36\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_37\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_38\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_39\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_40\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_41\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_42\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_43\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_44\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_45\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_46\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_47\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_48\": \"DIMENSIONING DIMENSION NON-DIMENSIONING DIMENSION\", \"die_lead_assignments_note_49\": \"DIMENSIONING DIM",
+      "parsed_ok": false
+    },
+    {
+      "page": 10,
+      "skipped": true,
+      "skip_reason": "no data signal on page",
+      "inference_seconds": 0,
+      "parameters": [],
+      "figures": [],
+      "parsed_ok": true,
+      "timed_out": false
+    },
+    {
+      "page": 11,
+      "skipped": true,
+      "skip_reason": "marketing/disclaimer: \\brevision history\\b",
+      "inference_seconds": 0,
+      "parameters": [],
+      "figures": [],
+      "parsed_ok": true,
+      "timed_out": false
+    }
+  ],
+  "completed_at": "2026-05-23 03:05:29"
+}

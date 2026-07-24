@@ -1,0 +1,295 @@
+{
+  "device": "94-3316",
+  "model": "ibm-granite/granite-vision-4.1-4b",
+  "pages_processed": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "total_inference_seconds": 984.8753061294556,
+  "pages": [
+    {
+      "page": 1,
+      "inference_seconds": 300.1288113594055,
+      "timed_out": true,
+      "parameters": [],
+      "figures": [],
+      "raw_response": "{\"product_name\": \"IRLL014N\", \"product_type\": \"HEXFET Power MOSFET\", \"manufacturer\": \"International Rectifier\", \"package_type\": \"SOT-223\", \"description\": \"Fifth Generation HEXFETs from International Rectifier utilize advanced processing techniques to achieve extremely low on-resistance per silicon area. This benefit, combined with the fast switching speed and ruggedized device design that HEXFET Power MOSFETs are well known for, provides the designer with an extremely efficient and reliable device for use in a wide variety of applications.\", \"package_description\": \"The SOT-223 package is designed for surface-mount using vapor phase, iridized, or wave soldering techniques. Its unique package design allows for easy automatic pick-and-place as with other SOT or SOIC packages but has the added advantage of improved thermal performance due to an enlarged tab for heatsinking. Power dissipation of 1.0W is possible in a typical surface mount application.\", \"application_notes\": \"Use for various power supply and motor control applications. Suitable for surface mount designs with proper heat sinking and PCB layout.\", \"website\": \"http://www.irf.com\", \"date\": \"1/25/99\", \"parameters\": [{\"symbol\": \"ID\", \"description\": \"Continuous Drain Current\", \"min\": null, \"typ\": null, \"max\": 2.8, \"unit\": \"A\", \"conditions\": \"VGS @ 10V\"}, {\"symbol\": \"ID\", \"description\": \"Continuous Drain Current\", \"min\": null, \"typ\": null, \"max\": 2.0, \"unit\": \"A\", \"conditions\": \"VGS @ 10V\"}, {\"symbol\": \"ID\", \"description\": \"Continuous Drain Current\", \"min\": null, \"typ\": null, \"max\": 1.6, \"unit\": \"A\", \"conditions\": \"VGS @ 10V\"}, {\"symbol\": \"IDM\", \"description\": \"Pulsed Drain Current\", \"min\": null, \"typ\": null, \"max\": 16.0, \"unit\": \"A\", \"conditions\": null}, {\"symbol\": \"PD\", \"description\": \"Power Dissipation (PCB Mount)\", \"min\": null, \"typ\": 2.1, \"max\": null, \"unit\": \"W\", \"conditions\": \"Tj = 25\\u00b0C\"}, {\"symbol\": \"PD\", \"description\": \"Power Dissipation (PCB Mount)\", \"min\": null, \"typ\": 1.0, \"max\": null, \"unit\": \"W\", \"conditions\": \"Tj = 25\\u00b0C\"}, {\"symbol\": \"Derating\", \"description\": \"Linear Derating Factor (PCB Mount)\", \"min\": null, \"typ\": 8.3, \"max\": null, \"unit\": \"mW/\\u00b0C\", \"conditions\": null}, {\"symbol\": \"VGS\", \"description\": \"Gate-to-Source Voltage\", \"min\": -16.0, \"typ\": null, \"max\": 16.0, \"unit\": \"V\", \"conditions\": null}, {\"symbol\": \"EAS\", \"description\": \"Single Pulse Avalanche Energy\", \"min\": null, \"typ\": null, \"max\": 32.0, \"unit\": \"mJ\", \"conditions\": null}, {\"symbol\": \"IAR\", \"description\": \"Avalanche Current\", \"min\": null, \"typ\": 2.0, \"max\": null, \"unit\": \"A\", \"conditions\": null}, {\"symbol\": \"EAR\", \"description\": \"Repetitive Avalanche Energy\", \"min\": null, \"typ\": 0.1, \"max\": null, \"unit\": \"mJ\", \"conditions\": null}, {\"symbol\": \"dv/dt\", \"description\": \"Peak Diode Recovery dv/dt\", \"min\": null, \"typ\": 7.2, \"max\": null, \"unit\": \"V/ns\", \"conditions\": null}, {\"symbol\": \"Tj, TSTG\", \"description\": \"Junction and Storage Temperature Range\", \"min\": -55.0, \"typ\": null, \"max\": 150.0, \"unit\": \"\\u00b0C\", \"conditions\": null}], \"thermal_resistance\": [{\"parameter\": \"R\\u03b8JA\", \"typ\": 90.0, \"max\": 120.0, \"unit\": \"\\u00b0C/W\", \"conditions\": \"Junction-to-Amb. (PCB Mount, steady state)\"}, {\"parameter\": \"R\\u03b8JA\", \"typ\": 50.0, \"max\": 60.0, \"unit\": \"\\u00b0C/W\", \"conditions\": \"Junction-to-Amb. (PCB Mount, steady state)\"}], \"thermal_resistance_notes\": \"* When mounted on FR-4 board using minimum recommended footprint.\\n** When mounted on 1 inch square copper board, for comparison with other SMD devices.\", \"absolute_maximum_ratings\": [{\"parameter\": \"ID\", \"min\": null, \"typ\": null, \"max\": 2.8, \"unit\": \"A\", \"conditions\": \"Tj = 25\\u00b0C, VGS @ 10V\"}, {\"parameter\": \"ID\", \"min\": null, \"typ\": null, \"max\": 2.0, \"unit\": \"A\", \"conditions\": \"Tj = 25\\u00b0C, VGS @ 10V\"}, {\"parameter\": \"ID\", \"min\": null, \"typ\": null, \"max\": 1.6, \"unit\": \"A\", \"conditions\": \"Tj = 70\\u00b0C, VGS @ 10V\"}, {\"parameter\": \"IDM\", \"min\": null, \"typ\": null, \"max\": 16.0, \"unit\": \"A\", \"conditions\": null}, {\"parameter\": \"PD\", \"min\": null, \"typ\": 2.1, \"max\": null, \"unit\": \"W\", \"conditions\": \"Tj = 25\\u00b0C, PCB Mount\"}, {\"parameter\": \"PD\", \"min\": null, \"typ\": 1.0, \"max\": null, \"unit\": \"W\", \"conditions\": \"Tj = 25\\u00b0C, PCB Mount\"}, {\"parameter\": \"Derating\", \"min\": null, \"typ\": 8.3, \"max\": null, \"unit\": \"mW/\\u00b0C\", \"conditions\": \"Tj\"}, {\"parameter\": \"VGS\", \"min\": -16.0, \"typ\": null, \"max\": 16.0, \"unit\": \"V\", \"conditions\": null}, {\"parameter\": \"EAS\", \"min\": null, \"typ\": null, \"max\": 32.0, \"unit\": \"mJ\", \"conditions\": null}, {\"parameter\": \"IAR\", \"min\": null, \"typ\": 2.0, \"max\": null, \"unit\": \"A\", \"conditions\": null}, {\"parameter\": \"EAR\", \"min\": null, \"typ\": 0.1, \"max\": null, \"unit\": \"mJ\", \"conditions\": null}, {\"parameter\": \"dv/dt\", \"min\": null, \"typ\": 7.2, \"max\": null, \"unit\": \"V/ns\", \"conditions\": null}, {\"parameter\": \"Tj, TSTG\", \"min\": -55.0, \"typ\": null, \"max\": 150.0, \"unit\": \"\\u00b0C\", \"conditions\": null}], \"characterization_plots\": [], \"typical_application\": \"Use in power supply circuits, motor drivers, and other high-power electronic applications. Ensure proper heatsinking and PCB layout for optimal performance.\", \"typical_application_notes\": \"For optimal performance, use with appropriate heatsinking and PCB layout. Refer to application circuits on page 2 of the datasheet.\", \"typical_wattage_",
+      "parsed_ok": false
+    },
+    {
+      "page": 2,
+      "inference_seconds": 300.13085675239563,
+      "timed_out": true,
+      "parameters": [],
+      "figures": [],
+      "raw_response": "{\"product_name\": \"IRLL014N\", \"manufacturer\": \"International Rectifier\", \"website\": \"http://www.irf.com\", \"parameters\": [{\"symbol\": \"V(BR)DSS\", \"description\": \"Drain-to-Source Breakdown Voltage\", \"min\": 55.0, \"typ\": null, \"max\": null, \"unit\": \"V\", \"conditions\": \"VGS = 0V, ID = 250\\u00b5A\"}, {\"symbol\": \"\\u0394V(BR)DSS/\\u0394TJ\", \"description\": \"Breakdown Voltage Temp. Coefficient\", \"min\": null, \"typ\": 0.015, \"max\": null, \"unit\": \"V/\\u00b0C\", \"conditions\": \"Reference to 25\\u00b0C, ID = 1mA\"}, {\"symbol\": \"RDS(on)\", \"description\": \"Static Drain-to-Source On-Resistance\", \"min\": null, \"typ\": 0.14, \"max\": null, \"unit\": \"\\u03a9\", \"conditions\": \"VGS = 10V, ID = 2.0A\"}, {\"symbol\": \"RDS(on)\", \"description\": \"Static Drain-to-Source On-Resistance\", \"min\": null, \"typ\": 0.2, \"max\": null, \"unit\": \"\\u03a9\", \"conditions\": \"VGS = 5.0V, ID = 1.2A\"}, {\"symbol\": \"RDS(on)\", \"description\": \"Static Drain-to-Source On-Resistance\", \"min\": null, \"typ\": 0.28, \"max\": null, \"unit\": \"\\u03a9\", \"conditions\": \"VGS = 4.0V, ID = 1.0A\"}, {\"symbol\": \"VGS(th)\", \"description\": \"Gate Threshold Voltage\", \"min\": 1.0, \"typ\": null, \"max\": 2.0, \"unit\": \"V\", \"conditions\": \"VDS = VGS, ID = 250\\u00b5A\"}, {\"symbol\": \"\\u03b4S\", \"description\": \"Forward Transconductance\", \"min\": 2.3, \"typ\": null, \"max\": null, \"unit\": \"S\", \"conditions\": \"VDS = 25V, ID = 1.0A\"}, {\"symbol\": \"IDSS\", \"description\": \"Drain-to-Source Leakage Current\", \"min\": null, \"typ\": 25.0, \"max\": null, \"unit\": \"\\u00b5A\", \"conditions\": \"VDS = 55V, VGS = 0V\"}, {\"symbol\": \"IBSS\", \"description\": \"Drain-to-Source Leakage Current\", \"min\": null, \"typ\": 250.0, \"max\": null, \"unit\": \"\\u00b5A\", \"conditions\": \"VDS = 44V, VGS = 0V, TJ = 150\\u00b0C\"}, {\"symbol\": \"IGSS\", \"description\": \"Gate-to-Source Forward Leakage\", \"min\": null, \"typ\": 100.0, \"max\": null, \"unit\": \"nA\", \"conditions\": \"VGS = 16V\"}, {\"symbol\": \"IGSS\", \"description\": \"Gate-to-Source Reverse Leakage\", \"min\": null, \"typ\": -100.0, \"max\": null, \"unit\": \"nA\", \"conditions\": \"VGS = -16V\"}, {\"symbol\": \"Qg\", \"description\": \"Total Gate Charge\", \"min\": 9.5, \"typ\": 14.0, \"max\": null, \"unit\": \"nC\", \"conditions\": \"ID = 2.0A\"}, {\"symbol\": \"Qgs\", \"description\": \"Gate-to-Source Charge\", \"min\": 1.1, \"typ\": 1.7, \"max\": null, \"unit\": \"nC\", \"conditions\": \"VDS = 44V\"}, {\"symbol\": \"Qgd\", \"description\": \"Gate-to-Drain (Miller) Charge\", \"min\": 3.0, \"typ\": 4.4, \"max\": null, \"unit\": \"nC\", \"conditions\": \"VGS = 10V, See Fig. 6 and 9\"}, {\"symbol\": \"td(on)\", \"description\": \"Turn-On Delay Time\", \"min\": null, \"typ\": 5.1, \"max\": null, \"unit\": \"ns\", \"conditions\": \"VDD = 28V\"}, {\"symbol\": \"tr\", \"description\": \"Rise Time\", \"min\": null, \"typ\": 4.9, \"max\": null, \"unit\": \"ns\", \"conditions\": \"ID = 2.0A\"}, {\"symbol\": \"td(off)\", \"description\": \"Turn-Off Delay Time\", \"min\": null, \"typ\": 14.0, \"max\": null, \"unit\": \"ns\", \"conditions\": \"RG = 6.0\\u03a9\"}, {\"symbol\": \"tf\", \"description\": \"Fall Time\", \"min\": null, \"typ\": 2.9, \"max\": null, \"unit\": \"ns\", \"conditions\": \"RD = 14\\u03a9, See Fig. 10\"}, {\"symbol\": \"Ciss\", \"description\": \"Input Capacitance\", \"min\": null, \"typ\": 230.0, \"max\": null, \"unit\": \"pF\", \"conditions\": \"VGS = 0V\"}, {\"symbol\": \"Coss\", \"description\": \"Output Capacitance\", \"min\": null, \"typ\": 66.0, \"max\": null, \"unit\": \"pF\", \"conditions\": \"VGS = 25V\"}, {\"symbol\": \"Crss\", \"description\": \"Reverse Transfer Capacitance\", \"min\": null, \"typ\": 30.0, \"max\": null, \"unit\": \"pF\", \"conditions\": \"f = 1.0MHz, See Fig. 5\"}], \"source_drain_ratings\": [{\"symbol\": \"IS\", \"description\": \"Continuous Source Current (Body Diode)\", \"min\": null, \"typ\": null, \"max\": 1.3, \"unit\": \"A\", \"conditions\": \"MOSFET symbol showing the integral reverse-polarized body diode, IS = 2.0A, VGS = 0V\"}, {\"symbol\": \"ISM\", \"description\": \"Pulsed Source Current (Body Diode)\", \"min\": null, \"typ\": null, \"max\": 16.0, \"unit\": \"A\", \"conditions\": \"MOSFET symbol showing the integral reverse-polarized body diode\"}, {\"symbol\": \"VSD\", \"description\": \"Diode Forward Voltage\", \"min\": null, \"typ\": 1.0, \"max\": null, \"unit\": \"V\", \"conditions\": \"TJ = 25\\u00b0C, IS = 2.0A, VGS = 0V\"}, {\"symbol\": \"trr\", \"description\": \"Reverse Recovery Time\", \"min\": 41.0, \"typ\": 61.0, \"max\": null, \"unit\": \"ns\", \"conditions\": \"TJ = 25\\u00b0C, IF = 2.0A\"}, {\"symbol\": \"Qrr\", \"description\": \"Reverse Recovery Charge\", \"min\": 73.0, \"typ\": 110.0, \"max\": null, \"unit\": \"nC\", \"conditions\": \"di/dt = 100A/\\u00b5s, VDS = V(BR)DSS, TJ = 150\\u00b0C\"}, {\"symbol\": \"ton\", \"description\": \"",
+      "parsed_ok": false
+    },
+    {
+      "page": 3,
+      "inference_seconds": 49.52474522590637,
+      "timed_out": false,
+      "parameters": [],
+      "figures": [
+        {
+          "label": "Fig 1. Typical Output Characteristics",
+          "y_axis": "ID, Drain-to-Source Current (A)",
+          "y_axis_unit": "A",
+          "x_axis": "VDS, Drain-to-Source Voltage (V)",
+          "x_axis_unit": "V",
+          "grid_position": "top-left"
+        },
+        {
+          "label": "Fig 2. Typical Output Characteristics",
+          "y_axis": "ID, Drain-to-Source Current (A)",
+          "y_axis_unit": "A",
+          "x_axis": "VDS, Drain-to-Source Voltage (V)",
+          "x_axis_unit": "V",
+          "grid_position": "top-right"
+        },
+        {
+          "label": "Fig 3. Typical Transfer Characteristics",
+          "y_axis": "ID, Drain-to-Source Current (A)",
+          "y_axis_unit": "A",
+          "x_axis": "VGS, Gate-to-Source Voltage (V)",
+          "x_axis_unit": "V",
+          "grid_position": "bottom-left"
+        },
+        {
+          "label": "Fig 4. Normalized On-Resistance",
+          "y_axis": "RDS(on), Drain-to-Source On Resistance (Normalized)",
+          "y_axis_unit": "normalized",
+          "x_axis": "Tj, Junction Temperature (\u00b0C)",
+          "x_axis_unit": "\u00b0C",
+          "grid_position": "bottom-right"
+        }
+      ],
+      "raw_response": "{\"parameters\": [], \"figures\": [{\"label\": \"Fig 1. Typical Output Characteristics\", \"y_axis\": \"ID, Drain-to-Source Current (A)\", \"y_axis_unit\": \"A\", \"x_axis\": \"VDS, Drain-to-Source Voltage (V)\", \"x_axis_unit\": \"V\", \"grid_position\": \"top-left\"}, {\"label\": \"Fig 2. Typical Output Characteristics\", \"y_axis\": \"ID, Drain-to-Source Current (A)\", \"y_axis_unit\": \"A\", \"x_axis\": \"VDS, Drain-to-Source Voltage (V)\", \"x_axis_unit\": \"V\", \"grid_position\": \"top-right\"}, {\"label\": \"Fig 3. Typical Transfer Characteristics\", \"y_axis\": \"ID, Drain-to-Source Current (A)\", \"y_axis_unit\": \"A\", \"x_axis\": \"VGS, Gate-to-Source Voltage (V)\", \"x_axis_unit\": \"V\", \"grid_position\": \"bottom-left\"}, {\"label\": \"Fig 4. Normalized On-Resistance\", \"y_axis\": \"RDS(on), Drain-to-Source On Resistance (Normalized)\", \"y_axis_unit\": \"normalized\", \"x_axis\": \"Tj, Junction Temperature (\\u00b0C)\", \"x_axis_unit\": \"\\u00b0C\", \"grid_position\": \"bottom-right\"}]}",
+      "parsed_ok": true
+    },
+    {
+      "page": 4,
+      "inference_seconds": 37.440988302230835,
+      "timed_out": false,
+      "parameters": [],
+      "figures": [
+        {
+          "label": "Fig 5. Typical Capacitance Vs. Drain-to-Source Voltage",
+          "y_axis": "Ciss, Coss, Crss",
+          "y_axis_unit": "pF",
+          "x_axis": "VDS",
+          "x_axis_unit": "V",
+          "grid_position": "left"
+        },
+        {
+          "label": "Fig 6. Typical Gate Charge Vs. Gate-to-Source Voltage",
+          "y_axis": "QG",
+          "y_axis_unit": "nC",
+          "x_axis": "VDS",
+          "x_axis_unit": "V",
+          "grid_position": "top"
+        },
+        {
+          "label": "Fig 7. Typical Source-Drain Diode Forward Voltage",
+          "y_axis": "IsD",
+          "y_axis_unit": "A",
+          "x_axis": "VSD",
+          "x_axis_unit": "V",
+          "grid_position": "left"
+        },
+        {
+          "label": "Fig 8. Maximum Safe Operating Area",
+          "y_axis": "IsD",
+          "y_axis_unit": "A",
+          "x_axis": "VDS",
+          "x_axis_unit": "V",
+          "grid_position": "right"
+        }
+      ],
+      "raw_response": "{\"parameters\": [], \"figures\": [{\"label\": \"Fig 5. Typical Capacitance Vs. Drain-to-Source Voltage\", \"y_axis\": \"Ciss, Coss, Crss\", \"y_axis_unit\": \"pF\", \"x_axis\": \"VDS\", \"x_axis_unit\": \"V\", \"grid_position\": \"left\"}, {\"label\": \"Fig 6. Typical Gate Charge Vs. Gate-to-Source Voltage\", \"y_axis\": \"QG\", \"y_axis_unit\": \"nC\", \"x_axis\": \"VDS\", \"x_axis_unit\": \"V\", \"grid_position\": \"top\"}, {\"label\": \"Fig 7. Typical Source-Drain Diode Forward Voltage\", \"y_axis\": \"IsD\", \"y_axis_unit\": \"A\", \"x_axis\": \"VSD\", \"x_axis_unit\": \"V\", \"grid_position\": \"left\"}, {\"label\": \"Fig 8. Maximum Safe Operating Area\", \"y_axis\": \"IsD\", \"y_axis_unit\": \"A\", \"x_axis\": \"VDS\", \"x_axis_unit\": \"V\", \"grid_position\": \"right\"}]}",
+      "parsed_ok": true
+    },
+    {
+      "page": 5,
+      "inference_seconds": 68.95147323608398,
+      "timed_out": false,
+      "parameters": [],
+      "figures": [
+        {
+          "label": "Fig 9a. Basic Gate Charge Waveform",
+          "y_axis": "Gate Charge (Qg, Qgs, Qgd)",
+          "y_axis_unit": "nC",
+          "x_axis": "Voltage (Vg)",
+          "x_axis_unit": "V",
+          "grid_position": "top-left"
+        },
+        {
+          "label": "Fig 10a. Switching Time Test Circuit",
+          "y_axis": "Voltage (VDS, VGS)",
+          "y_axis_unit": "V",
+          "x_axis": "Time (t1, t2)",
+          "x_axis_unit": "s",
+          "grid_position": "top-center"
+        },
+        {
+          "label": "Fig 9b. Gate Charge Test Circuit",
+          "y_axis": "Voltage (VDS, VGS)",
+          "y_axis_unit": "V",
+          "x_axis": "Current (Id, Ig)",
+          "x_axis_unit": "A",
+          "grid_position": "middle-left"
+        },
+        {
+          "label": "Fig 10b. Switching Time Waveforms",
+          "y_axis": "Voltage (VDS, VGS)",
+          "y_axis_unit": "V",
+          "x_axis": "Time (t1, t2)",
+          "x_axis_unit": "s",
+          "grid_position": "top-center"
+        },
+        {
+          "label": "Fig 11. Maximum Effective Transient Thermal Impedance, Junction-to-Ambient",
+          "y_axis": "Thermal Resistance (Zth,ja)",
+          "y_axis_unit": "m\u00b0C/W",
+          "x_axis": "Rectangular Pulse Duration (t1, t2)",
+          "x_axis_unit": "s",
+          "grid_position": "bottom"
+        }
+      ],
+      "raw_response": "{\"parameters\": [], \"figures\": [{\"label\": \"Fig 9a. Basic Gate Charge Waveform\", \"y_axis\": \"Gate Charge (Qg, Qgs, Qgd)\", \"y_axis_unit\": \"nC\", \"x_axis\": \"Voltage (Vg)\", \"x_axis_unit\": \"V\", \"grid_position\": \"top-left\"}, {\"label\": \"Fig 10a. Switching Time Test Circuit\", \"y_axis\": \"Voltage (VDS, VGS)\", \"y_axis_unit\": \"V\", \"x_axis\": \"Time (t1, t2)\", \"x_axis_unit\": \"s\", \"grid_position\": \"top-center\"}, {\"label\": \"Fig 9b. Gate Charge Test Circuit\", \"y_axis\": \"Voltage (VDS, VGS)\", \"y_axis_unit\": \"V\", \"x_axis\": \"Current (Id, Ig)\", \"x_axis_unit\": \"A\", \"grid_position\": \"middle-left\"}, {\"label\": \"Fig 10b. Switching Time Waveforms\", \"y_axis\": \"Voltage (VDS, VGS)\", \"y_axis_unit\": \"V\", \"x_axis\": \"Time (t1, t2)\", \"x_axis_unit\": \"s\", \"grid_position\": \"top-center\"}, {\"label\": \"Fig 11. Maximum Effective Transient Thermal Impedance, Junction-to-Ambient\", \"y_axis\": \"Thermal Resistance (Zth,ja)\", \"y_axis_unit\": \"m\\u00b0C/W\", \"x_axis\": \"Rectangular Pulse Duration (t1, t2)\", \"x_axis_unit\": \"s\", \"grid_position\": \"bottom\"}]}",
+      "parsed_ok": true
+    },
+    {
+      "page": 6,
+      "inference_seconds": 33.979358196258545,
+      "timed_out": false,
+      "parameters": [],
+      "figures": [
+        {
+          "label": "Fig 12a. Unclamped Inductive Test Circuit",
+          "y_axis": "VDS, V(BR)DSS, IAS",
+          "y_axis_unit": "V, V, A",
+          "x_axis": null,
+          "x_axis_unit": null,
+          "grid_position": "left"
+        },
+        {
+          "label": "Fig 12b. Unclamped Inductive Waveforms",
+          "y_axis": "V(BR)DSS, t_p, IAS",
+          "y_axis_unit": "V, s, A",
+          "x_axis": null,
+          "x_axis_unit": null,
+          "grid_position": "bottom"
+        },
+        {
+          "label": "Fig 12c. Maximum Avalanche Energy Vs. Drain Current",
+          "y_axis": "E_AS, Single Pulse Avalanche Energy",
+          "y_axis_unit": "mJ",
+          "x_axis": "Starting Tj, Junction Temperature",
+          "x_axis_unit": "\u00b0C",
+          "grid_position": "right"
+        }
+      ],
+      "raw_response": "{\"parameters\": [], \"figures\": [{\"label\": \"Fig 12a. Unclamped Inductive Test Circuit\", \"y_axis\": \"VDS, V(BR)DSS, IAS\", \"y_axis_unit\": \"V, V, A\", \"x_axis\": null, \"x_axis_unit\": null, \"grid_position\": \"left\"}, {\"label\": \"Fig 12b. Unclamped Inductive Waveforms\", \"y_axis\": \"V(BR)DSS, t_p, IAS\", \"y_axis_unit\": \"V, s, A\", \"x_axis\": null, \"x_axis_unit\": null, \"grid_position\": \"bottom\"}, {\"label\": \"Fig 12c. Maximum Avalanche Energy Vs. Drain Current\", \"y_axis\": \"E_AS, Single Pulse Avalanche Energy\", \"y_axis_unit\": \"mJ\", \"x_axis\": \"Starting Tj, Junction Temperature\", \"x_axis_unit\": \"\\u00b0C\", \"grid_position\": \"right\"}]}",
+      "parsed_ok": true
+    },
+    {
+      "page": 7,
+      "inference_seconds": 12.390416383743286,
+      "timed_out": false,
+      "parameters": [],
+      "figures": [
+        {
+          "label": "Peak Diode Recovery dv/dt Test Circuit",
+          "y_axis": null,
+          "y_axis_unit": null,
+          "x_axis": null,
+          "x_axis_unit": null,
+          "grid_position": null
+        }
+      ],
+      "raw_response": "{\"parameters\": [], \"figures\": [{\"label\": \"Peak Diode Recovery dv/dt Test Circuit\", \"y_axis\": null, \"y_axis_unit\": null, \"x_axis\": null, \"x_axis_unit\": null, \"grid_position\": null}]}",
+      "parsed_ok": true
+    },
+    {
+      "page": 8,
+      "inference_seconds": 71.55812382698059,
+      "timed_out": false,
+      "parameters": [],
+      "figures": [
+        {
+          "label": "Package Outline SOT-223",
+          "y_axis": "Dimensions",
+          "y_axis_unit": "mm [inches]",
+          "x_axis": "Dimensions",
+          "x_axis_unit": "mm [inches]",
+          "grid_position": "top-center"
+        }
+      ],
+      "raw_response": "{\"product_name\": \"IRLL014N\", \"package_type\": \"SOT-223 (TO-261AA)\", \"package_outline\": \"SOT-223\", \"dimensions\": {\"A\": {\"min\": 1.55, \"max\": 1.8, \"unit\": \"mm\"}, \"B\": {\"min\": 0.65, \"max\": 0.85, \"unit\": \"mm\"}, \"B1\": {\"min\": 2.95, \"max\": 3.15, \"unit\": \"mm\"}, \"C\": {\"min\": 0.25, \"max\": 0.35, \"unit\": \"mm\"}, \"D\": {\"min\": 6.3, \"max\": 6.7, \"unit\": \"mm\"}, \"E\": {\"min\": 3.3, \"max\": 3.7, \"unit\": \"mm\"}, \"e\": {\"min\": 2.3, \"max\": 2.3, \"unit\": \"mm\"}, \"e1\": {\"min\": 4.6, \"max\": 4.6, \"unit\": \"mm\"}, \"H\": {\"min\": 6.71, \"max\": 7.29, \"unit\": \"mm\"}, \"L\": {\"min\": 0.91, \"max\": 0.91, \"unit\": \"mm\"}, \"L1\": {\"min\": 0.061, \"max\": 0.061, \"unit\": \"mm\"}, \"L2\": {\"min\": 10, \"max\": 10, \"unit\": \"mm\"}}, \"lead_assignments\": {\"1\": \"GATE\", \"2\": \"DRAIN\", \"3\": \"SOURCE\", \"4\": \"DRAIN\"}, \"part_marking_information\": \"THIS IS AN IRLL014 with part number, date code (YWW), wafer lot code, and international rectifier logo on top.\", \"notes\": [\"DIMENSIONING & TOLERANCING PER ASME Y14.5M-1994.\", \"CONTROLLING DIMENSION: INCH.\", \"DIMENSIONS DO NOT INCLUDE MOLD FLASH.\", \"OUTLINE CONFORMS TO JEDEC OUTLINE TO-261AA.\", \"DIMENSIONS ARE SHOWN IN MILLIMETERS [INCHES]\"], \"website\": \"http://www.irf.com\", \"parameters\": [], \"figures\": [{\"label\": \"Package Outline SOT-223\", \"y_axis\": \"Dimensions\", \"y_axis_unit\": \"mm [inches]\", \"x_axis\": \"Dimensions\", \"x_axis_unit\": \"mm [inches]\", \"grid_position\": \"top-center\"}]}",
+      "parsed_ok": true
+    },
+    {
+      "page": 9,
+      "inference_seconds": 110.7705328464508,
+      "timed_out": false,
+      "parameters": [],
+      "figures": [
+        {
+          "label": "SOT-223 Package Outline",
+          "y_axis": "Dimension",
+          "y_axis_unit": "mm (inches)",
+          "x_axis": "Dimension",
+          "x_axis_unit": "mm (inches)",
+          "grid_position": "top-center",
+          "notes": [
+            "Top and side view of SOT-223 package with dimensions"
+          ]
+        },
+        {
+          "label": "SOT-223 Pinout and Dimensions",
+          "y_axis": "Dimension",
+          "y_axis_unit": "mm (inches)",
+          "x_axis": "Dimension",
+          "x_axis_unit": "mm (inches)",
+          "grid_position": "middle-left",
+          "notes": [
+            "Pin layout and dimensions for SOT-223 package"
+          ]
+        },
+        {
+          "label": "Diameter View of SOT-223",
+          "y_axis": "Dimension",
+          "y_axis_unit": "mm (inches)",
+          "x_axis": "Dimension",
+          "x_axis_unit": "mm (inches)",
+          "grid_position": "middle-center",
+          "notes": [
+            "Diameter view showing max dimension \u00d8330.00 (13.00)"
+          ]
+        },
+        {
+          "label": "Side View of SOT-223",
+          "y_axis": "Dimension",
+          "y_axis_unit": "mm (inches)",
+          "x_axis": "Dimension",
+          "x_axis_unit": "mm (inches)",
+          "grid_position": "middle-right",
+          "notes": [
+            "Side view dimensions of SOT-223 package"
+          ]
+        }
+      ],
+      "raw_response": "{\"product_name\": \"IRLL014N\", \"product_type\": \"Rectifier\", \"package_type\": \"SOT-223\", \"package_outline\": \"SOT-223\", \"feed_direction\": \"Indicated in diagram\", \"notes\": [\"CONTROLLING DIMENSION: MILLIMETER.\", \"OUTLINE CONFORMS TO EIA-481 & EIA-541.\", \"EACH \\u00d8330.00 (13.00) REEL CONTAINS 2,500 DEVICES.\", \"OUTLINE COMFORMS TO EIA-418.1.\", \"DIMENSION MEASURED @ HUB.\", \"INCLUDES FLANGE DISTORTION @ OUTER EDGE.\"], \"world_headquarters\": \"233 Kansas St., El Segundo, California 90245, USA\", \"ir_great_britain\": \"Hurst Green, Oxted, Surrey RH8 9BB, UK\", \"ir_canada\": \"15 Lincoln Court, Brampton, Ontario L6T3Z2, Tel: (905) 453 2200\", \"ir_germany\": \"Saalburgstrasse 157, 61350 Bad Homburg, Tel: ++ 49 6172 96590\", \"ir_italy\": \"Via Liguria 49, 10071 Borgaro, Torino, Tel: ++ 39 11 451 0111\", \"ir_far_east\": \"K&B Bldg., 2F, 30-4 Nishi-Ikebukuro 3-Chome, Tokyo-Ku, Japan 171, Tel: 81-3 3993 0066\", \"ir_southeast_asia\": \"1 Kim Seng Promenade, Great World City West Tower, 13-11, Singapore 237994, Tel: ++ 65 838 4630\", \"ir_taiwan\": \"16 Fl. Suite D, 207, Sec. 2, Tun Haw South Road, Taipei, 10673, Taiwan, Tel: 886-2-2377-9936\", \"website\": \"http://www.irf.com\", \"data_change_notice\": \"Data and specifications subject to change without notice.\", \"page_number\": 9, \"parameters\": [], \"figures\": [{\"label\": \"SOT-223 Package Outline\", \"y_axis\": \"Dimension\", \"y_axis_unit\": \"mm (inches)\", \"x_axis\": \"Dimension\", \"x_axis_unit\": \"mm (inches)\", \"grid_position\": \"top-center\", \"notes\": [\"Top and side view of SOT-223 package with dimensions\"]}, {\"label\": \"SOT-223 Pinout and Dimensions\", \"y_axis\": \"Dimension\", \"y_axis_unit\": \"mm (inches)\", \"x_axis\": \"Dimension\", \"x_axis_unit\": \"mm (inches)\", \"grid_position\": \"middle-left\", \"notes\": [\"Pin layout and dimensions for SOT-223 package\"]}, {\"label\": \"Diameter View of SOT-223\", \"y_axis\": \"Dimension\", \"y_axis_unit\": \"mm (inches)\", \"x_axis\": \"Dimension\", \"x_axis_unit\": \"mm (inches)\", \"grid_position\": \"middle-center\", \"notes\": [\"Diameter view showing max dimension \\u00d8330.00 (13.00)\"]}, {\"label\": \"Side View of SOT-223\", \"y_axis\": \"Dimension\", \"y_axis_unit\": \"mm (inches)\", \"x_axis\": \"Dimension\", \"x_axis_unit\": \"mm (inches)\", \"grid_position\": \"middle-right\", \"notes\": [\"Side view dimensions of SOT-223 package\"]}]}",
+      "parsed_ok": true
+    }
+  ],
+  "completed_at": "2026-05-23 01:58:05"
+}

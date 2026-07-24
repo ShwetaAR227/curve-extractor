@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "device": "AUIRF7736M2TR",
+  "device_class": "mosfet",
+  "extraction_dir": "/mnt/c/Archit/ARPOWer/Device database/Final_OCR_with_curve/OCR_round3/AUIRF7736M2TR",
+  "figure_index": 26,
+  "page": 6,
+  "image_path": "figures/fig_p6_026.png",
+  "curve_type": "thermal_impedance",
+  "bbox": {
+    "x1": 207,
+    "y1": 751,
+    "x2": 1458,
+    "y2": 1350
+  },
+  "candidate_strength": "high",
+  "confidence": "HIGH",
+  "picked_score": 58.0,
+  "margin": 63.0
+}

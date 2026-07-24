@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "device": "AUIRF7640S2TR",
+  "device_class": "mosfet",
+  "extraction_dir": "/mnt/c/Archit/ARPOWer/Device database/Final_OCR_with_curve/OCR_round3/AUIRF7640S2TR",
+  "figure_index": 17,
+  "page": 5,
+  "image_path": "figures/fig_p5_017.png",
+  "curve_type": "vgsth_vs_tj",
+  "bbox": {
+    "x1": 102,
+    "y1": 100,
+    "x2": 723,
+    "y2": 699
+  },
+  "candidate_strength": "high",
+  "confidence": "HIGH",
+  "picked_score": 71.0,
+  "margin": 69.0
+}

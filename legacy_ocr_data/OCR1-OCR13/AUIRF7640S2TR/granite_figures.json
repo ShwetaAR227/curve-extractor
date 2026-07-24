@@ -1,0 +1,178 @@
+{
+  "device": "AUIRF7640S2TR",
+  "model": "ibm-granite/granite-vision-4.1-4b",
+  "pages_processed": [
+    1,
+    4,
+    5,
+    6,
+    8
+  ],
+  "figures": [
+    {
+      "label": "ISD",
+      "y_axis": "VDS",
+      "y_axis_unit": "V",
+      "x_axis": "ID",
+      "x_axis_unit": "A",
+      "grid_position": "top-center",
+      "_page": 1
+    },
+    {
+      "label": "Fig. 1 Typical Output Characteristics",
+      "y_axis": "ID",
+      "y_axis_unit": "A",
+      "x_axis": "VDS",
+      "x_axis_unit": "V",
+      "grid_position": "top-left",
+      "_page": 4
+    },
+    {
+      "label": "Fig. 2 Typical Output Characteristics",
+      "y_axis": "ID",
+      "y_axis_unit": "A",
+      "x_axis": "VDS",
+      "x_axis_unit": "V",
+      "grid_position": "top-center",
+      "_page": 4
+    },
+    {
+      "label": "Fig. 3 Typical On-Resistance vs. Gate Voltage",
+      "y_axis": "RDS(on)",
+      "y_axis_unit": "mOhm",
+      "x_axis": "VGS",
+      "x_axis_unit": "V",
+      "grid_position": "middle-left",
+      "_page": 4
+    },
+    {
+      "label": "Fig. 4 Typical On-Resistance vs. Drain Current",
+      "y_axis": "RDS(on)",
+      "y_axis_unit": "mOhm",
+      "x_axis": "ID",
+      "x_axis_unit": "A",
+      "grid_position": "middle-center",
+      "_page": 4
+    },
+    {
+      "label": "Fig. 5. Transfer Characteristics",
+      "y_axis": "ID",
+      "y_axis_unit": "A",
+      "x_axis": "VGS",
+      "x_axis_unit": "V",
+      "grid_position": "middle-right",
+      "_page": 4
+    },
+    {
+      "label": "Fig. 6. Normalized On-Resistance vs. Temperature",
+      "y_axis": "RDS(on) (Normalized)",
+      "y_axis_unit": null,
+      "x_axis": "TJ",
+      "x_axis_unit": "\u00b0C",
+      "grid_position": "bottom-right",
+      "_page": 4
+    },
+    {
+      "label": "Fig. 7 Typical Threshold Voltage vs. Junction Temperature",
+      "y_axis": "VGS(th)",
+      "y_axis_unit": "V",
+      "x_axis": "TJ",
+      "x_axis_unit": "\u00b0C",
+      "grid_position": "left",
+      "_page": 5
+    },
+    {
+      "label": "Fig. 8 Typical Source-Drain Diode Forward Voltage",
+      "y_axis": "IDS",
+      "y_axis_unit": "A",
+      "x_axis": "VSD",
+      "x_axis_unit": "V",
+      "grid_position": "top-right",
+      "_page": 5
+    },
+    {
+      "label": "Fig. 9 Typical Forward Transconductance vs. Drain Current",
+      "y_axis": "GFS",
+      "y_axis_unit": "S",
+      "x_axis": "ID",
+      "x_axis_unit": "A",
+      "grid_position": "left",
+      "_page": 5
+    },
+    {
+      "label": "Fig. 10 Typical Capacitance vs. Drain-to-Source Voltage",
+      "y_axis": "C",
+      "y_axis_unit": "pF",
+      "x_axis": "VDS",
+      "x_axis_unit": "V",
+      "grid_position": "top-right",
+      "_page": 5
+    },
+    {
+      "label": "Fig. 11 Typical Gate Charge vs. Gate-to-Source Voltage",
+      "y_axis": "VGS",
+      "y_axis_unit": "V",
+      "x_axis": "QG",
+      "x_axis_unit": "nC",
+      "grid_position": "left",
+      "_page": 5
+    },
+    {
+      "label": "Fig. 12 Maximum Drain Current vs. Case Temperature",
+      "y_axis": "ID",
+      "y_axis_unit": "A",
+      "x_axis": "TC",
+      "x_axis_unit": "\u00b0C",
+      "grid_position": "bottom-right",
+      "_page": 5
+    },
+    {
+      "label": "Maximum Safe Operating Area",
+      "y_axis": "ID",
+      "y_axis_unit": "A",
+      "x_axis": "VDS",
+      "x_axis_unit": "V",
+      "grid_position": "left",
+      "_page": 6
+    },
+    {
+      "label": "Maximum Avalanche Energy vs. Temperature",
+      "y_axis": "EAS",
+      "y_axis_unit": "J",
+      "x_axis": "Starting Tj",
+      "x_axis_unit": "\u00b0C",
+      "grid_position": "right",
+      "_page": 6
+    },
+    {
+      "label": "Maximum Effective Transient Thermal Impedance, Junction-to-Case",
+      "y_axis": "Zthj-C",
+      "y_axis_unit": "C/W",
+      "x_axis": "t1",
+      "x_axis_unit": "sec",
+      "grid_position": "center",
+      "_page": 6
+    },
+    {
+      "label": "Typical Avalanche Current vs. Pulse Width",
+      "y_axis": "Avalanche Current",
+      "y_axis_unit": "A",
+      "x_axis": "tav",
+      "x_axis_unit": "sec",
+      "grid_position": "bottom",
+      "_page": 6
+    },
+    {
+      "label": "DirectFET Board Footprint, SB (Small Size Can)",
+      "y_axis": null,
+      "y_axis_unit": null,
+      "x_axis": null,
+      "x_axis_unit": null,
+      "grid_position": "center",
+      "_page": 8
+    }
+  ],
+  "rdson_vs_tj_count": 1,
+  "completed_at": "2026-05-23 03:55:52",
+  "raw_response": "see granite_pages.json"
+}

@@ -3338,3 +3338,307 @@ merge (everything else the merge touched is already staged).
   device suites, `test_orchestrator.py`): 264/264, zero edits needed to any
   of them — confirms `derive_calibration`'s unchanged signature/shape was
   the right backward-compat boundary to hold the line at.
+
+### 2026-07-23 — Session: T30 follow-up — two real bugs found on device AG087FGD3HRBTL, both fixed (TDD)
+
+- **Trigger**: owner ran T30's `classical_zth.py` against a real chart —
+  AG087FGD3HRBTL's Fig.3 "Normalized Transient Thermal Resistance vs. Pulse
+  Width" (`fig_p4_007.png`) — and caught two live bugs before trusting the
+  output. Both confirmed against the real OCR data from this device's
+  `full_extraction.json` (figure index 7), not just synthetic fixtures.
+- **Bug 1 — glued tick labels silently dropped**: Azure OCR read this
+  chart's adjacent "0.0001" and "0.001" x-axis labels as one line,
+  `"0.0001 0.001"`. `parse_tick` returns `None` for the whole glued string
+  (not a single number), so `parse_axis_ticks` dropped both ticks entirely
+  — this is why the fitted plot box was too narrow on the left.
+  **Checked `src/calibration/ticks.py` first per instruction**: it already
+  has a fix for the identical OCR-gluing problem (`parse_numeric_ticks`'s
+  "compound token" path — split on whitespace, keep the line only if every
+  part parses, distribute values evenly across the line's own bbox pixel
+  span). **Reused that exact approach, not reinvented**: `parse_axis_ticks`
+  now falls back to this same split-and-distribute logic when the
+  whole-line parse fails, using `parse_tick` per part (so unit-aware
+  parsing keeps working) and the same x1→x2 / y1→y2 fractional
+  interpolation ticks.py uses.
+- **Bug 2 — plain "100" misread as "1"**: the bare-exponent-mojibake
+  repair (meant for OCR flattening a superscript, e.g. "10³" → "103") used
+  `^10([0-9])$`, matching ANY "10"+digit 100-109 unconditionally — so the
+  chart's genuine "100 seconds" x-tick got reinterpreted as `10**0 = 1.0`.
+  Narrowed to `^10([1-9])$`: "101"-"109" are still treated as exponent
+  mojibake (these are essentially never real tick values in this domain —
+  confirmed the existing `test_bare_power_of_ten_mojibake` for "102"→100.0
+  still passes unchanged), but "100" now always falls through to plain-
+  number parsing, since it's an entirely ordinary, ambiguous value. Same
+  100-vs-101-109 distinction `ticks.py`'s own bare-exponent repair already
+  draws for the identical ambiguity — not a new idea, same domain
+  reasoning applied here.
+- **TDD followed**: 7 new tests added to `tests/test_classical_zth.py`
+  (2 pin the narrowed regex boundary, 5 cover the glued-label fix,
+  including one built from the exact real OCR line set from this device's
+  figure). Confirmed **red** first (5 failed for the right reason — 2
+  asserting `parse_tick`/`parse_axis_ticks` values that didn't exist yet,
+  one asserting `x_decade_span >= 5.0` against the real fixture's
+  pre-fix `3.0`), then implemented both fixes, confirmed **green**.
+  **Full suite: 1109 passing**, zero regressions.
+- **Real-device verification (not just unit tests)**: re-ran
+  `derive_calibration_zth` on the real figure's OCR lines. Before the fix:
+  `plot_bbox.left=115` (an unrelated pre-existing OCR duplicate-label
+  artifact, NOT the real chart edge), `x_decade_span=3.0` (only 0.01..10
+  captured), `x_median_resid=77.5px` (bad fit — the misread "100" duplicated
+  the existing "1" tick at a very different pixel, badly skewing the
+  regression). After: `plot_bbox.left=129` (now anchored to the real
+  "0.0001" label), **`x_decade_span=6.0`** (the chart's true 0.0001..100
+  range recovered), `x_median_resid=5.7px` (13x tighter fit). Generated a
+  fresh overlay (`data/live_demo_gallery/overlays/AG087FGD3HRBTL__zth_vs_time.png`)
+  and visually confirmed: **the blue plot-box rectangle now correctly
+  wraps the entire printed chart** (0.0001 to 100 on x, 0.1 to 10 on y) —
+  the plot-box-size part of the owner's question is resolved.
+- **Honest limitation, reported rather than hidden**: the red curve trace
+  still does **NOT** follow the "Single pulse" line all the way across the
+  chart — it correctly traces the rising portion (~x=0.0001 to ~0.03s) but
+  stops where the six duty-cycle curves visually converge into one flat
+  line, and never resumes across the flat region out to x=100s. Root
+  cause (confirmed by inspecting the intermediate cleaned/thresholded
+  image directly): `_clean_for_clustering`'s gridline-removal step
+  (morphological horizontal-line opening, ported unchanged from legacy)
+  can't distinguish a genuinely flat/horizontal curve segment from an
+  actual horizontal gridline, and strips it out. **This is a separate,
+  pre-existing bug, not touched by today's fix** (today's two bugs were
+  calibration-only, not clustering/tracing) — flagged for its own
+  brainstorm-first task, not fixed here.
+- **Second finding, also flagged not fixed**: this specific chart's y-axis
+  is "Normalized Transient Resistance r(t)" (a 0–1 dimensionless ratio),
+  not thermal impedance in K/W directly — the real K/W value needs
+  multiplying by the printed `Rth(j-c)=2.80°C/W`. Confirmed by re-running
+  with the printed-Rth constraint on (`stage3_root` pointed at this
+  device): the Foster fit forces R=2.80 against 0–1-range normalized data
+  and fails (`r_squared=-0.069` → `needs_review`); with the constraint
+  off, the same (still-truncated) trace fits fine (`r²=0.88`, confidence
+  reported as if it were K/W, but the number is really in normalized
+  units). `run_classical_pipeline` has no normalization step for this — a
+  design gap for the owner to weigh, out of scope for today's two bugs.
+
+### 2026-07-24 — Session: T34 — DECISIVE_MARGIN, sharpening the incomplete_axes check (TDD)
+
+- **Scope**: `figure_has_complete_axes` (T14) was overriding EVERY matched
+  result regardless of how decisively it won, including real cases where
+  the heuristic itself was wrong (missing y-axis OCR text that's visibly
+  present to a human). Owner-approved fix: only apply the downgrade when
+  the win margin is below a new `DECISIVE_MARGIN`; trust decisive wins
+  outright.
+- **Investigation before any code** (owner explicitly wanted the evidence
+  first): scanned all 126 real, non-empty devices, every page, every
+  registered curve type — 198 real `incomplete_axes` cases found (not
+  just the one remembered id_vs_vgs example). Checked each one's real
+  printed caption against its curve type to label it a genuine win or a
+  genuine miss. Result: **zero wrong matches anywhere above margin 6.5**
+  (28 real cases from 6.5 exclusive up to 22, all genuine); **35 real
+  wrong matches sit at exactly margin 6.5** (a `rdson_vs_tj`/
+  `vgsth_vs_tj`-style mixup: a real "Gate Threshold Voltage vs. Junction
+  Temperature" chart scoring >= threshold against `rdson_vs_tj` purely
+  from the shared "junction temperature" x-axis text, zero real
+  on-resistance evidence). The remembered id_vs_vgs true positive is ALSO
+  at exactly margin 6.5 — confirmed real, but not separable from the
+  false-positive cluster by margin alone at that exact value; flagged
+  honestly to the owner as a known, accepted limit rather than papered
+  over. **`DECISIVE_MARGIN = 7.0`** proposed (tightest cutoff with zero
+  real false positives: 28 rescued / 0 wrong at 7.0, vs. 38 rescued / 35
+  wrong at 6.5) and approved before any test was written.
+- **TDD**: new tests added to `tests/test_classify.py` — decisive-margin
+  fixtures (real verified scores, not guessed), an exact-boundary pair via
+  `monkeypatch`ed `score_figure` (margin == 7.0 exactly vs. 6.99), a
+  real-corpus-shaped regression pin for the rdson/gate-threshold mixup
+  (must stay quarantined), and a check that `DECISIVE_MARGIN` never
+  rescues an ambiguity-driven quarantine (only ever short-circuits the
+  axis check specifically). Two original T14 tests intentionally
+  changed: `..._missing_x_axis_downgrades_to_quarantined` kept (fixture
+  swapped to a genuinely-still-borderline one, outcome unchanged);
+  `..._missing_y_axis_downgrades_to_quarantined` retired (its fixture's
+  real margin, 12.5, is decisive under the new logic, so the outcome it
+  pinned is no longer correct) — superseded by
+  `test_decisive_margin_missing_y_axis_still_matches` under an honest
+  name, documented in-file rather than silently deleted. Confirmed red
+  (`ImportError: cannot import name 'DECISIVE_MARGIN'`) before
+  implementing. One real test bug found during green (not an
+  implementation bug): a "low margin, complete axes" fixture accidentally
+  scored decisively once the x-axis line was added — fixed by using a
+  weaker, caption-free fixture (real verified score 5.0).
+- **Implementation**: `DECISIVE_MARGIN = 7.0` added next to
+  `MATCH_THRESHOLD`/`MATCH_MARGIN`; the existing axis-check `if` gained
+  one clause (`and margin < DECISIVE_MARGIN`). Nothing else in
+  `classify_page` touched.
+- **Full suite: 1230 passing**, zero regressions. Re-ran the full
+  126-device corpus scan after implementing: **exactly 28** cases flipped
+  from `incomplete_axes`-quarantined to genuinely `MATCHED` (170 remain
+  correctly quarantined) — matches the pre-implementation prediction
+  exactly, confirmed live against real data, not just unit tests.
+
+### 2026-07-24 — Session: T35 — if_vs_vsd wording gap on RD3G08CBKHRBTL (TDD, pure addition)
+
+- **Scope**: if_vs_vsd missed a real body-diode chart on RD3G08CBKHRBTL —
+  captioned "Fig.20 Source Current vs. Source Drain Voltage", x-axis
+  "Source - Drain Voltage : VSD [V]" (grepped verbatim from its real
+  `full_extraction.json`) — different wording than the original entry's
+  "forward characteristics"/"reverse diode" phrases. Confirmed real score
+  was exactly 0 before this fix.
+- **Cross-contamination check, same diligence as every prior addition**:
+  before picking the phrase, confirmed `"source current" in
+  "drain-to-source current"` is `True` — a real substring collision with
+  id_vs_vgs's own registered y-axis keyword. Resolved by adding "source
+  current" as a `caption_keyword` ONLY (checks `figure.caption` alone),
+  never as a `positive_phrase` (which scans every OCR line and would have
+  silently scored points on any real id_vs_vgs chart using that common
+  phrasing). Documented in-line in the registry entry, not just in a
+  commit message.
+- **Full 126-device real-corpus scan with the candidate spec** (every
+  figure, not just the one device): **92 real matches, every single one
+  captioned "Source Current vs. Source Drain Voltage" (or a sub-panel
+  variant)** — zero false positives anywhere in the real corpus. Reverse
+  check: `id_vs_vgs`/`rdson_vs_tj`/`vgsth_vs_tj`/`capacitance_vs_vds`
+  against the target chart all score well below `MATCH_THRESHOLD`
+  (highest was id_vs_vgs at 1.0, from an unrelated "VGS=0V" pulse-test
+  condition line, unchanged by this fix).
+- **Honest finding, verified not assumed**: the real RD3G08CBKHRBTL chart
+  has NO y-axis OCR line at all (a separate, pre-existing Stage-3 gap —
+  the axis title was never captured, only mentioned in the caption). So
+  even with the new wording recognized, `figure_has_complete_axes` still
+  fires (margin 5.5 < `DECISIVE_MARGIN` 7.0) and the real outcome is
+  `NO_MATCH` → `QUARANTINED`, not `NO_MATCH` → `MATCHED`. Confirmed at
+  both the `classify_page` and `classify_device` level before writing it
+  up — invisible to flagged-for-review, not invisible to auto-approved.
+- **TDD**: red confirmed first (`0 >= 5.0` / `0 == 5.5` — the real
+  pre-fix score, not a fixture bug) using a fixture built from the real
+  grepped caption/x-axis text (no invented wording), then two pure
+  additions to the `if_vs_vsd` registry entry (one caption keyword, one
+  bracket-anchored x-axis keyword `"vsd ["`, mirroring
+  rdson_vs_tj/vgsth_vs_tj's own `"tj ["` convention) — both original
+  phrases and both original axis keywords left completely untouched,
+  confirmed via diff. 20/20 green in `test_curve_registry_if_vsd.py`
+  (5 new tests: recognition, exact score-signal breakdown, the id_vs_vgs
+  reverse-direction check, the substring-risk reasoning made explicit and
+  asserted, and the vsd-bracket-vs-vds safety re-check).
+- **Full suite: 1235 passing** (was 1230), zero regressions.
+
+### 2026-07-24 — Session: T36 — classify_device cross-page best-overall selection (TDD)
+
+- **Scope**: `classify_device` used to pick from two separate priority
+  tiers — exhaust every MATCHED page result first, only look at
+  QUARANTINED results if NO page matched at all. This meant a weak
+  MATCHED candidate on one page always beat a stronger QUARANTINED
+  candidate on another page, with no cross-tier score comparison ever
+  happening (found on RD3G08CBKHRBTL/id_vs_vgs: a score-5.0 "cleanly
+  passed" chart on page 5 was used, while the real score-7.0 chart on
+  page 6 was quarantined for an unrelated reason and never even
+  compared). Owner-approved fix: build ONE combined pool of every real
+  candidate (matched + quarantined) across all pages, pick the single
+  highest-scoring one overall. Exact ties break toward "cleanly passed"
+  over "held for review" (owner-approved rule, 2026-07-24). Critically,
+  winning the comparison does NOT change a candidate's own status — a
+  quarantined winner stays quarantined and does not claim its figure.
+  This fixes WHICH chart is shown for review, not whether review is
+  skipped.
+- **TDD**: 3 new tests in `tests/test_classify.py`, all built from real
+  captions/scores verified against real OCR data (not guessed) before
+  writing assertions:
+  1. `test_real_rd3g08cbkhrbtl_id_vs_vgs_page6_quarantined_beats_page5_matched`
+     — the real case that started this. Confirmed red for the right
+     reason (picked `p5fig`, expected `p6fig`) before implementing.
+  2. `test_real_rs6g122chtb1_vgsth_tie_breaks_toward_cleanly_passed_not_correct_chart`
+     — the real 3-way exact tie found in investigation (RS6G122CHTB1,
+     all three candidates score 5.0; one quarantined candidate is the
+     actually-correct "Gate Threshold Voltage" chart). Confirms the
+     tie-break rule deliberately keeps the MATCHED-but-wrong "Breakdown
+     Voltage" chart as the winner — the agreed rule, not the "smartest"
+     outcome.
+  3. `test_real_rd3g08cbkhrbtl_rdson_vs_tj_all_matched_unaffected_by_fix`
+     — a real all-clean-passes control (every page's rdson_vs_tj
+     candidate already MATCHED, real scores 6.5/7.5/6.5/9.0). Zero
+     change, as expected — pure regression pin.
+- **Implementation**: the two sequential `matched =` / `if matched:` and
+  `quarantined =` / `if quarantined:` blocks replaced with one combined
+  pool + a `(score, is-matched)` comparison; the final `no_match`
+  fallback and "only MATCHED claims its figure" rule both untouched.
+  32/32 green in `test_classify.py`; full suite **1238 passing** (was
+  1235), zero regressions.
+- **Real 126-device × 6-curve-type corpus re-run, actual new code (not
+  simulated)**: **751/756 unchanged, 5 changed.** This is 1 different
+  from the pre-implementation prediction (750/6) — flagged honestly
+  rather than glossed over: the predicted 6th flip
+  (RS6G122CHTB1/vgsth_vs_tj, the 3-way tie) does NOT flip once the
+  agreed tie-break rule is actually implemented (the earlier
+  investigation's naive `max()` simulation had no tie-break logic at
+  all, so it mispredicted this one case — see test 2 above, which now
+  pins the correct behavior). The 5 real flips:
+  - `RD3G08CBKHRBTL` / `id_vs_vgs`: wrong ("Output Characteristics") →
+    correct chart ("Typical Transfer Characteristics"), held for review.
+  - `RSQ035N03HZGTR` / `id_vs_vgs`: wrong → correct chart ("Typical
+    Transfer Characteristics"), held for review.
+  - `RSQ045N03HZGTR` / `id_vs_vgs`: wrong → correct chart ("Typical
+    Transfer Characteristics"), held for review.
+  - `RD3L08DBLHRBTL` / `rdson_vs_tj`: wrong ("Breakdown Voltage",
+    confidently matched) → a DIFFERENT wrong chart ("Gate Threshold
+    Voltage" — the known rdson/vgsth mixup pattern from T34), now
+    correctly held for review instead of silently trusted. The real
+    correct chart on this device (`fig_p7_020`, "Static Drain-Source
+    On-State Resistance vs. Junction Temperature") still doesn't win —
+    it scores lower than its own page's distractors, a separate,
+    pre-existing per-figure scoring gap, NOT something this task's
+    cross-page selection fix was scoped to touch. Net effect: safer
+    (no longer silently wrong), not yet fully correct.
+  - `R6061YNZ4C13` / `rdson_vs_tj`: same shape as the case above — wrong
+    → a different wrong chart, correctly flagged instead of silently
+    trusted; the real correct chart still loses its own on-page
+    comparison (same pre-existing gap).
+  - In plain words: 3 of the 5 real changes are straightforward fixes
+    (the right chart now wins and is shown for review). The other 2
+    replace one wrong confident answer with a different wrong answer —
+    but the new behavior is honest about it (flags for a person to
+    check) instead of quietly using the wrong chart. Fixing those two
+    fully needs a separate, future scoring fix, not today's task.
+
+### 2026-07-24 — Session: T37 — "power dissipation" guard on rdson_vs_tj (TDD, pure addition)
+
+- **Scope**: same root cause and fix pattern as the "breakdown voltage"
+  guard. On RS6G100BGTB1, "Fig.1 Power Dissipation Derating Curve"
+  (page 4) was outscoring the same device's real on-resistance chart,
+  "Fig.13 Static Drain-Source On-State Resistance vs. Junction
+  Temperature" (page 7) — 6.5 vs 4.0 — purely because both are plotted
+  against junction temperature, which isn't specific to on-resistance.
+  Real wording grepped directly from the device's `full_extraction.json`
+  (not invented). Added `("power dissipation", 3.0)` to rdson_vs_tj's
+  `negative_phrases`, directly below the "breakdown voltage" entry —
+  same weight, same pattern, pure addition (confirmed via diff: only new
+  lines, nothing existing touched).
+- **TDD**: 5 new tests in `tests/test_curve_registry_rdson.py`, mirroring
+  the breakdown-voltage section's own test shapes exactly (real captions
+  and OCR lines/bboxes grepped from RS6G100BGTB1's real
+  `full_extraction.json`, verified against `score_figure` before writing
+  assertions): the real chart never mentions "power dissipation"; its own
+  score is unaffected (4.0, unchanged); the power-dissipation distractor
+  no longer outscores it (drops 6.5 → 3.5); and an end-to-end
+  `classify_device` check with just these two real pages. Confirmed red
+  first (`6.5 < 4.0` failed; `classify_device` picked the wrong figure).
+- **Honest finding caught during green, not glossed over**: the real
+  on-resistance chart's own raw score (4.0) is genuinely below
+  `MATCH_THRESHOLD` (5.0) on its own merits — it was already quarantined
+  on its own page before this fix, and still is after. What this fix
+  actually changes is which chart *wins the cross-page comparison* (built
+  in T36 today): before, the power-dissipation chart scored high enough
+  (6.5) to be confidently `MATCHED` and silently claim its figure,
+  burying the real chart entirely; after, it also drops below threshold,
+  so the real chart correctly surfaces as the best candidate — held for
+  human review (`QUARANTINED`), not silently replaced by a wrong
+  confident answer. The end-to-end test's expected status was corrected
+  from an initially-wrong `MATCHED` assumption to the real `QUARANTINED`
+  outcome once this was caught. "Show the person the right chart to
+  review," not "guarantee a confident match" — same shape as T36.
+- **One stale test found and fixed, not a logic regression**: T36's own
+  `test_real_rd3g08cbkhrbtl_rdson_vs_tj_all_matched_unaffected_by_fix`
+  control (written earlier the same day) reused this exact real "Power
+  Dissipation Derating Curve" chart as its page-4 fixture. Its pinned
+  score (6.5/MATCHED) is now genuinely stale — confirmed the real
+  RD3G08CBKHRBTL device's own `classify_device` outcome for rdson_vs_tj
+  is UNCHANGED by this fix (page 7 still wins, 9.0, correct chart) before
+  updating the fixture's expected per-page numbers (now 3.5/QUARANTINED
+  for page 4) rather than papering over the failure.
+- **Full suite: 1242 passing** (was 1238), zero regressions.

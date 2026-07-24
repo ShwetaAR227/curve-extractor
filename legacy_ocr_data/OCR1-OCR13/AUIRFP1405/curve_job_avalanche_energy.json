@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "device": "AUIRFP1405",
+  "device_class": "mosfet",
+  "extraction_dir": "/mnt/c/Archit/ARPOWer/Device database/Final_OCR_with_curve/OCR_round3/AUIRFP1405",
+  "figure_index": 19,
+  "page": 7,
+  "image_path": "figures/fig_p7_018.png",
+  "curve_type": "avalanche_energy",
+  "bbox": {
+    "x1": 848,
+    "y1": 338,
+    "x2": 1485,
+    "y2": 895
+  },
+  "candidate_strength": "high",
+  "confidence": "HIGH",
+  "picked_score": 43.0,
+  "margin": 24.0
+}

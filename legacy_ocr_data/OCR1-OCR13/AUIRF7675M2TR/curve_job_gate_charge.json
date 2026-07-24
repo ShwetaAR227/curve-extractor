@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "device": "AUIRF7675M2TR",
+  "device_class": "mosfet",
+  "extraction_dir": "/mnt/c/Archit/ARPOWer/Device database/Final_OCR_with_curve/OCR_round3/AUIRF7675M2TR",
+  "figure_index": 20,
+  "page": 5,
+  "image_path": "figures/fig_p5_020.png",
+  "curve_type": "gate_charge",
+  "bbox": {
+    "x1": 93,
+    "y1": 1412,
+    "x2": 719,
+    "y2": 2008
+  },
+  "candidate_strength": "high",
+  "confidence": "HIGH",
+  "picked_score": 65.0,
+  "margin": 75.0
+}

@@ -1,0 +1,42 @@
+{
+  "device": "AUIRF7675M2TR",
+  "status": "shipped",
+  "chosen": {
+    "figure_index": 16,
+    "page": 4,
+    "image_path": "figures/fig_p4_016.png",
+    "bbox": {
+      "x1": 871,
+      "y1": 1410,
+      "x2": 1517,
+      "y2": 2016
+    },
+    "candidate_strength": "agreement",
+    "checks_passed": [
+      "cap_rdson",
+      "cap_temp",
+      "cap_norm",
+      "ocr_rdson",
+      "ocr_tj",
+      "ocr_temp",
+      "ocr_temp_unit",
+      "ocr_temp_axis",
+      "ocr_two_axis",
+      "fig_num_score",
+      "spatial"
+    ],
+    "checks_failed": [],
+    "join_method": "score_based",
+    "granite_page": 4,
+    "granite_position": "bottom-right",
+    "confidence": "HIGH",
+    "picked_score": 54.0,
+    "margin": 42.0
+  },
+  "rejected": [],
+  "notes": [
+    "score=54.0",
+    "margin=42.0",
+    "confidence=HIGH"
+  ]
+}

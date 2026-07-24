@@ -1,0 +1,101 @@
+{
+  "device": "AUIRF7736M2TR",
+  "model": "ibm-granite/granite-vision-4.1-4b",
+  "pages_processed": [
+    4
+  ],
+  "parameters": [
+    {
+      "symbol": "RDS(on)",
+      "description": "Drain-to-Source On-Resistance",
+      "min": 1.0,
+      "typ": 2.0,
+      "max": 7.0,
+      "unit": "mOhm",
+      "conditions": "TJ = 125\u00b0C, ID = 65A, VGS = 10V",
+      "_page": 4
+    },
+    {
+      "symbol": "VGS(th)",
+      "description": "Gate-to-Source Threshold Voltage",
+      "min": 3.0,
+      "typ": 4.0,
+      "max": 6.0,
+      "unit": "V",
+      "conditions": "TJ = 25\u00b0C",
+      "_page": 4
+    },
+    {
+      "symbol": "ID",
+      "description": "Drain Current",
+      "min": 0.0,
+      "typ": 100.0,
+      "max": 1000.0,
+      "unit": "A",
+      "conditions": "VDS = 5V, VGS = 10V",
+      "_page": 4
+    },
+    {
+      "symbol": "TJ",
+      "description": "Junction Temperature",
+      "min": -40.0,
+      "typ": 125.0,
+      "max": 175.0,
+      "unit": "\u00b0C",
+      "conditions": null,
+      "_page": 4
+    }
+  ],
+  "stats": {
+    "suspicious_units": 0,
+    "suspicious_symbols": 0,
+    "missing_units": 0,
+    "total_rows": 4
+  },
+  "completed_at": "2026-05-23 04:33:19",
+  "raw_response": "see granite_pages.json",
+  "parsed": {
+    "parameters": [
+      {
+        "symbol": "RDS(on)",
+        "description": "Drain-to-Source On-Resistance",
+        "min": 1.0,
+        "typ": 2.0,
+        "max": 7.0,
+        "unit": "mOhm",
+        "conditions": "TJ = 125\u00b0C, ID = 65A, VGS = 10V",
+        "_page": 4
+      },
+      {
+        "symbol": "VGS(th)",
+        "description": "Gate-to-Source Threshold Voltage",
+        "min": 3.0,
+        "typ": 4.0,
+        "max": 6.0,
+        "unit": "V",
+        "conditions": "TJ = 25\u00b0C",
+        "_page": 4
+      },
+      {
+        "symbol": "ID",
+        "description": "Drain Current",
+        "min": 0.0,
+        "typ": 100.0,
+        "max": 1000.0,
+        "unit": "A",
+        "conditions": "VDS = 5V, VGS = 10V",
+        "_page": 4
+      },
+      {
+        "symbol": "TJ",
+        "description": "Junction Temperature",
+        "min": -40.0,
+        "typ": 125.0,
+        "max": 175.0,
+        "unit": "\u00b0C",
+        "conditions": null,
+        "_page": 4
+      }
+    ]
+  }
+}

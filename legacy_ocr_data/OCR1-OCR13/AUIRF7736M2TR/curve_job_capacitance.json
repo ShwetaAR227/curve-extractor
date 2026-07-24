@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "device": "AUIRF7736M2TR",
+  "device_class": "mosfet",
+  "extraction_dir": "/mnt/c/Archit/ARPOWer/Device database/Final_OCR_with_curve/OCR_round3/AUIRF7736M2TR",
+  "figure_index": 21,
+  "page": 5,
+  "image_path": "figures/fig_p5_021.png",
+  "curve_type": "capacitance",
+  "bbox": {
+    "x1": 879,
+    "y1": 744,
+    "x2": 1511,
+    "y2": 1355
+  },
+  "candidate_strength": "high",
+  "confidence": "HIGH",
+  "picked_score": 65.0,
+  "margin": 79.0
+}

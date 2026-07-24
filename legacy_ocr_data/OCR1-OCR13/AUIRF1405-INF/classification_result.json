@@ -1,0 +1,42 @@
+{
+  "device": "AUIRF1405-INF",
+  "status": "shipped",
+  "chosen": {
+    "figure_index": 7,
+    "page": 4,
+    "image_path": "figures/fig_p4_007.png",
+    "bbox": {
+      "x1": 849,
+      "y1": 1277,
+      "x2": 1486,
+      "y2": 1886
+    },
+    "candidate_strength": "agreement",
+    "checks_passed": [
+      "cap_rdson",
+      "cap_temp",
+      "cap_norm",
+      "ocr_rdson",
+      "ocr_tj",
+      "ocr_temp",
+      "ocr_temp_unit",
+      "ocr_temp_axis",
+      "ocr_two_axis",
+      "fig_num_score",
+      "spatial"
+    ],
+    "checks_failed": [],
+    "join_method": "score_based",
+    "granite_page": 4,
+    "granite_position": "middle-right",
+    "confidence": "HIGH",
+    "picked_score": 50.5,
+    "margin": 72.5
+  },
+  "rejected": [],
+  "notes": [
+    "score=50.5",
+    "margin=72.5",
+    "confidence=HIGH"
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "device": "2N7002H6327XTSA2",
+  "device_class": "mosfet",
+  "extraction_dir": "/mnt/c/Archit/ARPOWer/Device database/Final_OCR_with_curve/OCR_round3/2N7002H6327XTSA2",
+  "figure_index": 19,
+  "page": 6,
+  "image_path": "figures/fig_p6_015_sub1.png",
+  "curve_type": "body_diode",
+  "bbox": {
+    "x1": 705,
+    "y1": 0,
+    "x2": 1343,
+    "y2": 798
+  },
+  "candidate_strength": "high",
+  "confidence": "HIGH",
+  "picked_score": 34.0,
+  "margin": 30.0
+}

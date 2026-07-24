@@ -1,0 +1,36 @@
+{
+  "device": "2N7002H6327XTSA2",
+  "status": "shipped",
+  "chosen": {
+    "figure_index": 16,
+    "page": 6,
+    "image_path": "figures/fig_p6_013.png",
+    "bbox": {
+      "x1": 148,
+      "y1": 432,
+      "x2": 807,
+      "y2": 1227
+    },
+    "candidate_strength": "agreement",
+    "checks_passed": [
+      "ocr_rdson",
+      "ocr_temp_axis",
+      "ocr_two_axis",
+      "tj_axis_hits",
+      "spatial"
+    ],
+    "checks_failed": [],
+    "join_method": "score_based",
+    "granite_page": 6,
+    "granite_position": "middle-left",
+    "confidence": "HIGH",
+    "picked_score": 22.0,
+    "margin": 16.5
+  },
+  "rejected": [],
+  "notes": [
+    "score=22.0",
+    "margin=16.5",
+    "confidence=HIGH"
+  ]
+}

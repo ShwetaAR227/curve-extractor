@@ -1,0 +1,20 @@
+{
+  "schema_version": 2,
+  "device": "AUIRF2804STRL7P",
+  "device_class": "mosfet",
+  "extraction_dir": "/mnt/c/Archit/ARPOWer/Device database/Final_OCR_with_curve/OCR_round3/AUIRF2804STRL7P",
+  "figure_index": 19,
+  "page": 5,
+  "image_path": "figures/fig_p5_019.png",
+  "curve_type": "thermal_impedance",
+  "bbox": {
+    "x1": 292,
+    "y1": 1279,
+    "x2": 1518,
+    "y2": 1885
+  },
+  "candidate_strength": "high",
+  "confidence": "HIGH",
+  "picked_score": 39.0,
+  "margin": 40.0
+}
